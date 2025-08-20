@@ -35,7 +35,7 @@ const KanjiFocusPage: React.FC = () => {
         <h1 className="text-3xl font-bold text-center mb-8">Kanji Focus</h1>
         
         <div className="space-y-8">
-          {questionsWithChoices.map((question, index) => {
+          {questionsWithChoices.slice(0, 10).map((question, index) => {
             const selectedAnswer = answers[question.id];
 
             return (
