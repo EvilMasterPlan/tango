@@ -1,0 +1,113 @@
+/* Shared Card Styles */
+.card-base {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-md);
+}
+
+.question-header {
+  margin-bottom: var(--space-lg);
+  text-align: left;
+}
+
+.question-number {
+  display: inline-block;
+  background-color: transparent;
+  color: var(--accent-primary);
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--accent-primary);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Shared Choice Styles */
+.choices {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-md);
+}
+
+.choice-btn {
+  background-color: var(--bg-elevated);
+  border: 2px solid var(--border-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-normal), color var(--transition-normal);
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.choice-btn:hover:not(.choice-btn-selected) {
+  background-color: var(--bg-tertiary);
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.choice-btn:active {
+  transform: translateY(0);
+}
+
+.choice-btn-selected {
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: #000000;
+  transition: all var(--transition-normal), color var(--transition-normal);
+}
+
+.choice-btn-selected .choice-letter {
+  background-color: var(--accent-primary);
+  color: #000000;
+  border-color: #000000;
+  transition: all var(--transition-normal);
+}
+
+.choice-letter {
+  background-color: transparent;
+  color: var(--accent-primary);
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid var(--accent-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  transition: all var(--transition-normal);
+}
+
+.choice-text {
+  flex: 1;
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .choices {
+    grid-template-columns: 1fr;
+  }
+  
+  .choice-btn {
+    padding: var(--space-sm);
+    font-size: 0.875rem;
+  }
+  
+  .choice-letter {
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: 0.625rem;
+  }
+} 

@@ -1,0 +1,69 @@
+.kanji-focus-card {
+  margin-bottom: var(--space-lg);
+
+  .card-header {
+    margin-bottom: var(--space-xl);
+    text-align: center;
+
+    .question {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: var(--space-sm);
+      color: var(--text-primary);
+      line-height: 1.8;
+    }
+
+    .definition {
+      margin-bottom: var(--space-md);
+
+      p {
+        color: var(--text-secondary);
+        margin: 0;
+        line-height: 1.5;
+      }
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-md);
+
+      .tag {
+        background-color: var(--bg-elevated);
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        font-weight: 400;
+        padding: var(--space-xs);
+        border-radius: var(--radius-sm);
+        text-transform: none;
+        letter-spacing: normal;
+      }
+
+      .level {
+        background-color: var(--bg-elevated);
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        font-weight: 400;
+        padding: var(--space-xs);
+        border-radius: var(--radius-sm);
+        text-transform: none;
+        letter-spacing: normal;
+      }
+    }
+  }
+
+    .choices {
+    margin-bottom: var(--space-xl);
+  }
+
+
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .question {
+      font-size: 1.125rem;
+    }
+  }
+} 

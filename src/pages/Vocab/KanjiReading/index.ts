@@ -1,0 +1,1 @@
+export { KanjiReadingPage } from './KanjiReadingPage'; 
