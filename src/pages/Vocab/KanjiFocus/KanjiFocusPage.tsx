@@ -17,7 +17,8 @@ const KanjiFocusPage: React.FC = () => {
       ...question,
       choices: generateAnswerChoices(question.reading, allReadings, {
         similarCount: 2,
-        mutationCount: 1
+        mutationCount: 1,
+        originalWord: question.word
       })
     }));
   }, [allReadings]);

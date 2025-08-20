@@ -138,8 +138,24 @@ export function findSimilarReadings(
   return distances.slice(0, count).map(item => item.reading);
 }
 
+// Helper function to determine if a character is okurigana based on the original word
+function isOkurigana(char: string, position: number, reading: string, originalWord: string): boolean {
+  // Find the longest matching prefix from the original word
+  const maxPrefixLength = Array.from({ length: originalWord.length }, (_, i) => i + 1)
+    .reverse()
+    .find(i => reading.startsWith(originalWord.substring(0, i))) || 0;
+  
+  // Find the longest matching suffix from the original word
+  const maxSuffixLength = Array.from({ length: originalWord.length }, (_, i) => i + 1)
+    .reverse()
+    .find(i => reading.endsWith(originalWord.substring(originalWord.length - i))) || 0;
+  
+  // If this character is in the prefix or suffix that matches the original word, it's okurigana
+  return position < maxPrefixLength || position >= reading.length - maxSuffixLength;
+}
+
 // Generate a mutation of the correct reading by changing one character
-export function generateReadingMutation(correctReading: string): string {
+export function generateReadingMutation(correctReading: string, originalWord?: string): string {
   if (correctReading.length === 0) return correctReading;
   
   // 20% chance to try small tsu removal if applicable
@@ -150,8 +166,36 @@ export function generateReadingMutation(correctReading: string): string {
     }
   }
   
-  const randomIndex = Math.floor(Math.random() * correctReading.length);
-  const targetChar = correctReading[randomIndex];
+  // Find characters that are safe to mutate (not okurigana)
+  const safeIndices = Array.from({ length: correctReading.length }, (_, i) => i)
+    .filter(i => !isOkurigana(correctReading[i], i, correctReading, originalWord || ''));
+  
+  // If no safe characters found, fall back to original logic
+  if (safeIndices.length === 0) {
+    const randomIndex = Math.floor(Math.random() * correctReading.length);
+    const targetChar = correctReading[randomIndex];
+    
+    const alternatives = SIMILAR_SOUNDS[targetChar];
+    if (alternatives && alternatives.length > 0) {
+      const randomAlternative = alternatives[Math.floor(Math.random() * alternatives.length)];
+      return (
+        correctReading.slice(0, randomIndex) +
+        randomAlternative +
+        correctReading.slice(randomIndex + 1)
+      );
+    } else {
+      const randomHiragana = HIRAGANA_CHARS[Math.floor(Math.random() * HIRAGANA_CHARS.length)];
+      return (
+        correctReading.slice(0, randomIndex) +
+        randomHiragana +
+        correctReading.slice(randomIndex + 1)
+      );
+    }
+  }
+  
+  // Pick a random safe character to mutate
+  const randomSafeIndex = safeIndices[Math.floor(Math.random() * safeIndices.length)];
+  const targetChar = correctReading[randomSafeIndex];
   
   // Get similar-sounding alternatives for the target character
   const alternatives = SIMILAR_SOUNDS[targetChar];
@@ -160,19 +204,26 @@ export function generateReadingMutation(correctReading: string): string {
     // Pick a random alternative
     const randomAlternative = alternatives[Math.floor(Math.random() * alternatives.length)];
     return (
-      correctReading.slice(0, randomIndex) +
+      correctReading.slice(0, randomSafeIndex) +
       randomAlternative +
-      correctReading.slice(randomIndex + 1)
+      correctReading.slice(randomSafeIndex + 1)
     );
   } else {
     // Fallback to random hiragana if no mapping exists
     const randomHiragana = HIRAGANA_CHARS[Math.floor(Math.random() * HIRAGANA_CHARS.length)];
     return (
-      correctReading.slice(0, randomIndex) +
+      correctReading.slice(0, randomSafeIndex) +
       randomHiragana +
-      correctReading.slice(randomIndex + 1)
+      correctReading.slice(randomSafeIndex + 1)
     );
   }
+}
+
+// Helper function to detect if a word is partially kanji (has hiragana mixed in)
+function isPartiallyKanji(originalWord: string): boolean {
+  // If the original word contains any hiragana characters, it's partially kanji
+  const hiraganaRegex = /[あ-ん]/;
+  return hiraganaRegex.test(originalWord);
 }
 
 // Generate all answer choices for a question
@@ -182,10 +233,11 @@ export function generateAnswerChoices(
   options: {
     similarCount?: number;
     mutationCount?: number;
+    originalWord?: string;
   } = {}
 ): Array<{ id: string; text: string; correct: boolean }> {
   const { similarCount = 2, mutationCount = 1 } = options;
-  const choices = [];
+  const choices: Array<{ id: string; text: string; correct: boolean }> = [];
   
   // Add correct choice
   choices.push({
@@ -194,36 +246,78 @@ export function generateAnswerChoices(
     correct: true
   });
   
-  // Add similar readings
-  const similarReadings = findSimilarReadings(correctReading, allReadings, similarCount);
-  similarReadings.forEach(reading => {
-    choices.push({
-      id: generateId(),
-      text: reading,
-      correct: false
-    });
-  });
+  // Branch logic based on whether the word is partially kanji or not
+  const isPartial = options.originalWord && isPartiallyKanji(options.originalWord);
   
-  // Add mutations
-  for (let i = 0; i < mutationCount; i++) {
-    let mutation = generateReadingMutation(correctReading);
-    // Ensure mutation is different from all existing choices
-    while (choices.some(choice => choice.text === mutation)) {
-      mutation = generateReadingMutation(correctReading);
+  // Generate mutations first (try to avoid duplicates, but don't get stuck)
+  const generateUniqueMutations = (count: number): string[] => {
+    const mutations: string[] = [];
+    const maxAttempts = 10; // Prevent infinite loops
+    
+    for (let i = 0; i < count; i++) {
+      let mutation: string | null = null;
+      let attempts = 0;
+      
+      // Try to generate a unique mutation
+      while (!mutation && attempts < maxAttempts) {
+        const candidate = generateReadingMutation(correctReading, options.originalWord);
+        if (!choices.some(choice => choice.text === candidate) && 
+            !mutations.includes(candidate)) {
+          mutation = candidate;
+        }
+        attempts++;
+      }
+      
+      // If we found a unique mutation, add it
+      if (mutation) {
+        mutations.push(mutation);
+      }
+      // If we gave up, just continue to the next iteration
     }
     
-    choices.push({
+    return mutations;
+  };
+  
+  if (isPartial) {
+    // For partially kanji words: try to generate 3 mutations, fill rest with near words
+    const mutations = generateUniqueMutations(3);
+    choices.push(...mutations.map(text => ({
       id: generateId(),
-      text: mutation,
+      text,
       correct: false
-    });
+    })));
+    
+    // Fill remaining slots with near words
+    const remainingSlots = 3 - mutations.length;
+    if (remainingSlots > 0) {
+      const nearWords = findSimilarReadings(correctReading, allReadings, remainingSlots);
+      choices.push(...nearWords.map(reading => ({
+        id: generateId(),
+        text: reading,
+        correct: false
+      })));
+    }
+  } else {
+    // For full kanji words: try to generate mutations, fill rest with near words
+    const mutations = generateUniqueMutations(mutationCount);
+    choices.push(...mutations.map(text => ({
+      id: generateId(),
+      text,
+      correct: false
+    })));
+    
+    // Fill remaining slots with near words
+    const remainingSlots = (similarCount + mutationCount) - mutations.length;
+    if (remainingSlots > 0) {
+      const nearWords = findSimilarReadings(correctReading, allReadings, remainingSlots);
+      choices.push(...nearWords.map(reading => ({
+        id: generateId(),
+        text: reading,
+        correct: false
+      })));
+    }
   }
   
-  // Shuffle choices (Fisher-Yates algorithm)
-  for (let i = choices.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [choices[i], choices[j]] = [choices[j], choices[i]];
-  }
-  
-  return choices;
+  // Shuffle choices using modern array methods
+  return choices.sort(() => Math.random() - 0.5);
 }
