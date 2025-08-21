@@ -236,74 +236,59 @@ export function generateAnswerChoices(
     originalWord?: string;
   } = {}
 ): Array<{ id: string; text: string; correct: boolean }> {
-  const { similarCount = 2, mutationCount = 1 } = options;
   const choices: Array<{ id: string; text: string; correct: boolean }> = [];
   
-  // Add correct choice
+  // Stage 1: Add correct choice
   choices.push({
     id: generateId(),
     text: correctReading,
     correct: true
   });
   
-  // Branch logic based on whether the word is partially kanji or not
-  const isPartial = options.originalWord && isPartiallyKanji(options.originalWord);
+  // Stage 2: Find 3 unique similar readings as fallback
+  const similarReadings = findSimilarReadings(correctReading, allReadings, 3);
   
-  // Generate mutations first (try to avoid duplicates, but don't get stuck)
-  const generateUniqueMutations = (count: number): string[] => {
-    const maxAttempts = 10; // Prevent infinite loops
-    
-    return Array.from({ length: count }, () => {
-      // Try to generate a unique mutation
-      const candidate = Array.from({ length: maxAttempts }, () => 
-        generateReadingMutation(correctReading, options.originalWord)
-      ).find(candidate => 
-        !choices.some(choice => choice.text === candidate)
-      );
-      
-      return candidate || null;
-    }).filter((mutation): mutation is string => mutation !== null);
-  };
+  // Stage 3: Generate 3 unique mutations
+  const mutations: string[] = [];
+  let attempts = 20; // Prevent infinite loops
   
-  if (isPartial) {
-    // For partially kanji words: try to generate 3 mutations, fill rest with near words
-    const mutations = generateUniqueMutations(3);
-    choices.push(...mutations.map(text => ({
-      id: generateId(),
-      text,
-      correct: false
-    })));
-    
-    // Fill remaining slots with near words
-    const remainingSlots = 3 - mutations.length;
-    if (remainingSlots > 0) {
-      const nearWords = findSimilarReadings(correctReading, allReadings, remainingSlots);
-      choices.push(...nearWords.map(reading => ({
-        id: generateId(),
-        text: reading,
-        correct: false
-      })));
+  while (mutations.length < 3 && attempts > 0) {
+    const mutation = generateReadingMutation(correctReading, options.originalWord);
+    if (!mutations.includes(mutation) && mutation !== correctReading) {
+      mutations.push(mutation);
     }
-  } else {
-    // For full kanji words: try to generate mutations, fill rest with near words
-    const mutations = generateUniqueMutations(mutationCount);
-    choices.push(...mutations.map(text => ({
-      id: generateId(),
-      text,
-      correct: false
-    })));
-    
-    // Fill remaining slots with near words
-    const remainingSlots = (similarCount + mutationCount) - mutations.length;
-    if (remainingSlots > 0) {
-      const nearWords = findSimilarReadings(correctReading, allReadings, remainingSlots);
-      choices.push(...nearWords.map(reading => ({
-        id: generateId(),
-        text: reading,
-        correct: false
-      })));
+    attempts--;
+  }
+  
+  // Create pool of all options (excluding correct choice)
+  const allOptions = [...similarReadings, ...mutations];
+  
+  // Sample from pool to fill remaining 3 slots, ensuring uniqueness
+  const remainingChoices = 3;
+  const selectedOptions = new Set<string>();
+  
+  // Try to pick mutations first, then similar readings
+  for (const mutation of mutations) {
+    if (selectedOptions.size >= remainingChoices) break;
+    if (!selectedOptions.has(mutation)) {
+      selectedOptions.add(mutation);
     }
   }
+  
+  // Fill remaining slots with similar readings
+  for (const reading of similarReadings) {
+    if (selectedOptions.size >= remainingChoices) break;
+    if (!selectedOptions.has(reading)) {
+      selectedOptions.add(reading);
+    }
+  }
+  
+  // Add selected options to choices
+  choices.push(...Array.from(selectedOptions).map(text => ({
+    id: generateId(),
+    text,
+    correct: false
+  })));
   
   // Shuffle choices using modern array methods
   return choices.sort(() => Math.random() - 0.5);
