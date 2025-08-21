@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { KanjiReadingCard } from '@/components/KanjiReadingCard';
 import { kanjiReadingQuestions } from './kanjiReadingData';
 
@@ -26,8 +27,14 @@ export function KanjiReadingPage() {
   };
 
   return (
-    <div className="vocab-page">
-      <h2 className="page-title">Kanji Reading</h2>
+    <>
+      <Helmet>
+        <title>Kanji Reading - SarabaJa</title>
+        <meta name="description" content="Master on-yomi and kun-yomi readings for JLPT vocabulary. Practice reading kanji in context." />
+      </Helmet>
+      
+      <div className="vocab-page">
+        <h2 className="page-title">Kanji Reading</h2>
       <p className="page-description">
         Master on-yomi and kun-yomi readings for JLPT vocabulary. Practice reading kanji in context.
       </p>
@@ -44,5 +51,6 @@ export function KanjiReadingPage() {
         ))}
       </div>
     </div>
+    </>
   );
 } 

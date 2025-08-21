@@ -1,6 +1,14 @@
+import { Helmet } from 'react-helmet-async';
+
 export function OrthographyPage() {
   return (
-    <div className="vocab-page">
+    <>
+      <Helmet>
+        <title>Orthography - SarabaJa</title>
+        <meta name="description" content="Learn correct kanji stroke order and character forms. Master the fundamentals of writing kanji." />
+      </Helmet>
+      
+      <div className="vocab-page">
       <h2 className="page-title">Orthography</h2>
       <p className="page-description">
         Learn correct kanji stroke order and character forms. Master the fundamentals of writing kanji.
@@ -18,5 +26,6 @@ export function OrthographyPage() {
         </p>
       </div>
     </div>
+    </>
   );
 } 

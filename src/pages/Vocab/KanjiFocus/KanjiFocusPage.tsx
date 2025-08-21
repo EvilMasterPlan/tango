@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { kanjiFocusQuestions } from './kanjiFocusData';
 import { KanjiFocusCard } from '@/components/KanjiFocusCard';
 import { generateAnswerChoices } from '@/utils/choiceGeneration';
@@ -6,14 +7,26 @@ import { generateAnswerChoices } from '@/utils/choiceGeneration';
 const KanjiFocusPage: React.FC = () => {
   const [answers, setAnswers] = useState<{ [key: string]: string }>({});
 
-  // Extract all readings from questions for generating similar choices
-  const allReadings = useMemo(() => {
-    return kanjiFocusQuestions.map(q => q.reading);
-  }, []);
-
-  // Generate choices for each question
+  // Select 10 random questions first, then generate choices only for those
   const questionsWithChoices = useMemo(() => {
-    return kanjiFocusQuestions.map(question => ({
+    // Filter for questions with "kanji" tag and required fields
+    const kanjiQuestions = kanjiFocusQuestions.filter(question => 
+      question.tags && 
+      question.tags.includes('kanji') &&
+      question.reading &&
+      question.word
+    );
+    
+    // Extract all readings for generating similar choices
+    const allReadings = kanjiQuestions.map(q => q.reading);
+    
+    // Shuffle and select first 10 questions
+    const shuffledQuestions = [...kanjiQuestions]
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 10);
+    
+    // Generate choices only for the selected questions
+    return shuffledQuestions.map(question => ({
       ...question,
       choices: generateAnswerChoices(question.reading, allReadings, {
         similarCount: 2,
@@ -21,7 +34,7 @@ const KanjiFocusPage: React.FC = () => {
         originalWord: question.word
       })
     }));
-  }, [allReadings]);
+  }, []);
 
   const handleAnswerSelect = (questionId: string, answerId: string) => {
     setAnswers(prev => ({
@@ -31,12 +44,18 @@ const KanjiFocusPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-8">Kanji Focus</h1>
+    <>
+      <Helmet>
+        <title>Kanji Focus - SarabaJa</title>
+        <meta name="description" content="Practice individual kanji characters in isolation with reading and meaning exercises." />
+      </Helmet>
+      
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold text-center mb-8">Kanji Focus</h1>
         
         <div className="space-y-8">
-          {questionsWithChoices.slice(0, 10).map((question, index) => {
+          {questionsWithChoices.map((question, index) => {
             const selectedAnswer = answers[question.id];
 
             return (
@@ -58,6 +77,7 @@ const KanjiFocusPage: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

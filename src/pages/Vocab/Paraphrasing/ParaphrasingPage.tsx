@@ -1,6 +1,14 @@
+import { Helmet } from 'react-helmet-async';
+
 export function ParaphrasingPage() {
   return (
-    <div className="vocab-page">
+    <>
+      <Helmet>
+        <title>Paraphrasing - SarabaJa</title>
+        <meta name="description" content="Practice expressing ideas in different ways. Learn to rephrase and restate concepts in Japanese." />
+      </Helmet>
+      
+      <div className="vocab-page">
       <h2 className="page-title">Paraphrasing</h2>
       <p className="page-description">
         Practice expressing ideas in different ways. Learn to rephrase and restate concepts in Japanese.
@@ -18,5 +26,6 @@ export function ParaphrasingPage() {
         </p>
       </div>
     </div>
+    </>
   );
 } 

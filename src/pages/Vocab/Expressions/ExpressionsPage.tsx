@@ -1,6 +1,14 @@
+import { Helmet } from 'react-helmet-async';
+
 export function ExpressionsPage() {
   return (
-    <div className="vocab-page">
+    <>
+      <Helmet>
+        <title>Expressions - SarabaJa</title>
+        <meta name="description" content="Understand expressions in their proper context. Learn how Japanese expressions change meaning based on usage." />
+      </Helmet>
+      
+      <div className="vocab-page">
       <h2 className="page-title">Contextually Defined Expressions</h2>
       <p className="page-description">
         Understand expressions in their proper context. Learn how Japanese expressions change meaning based on usage.
@@ -18,5 +26,6 @@ export function ExpressionsPage() {
         </p>
       </div>
     </div>
+    </>
   );
 } 

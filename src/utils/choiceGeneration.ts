@@ -251,31 +251,18 @@ export function generateAnswerChoices(
   
   // Generate mutations first (try to avoid duplicates, but don't get stuck)
   const generateUniqueMutations = (count: number): string[] => {
-    const mutations: string[] = [];
     const maxAttempts = 10; // Prevent infinite loops
     
-    for (let i = 0; i < count; i++) {
-      let mutation: string | null = null;
-      let attempts = 0;
-      
+    return Array.from({ length: count }, () => {
       // Try to generate a unique mutation
-      while (!mutation && attempts < maxAttempts) {
-        const candidate = generateReadingMutation(correctReading, options.originalWord);
-        if (!choices.some(choice => choice.text === candidate) && 
-            !mutations.includes(candidate)) {
-          mutation = candidate;
-        }
-        attempts++;
-      }
+      const candidate = Array.from({ length: maxAttempts }, () => 
+        generateReadingMutation(correctReading, options.originalWord)
+      ).find(candidate => 
+        !choices.some(choice => choice.text === candidate)
+      );
       
-      // If we found a unique mutation, add it
-      if (mutation) {
-        mutations.push(mutation);
-      }
-      // If we gave up, just continue to the next iteration
-    }
-    
-    return mutations;
+      return candidate || null;
+    }).filter((mutation): mutation is string => mutation !== null);
   };
   
   if (isPartial) {

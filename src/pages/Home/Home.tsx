@@ -1,9 +1,15 @@
+import { Helmet } from 'react-helmet-async';
 import { FeatureCard } from '@/components/FeatureCard';
 import { StatCard } from '@/components/StatCard';
 
 export function Home() {
   return (
     <>
+      <Helmet>
+        <title>SarabaJa - Japanese Learning Platform</title>
+        <meta name="description" content="Master Japanese kanji, vocabulary, and JLPT preparation with personalized study plans." />
+      </Helmet>
+      
       <section className="hero">
         <h2 className="hero-title">Ready to master Japanese?</h2>
         <p className="hero-description">
