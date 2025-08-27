@@ -38,4 +38,4 @@ export function QuestionCard({ question, questionNumber, selectedAnswer, onAnswe
       </div>
     </div>
   );
-} 
+}

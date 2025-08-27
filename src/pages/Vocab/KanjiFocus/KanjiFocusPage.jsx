@@ -45,4 +45,4 @@ export default function KanjiFocusPage() {
       </div>
     </>
   );
-} 
+}

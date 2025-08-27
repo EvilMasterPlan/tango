@@ -5,4 +5,4 @@ export function StatCard({ number, label }) {
       <div className="stat-label">{label}</div>
     </div>
   );
-} 
+}

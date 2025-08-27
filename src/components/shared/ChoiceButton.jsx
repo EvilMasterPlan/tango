@@ -1,14 +1,5 @@
 import React from 'react';
 
-interface ChoiceButtonProps {
-  choiceId: string;
-  choiceText: string;
-  choiceNumber: number;
-  isSelected: boolean;
-  isDisabled?: boolean;
-  onClick: (choiceId: string) => void;
-}
-
 export function ChoiceButton({
   choiceId,
   choiceText,
@@ -16,7 +7,7 @@ export function ChoiceButton({
   isSelected,
   isDisabled = false,
   onClick
-}: ChoiceButtonProps) {
+}) {
   const buttonClasses = ['choice-btn'];
   
   if (isSelected) {
@@ -33,4 +24,4 @@ export function ChoiceButton({
       <span className="choice-text">{choiceText}</span>
     </button>
   );
-} 
+}

@@ -1,13 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 
-interface FeatureCardProps {
-  icon: string;
-  title: string;
-  description: string;
-  route: string;
-}
-
-export function FeatureCard({ icon, title, description, route }: FeatureCardProps) {
+export function FeatureCard({ icon, title, description, route }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -21,4 +14,4 @@ export function FeatureCard({ icon, title, description, route }: FeatureCardProp
       <p>{description}</p>
     </div>
   );
-} 
+}

@@ -4,4 +4,4 @@ export { Header } from './Header';
 export { Footer } from './Footer';
 export { QuestionCard } from './QuestionCard';
 export { KanjiReadingCard } from './KanjiReadingCard';
-export { KanjiFocusCard } from './KanjiFocusCard'; 
+export { KanjiFocusCard } from './KanjiFocusCard';

@@ -5,7 +5,7 @@ import { levenshteinEditDistance } from 'levenshtein-edit-distance';
 const HIRAGANA_CHARS = 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをんがぎぐげござじずぜぞだぢづでどばびぶべぼぱぴぷぺぽゃゅょっ';
 
 // Mapping of hiragana to similar-sounding alternatives
-const SIMILAR_SOUNDS: Record<string, string[]> = {
+const SIMILAR_SOUNDS = {
   // Vowels
   'あ': ['い', 'う', 'え', 'お'],
   'い': ['あ', 'う', 'え', 'お'],
@@ -99,7 +99,7 @@ const SIMILAR_SOUNDS: Record<string, string[]> = {
   'べ': ['ば', 'び', 'ぶ', 'ぼ'],
   'ぼ': ['ば', 'び', 'ぶ', 'べ'],
   
-  // P-series (aspirated H)
+  // P-series (voiced H)
   'ぱ': ['ぴ', 'ぷ', 'ぺ', 'ぽ'],
   'ぴ': ['ぱ', 'ぷ', 'ぺ', 'ぽ'],
   'ぷ': ['ぱ', 'ぴ', 'ぺ', 'ぽ'],
@@ -113,20 +113,20 @@ const SIMILAR_SOUNDS: Record<string, string[]> = {
   
   // Special characters
   'っ': ['っ'], // No alternatives for sokuon
-  'ん': ['ん'], // No alternatives for n
+  'ん': ['ん'] // No alternatives for n
 };
 
 // Simple UUID generator
-function generateId(): string {
+function generateId() {
   return Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
 }
 
 // Find the most similar readings from a pool of readings
 export function findSimilarReadings(
-  targetReading: string,
-  allReadings: string[],
-  count: number = 2
-): string[] {
+  targetReading,
+  allReadings,
+  count = 2
+) {
   const distances = allReadings
     .filter(reading => reading !== targetReading)
     .map(reading => ({
@@ -139,7 +139,7 @@ export function findSimilarReadings(
 }
 
 // Helper function to determine if a character is okurigana based on the original word
-function isOkurigana(char: string, position: number, reading: string, originalWord: string): boolean {
+function isOkurigana(char, position, reading, originalWord) {
   // Find the longest matching prefix from the original word
   const maxPrefixLength = Array.from({ length: originalWord.length }, (_, i) => i + 1)
     .reverse()
@@ -155,7 +155,7 @@ function isOkurigana(char: string, position: number, reading: string, originalWo
 }
 
 // Generate a mutation of the correct reading by changing one character
-export function generateReadingMutation(correctReading: string, originalWord?: string): string {
+export function generateReadingMutation(correctReading, originalWord) {
   if (correctReading.length === 0) return correctReading;
   
   // 20% chance to try small tsu removal if applicable
@@ -220,7 +220,7 @@ export function generateReadingMutation(correctReading: string, originalWord?: s
 }
 
 // Helper function to detect if a word is partially kanji (has hiragana mixed in)
-function isPartiallyKanji(originalWord: string): boolean {
+function isPartiallyKanji(originalWord) {
   // If the original word contains any hiragana characters, it's partially kanji
   const hiraganaRegex = /[あ-ん]/;
   return hiraganaRegex.test(originalWord);
@@ -228,15 +228,11 @@ function isPartiallyKanji(originalWord: string): boolean {
 
 // Generate all answer choices for a question
 export function generateAnswerChoices(
-  correctReading: string,
-  allReadings: string[],
-  options: {
-    similarCount?: number;
-    mutationCount?: number;
-    originalWord?: string;
-  } = {}
-): Array<{ id: string; text: string; correct: boolean }> {
-  const choices: Array<{ id: string; text: string; correct: boolean }> = [];
+  correctReading,
+  allReadings,
+  options = {}
+) {
+  const choices = [];
   
   // Stage 1: Add correct choice
   choices.push({
@@ -249,7 +245,7 @@ export function generateAnswerChoices(
   const similarReadings = findSimilarReadings(correctReading, allReadings, 3);
   
   // Stage 3: Generate 3 unique mutations
-  const mutations: string[] = [];
+  const mutations = [];
   let attempts = 20; // Prevent infinite loops
   
   while (mutations.length < 3 && attempts > 0) {
@@ -265,7 +261,7 @@ export function generateAnswerChoices(
   
   // Sample from pool to fill remaining 3 slots, ensuring uniqueness
   const remainingChoices = 3;
-  const selectedOptions = new Set<string>();
+  const selectedOptions = new Set();
   
   // Try to pick mutations first, then similar readings
   for (const mutation of mutations) {

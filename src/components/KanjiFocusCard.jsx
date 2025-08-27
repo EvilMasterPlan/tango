@@ -2,19 +2,7 @@ import React from 'react';
 import './shared/card-styles.scss';
 import './KanjiFocusCard.scss';
 
-interface KanjiFocusCardProps {
-  kanji: {
-    word: string;
-    reading?: string;
-    definition: string[];
-    tags: string[];
-    level: string;
-  };
-  showAnswer: boolean;
-  onShowAnswer: () => void;
-}
-
-export function KanjiFocusCard({ kanji, showAnswer, onShowAnswer }: KanjiFocusCardProps) {
+export function KanjiFocusCard({ kanji, showAnswer, onShowAnswer }) {
   return (
     <div className="kanji-focus-card card-base">
       <div className="card-header">
@@ -51,4 +39,4 @@ export function KanjiFocusCard({ kanji, showAnswer, onShowAnswer }: KanjiFocusCa
       </div>
     </div>
   );
-} 
+}
