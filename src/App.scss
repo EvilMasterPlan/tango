@@ -1,8 +1,39 @@
+/* Global CSS Variables */
+:root {
+  /* Colors */
+  --color-bg-primary: #1e1e1e;
+  --color-bg-secondary: #2d2d2d;
+  --color-bg-tertiary: #3d3d3d;
+  --color-bg-card: #1e252b;
+  
+  /* Text Colors */
+  --color-text-primary: #f9fafb;
+  --color-text-secondary: #d1d5db;
+  --color-text-muted: #9ca3af;
+  --color-text-disabled: #6b7280;
+  
+  /* Accent Colors */
+  --color-accent-primary: #60a5fa;
+  --color-accent-primary-hover: #93c5fd;
+  --color-accent-secondary: #10b981;
+  --color-accent-warning: #f59e0b;
+  --color-accent-error: #ef4444;
+  
+  /* Border Colors */
+  --color-border-primary: #374151;
+  --color-border-secondary: #4b5563;
+  
+  /* Shadow Colors */
+  --color-shadow-light: rgba(0, 0, 0, 0.1);
+  --color-shadow-medium: rgba(0, 0, 0, 0.3);
+  --color-shadow-heavy: rgba(0, 0, 0, 0.5);
+}
+
 /* App Layout */
 .app {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
 }
 
 /* Header */
@@ -56,7 +87,13 @@
 /* Main Content */
 .main {
   flex: 1;
-  padding-bottom: var(--space-2xl);
+  background-color: var(--color-bg-primary);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
 /* Hero Section */

@@ -1,21 +1,13 @@
 import React from 'react';
 import { QuestionCard } from '@/components/QuestionCard';
-import type { KanjiQuestion } from '@/types/kanji';
 import './shared/card-styles.scss';
-
-interface KanjiReadingCardProps {
-  question: KanjiQuestion;
-  questionNumber: number;
-  selectedAnswer: string | null;
-  onAnswerSelect: (choiceId: string) => void;
-}
 
 export function KanjiReadingCard({ 
   question, 
   questionNumber, 
   selectedAnswer, 
   onAnswerSelect 
-}: KanjiReadingCardProps) {
+}) {
   return (
     <div className="kanji-reading-card">
       <div className="card-header">

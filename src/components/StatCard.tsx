@@ -1,9 +1,4 @@
-interface StatCardProps {
-  number: number;
-  label: string;
-}
-
-export function StatCard({ number, label }: StatCardProps) {
+export function StatCard({ number, label }) {
   return (
     <div className="stat-card card">
       <div className="stat-number">{number}</div>

@@ -1,15 +1,7 @@
-import type { KanjiQuestion } from '@/types/kanji';
 import './shared/card-styles.scss';
 import { ChoiceButton } from './shared/ChoiceButton';
 
-interface QuestionCardProps {
-  question: KanjiQuestion;
-  questionNumber: number;
-  selectedAnswer: string | null;
-  onAnswerSelect: (choiceId: string) => void;
-}
-
-export function QuestionCard({ question, questionNumber, selectedAnswer, onAnswerSelect }: QuestionCardProps) {
+export function QuestionCard({ question, questionNumber, selectedAnswer, onAnswerSelect }) {
   const { text, highlight } = question.question;
   
   // Split the text into parts for highlighting

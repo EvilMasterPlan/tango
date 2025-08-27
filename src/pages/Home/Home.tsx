@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
-import { FeatureCard } from '@/components/FeatureCard';
-import { StatCard } from '@/components/StatCard';
+import { Link } from 'react-router-dom';
+import './Home.scss';
 
 export function Home() {
   return (
@@ -10,60 +10,56 @@ export function Home() {
         <meta name="description" content="Master Japanese kanji, vocabulary, and JLPT preparation with personalized study plans." />
       </Helmet>
       
-      <section className="hero">
-        <h2 className="hero-title">Ready to master Japanese?</h2>
-        <p className="hero-description">
-          Track your progress, practice kanji, and prepare for the JLPT with personalized study plans.
-        </p>
-        <div className="hero-actions">
-          <button className="btn btn-primary">Start Learning</button>
-          <button className="btn">View Progress</button>
-        </div>
-      </section>
+      <section className="home-container">
+        <h1 className="home-title">Japanese Learning Path</h1>
+        
+        <div className="sections-container">
+          {/* Targeted Practice Section */}
+          <div className="section-card">
+            <h2 className="section-title">Targeted Practice</h2>
+            <div className="section-items">
+              <div className="section-item">
+                <span className="item-label">Vocab</span>
+                <Link to="/vocab/focus" className="section-link">
+                  Kanji Focus
+                </Link>
+              </div>
+              <div className="section-item">
+                <span className="item-label">Kanji</span>
+                <span className="coming-soon">Coming soon</span>
+              </div>
+            </div>
+          </div>
 
-      <section className="features">
-        <h3 className="section-title">What you can do</h3>
-        <div className="grid grid-cols-3">
-          <FeatureCard
-            icon="📖"
-            title="Kanji Reading"
-            description="Master on-yomi and kun-yomi readings for JLPT vocabulary"
-            route="/vocab/reading"
-          />
-          <FeatureCard
-            icon="✍️"
-            title="Orthography"
-            description="Learn correct kanji stroke order and character forms"
-            route="/vocab/orthography"
-          />
-          <FeatureCard
-            icon="💭"
-            title="Contextually Defined Expressions"
-            description="Understand expressions in their proper context"
-            route="/vocab/expressions"
-          />
-        </div>
-        <div className="grid grid-cols-3" style={{ marginTop: 'var(--space-lg)' }}>
-          <FeatureCard
-            icon="🔄"
-            title="Paraphrasing"
-            description="Practice expressing ideas in different ways"
-            route="/vocab/paraphrasing"
-          />
-          <FeatureCard
-            icon="🎯"
-            title="Kanji Focus"
-            description="Practice individual kanji characters in isolation"
-            route="/vocab/focus"
-          />
-        </div>
-      </section>
+          {/* JLPT Simulation Section */}
+          <div className="section-card">
+            <h2 className="section-title">JLPT Simulation</h2>
+            
+            {/* Vocab subsection */}
+            <div className="subsection">
+              <h3 className="subsection-title">Vocab</h3>
+              <div className="subsection-items">
+                <div className="subsection-item">Kanji Reading</div>
+                <div className="subsection-item">Reverse Kanji Reading</div>
+                <div className="subsection-item">Fill in the Blank</div>
+                <div className="subsection-item">Similar Sentences</div>
+                <div className="subsection-item">Word Placement</div>
+              </div>
+            </div>
 
-      <section className="quick-stats">
-        <h3 className="section-title">Your Progress</h3>
-        <div className="grid grid-cols-2">
-          <StatCard number={0} label="Kanji Mastered" />
-          <StatCard number={0} label="Study Sessions" />
+            {/* Reading subsection */}
+            <div className="subsection">
+              <h3 className="subsection-title">Reading</h3>
+              <div className="subsection-items">
+                <div className="subsection-item">Conjugation</div>
+                <div className="subsection-item">Ordering</div>
+                <div className="subsection-item">Fill in the Blank</div>
+                <div className="subsection-item">Comprehension</div>
+                <div className="subsection-item">Super Comprehension</div>
+                <div className="subsection-item">Combination</div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </>

@@ -1,69 +1,71 @@
 .kanji-focus-card {
-  margin-bottom: var(--space-lg);
-
-  .card-header {
-    margin-bottom: var(--space-xl);
-    text-align: center;
-
-    .question {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  
+  .kanji-character {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    color: #333;
+  }
+  
+  .reading {
+    margin-bottom: 1rem;
+    
+    .reading-text {
       font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: var(--space-sm);
-      color: var(--text-primary);
-      line-height: 1.8;
-    }
-
-    .definition {
-      margin-bottom: var(--space-md);
-
-      p {
-        color: var(--text-secondary);
-        margin: 0;
-        line-height: 1.5;
-      }
-    }
-
-    .tags {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: var(--space-sm);
-      margin-bottom: var(--space-md);
-
-      .tag {
-        background-color: var(--bg-elevated);
-        color: var(--text-muted);
-        font-size: 0.75rem;
-        font-weight: 400;
-        padding: var(--space-xs);
-        border-radius: var(--radius-sm);
-        text-transform: none;
-        letter-spacing: normal;
-      }
-
-      .level {
-        background-color: var(--bg-elevated);
-        color: var(--text-muted);
-        font-size: 0.75rem;
-        font-weight: 400;
-        padding: var(--space-xs);
-        border-radius: var(--radius-sm);
-        text-transform: none;
-        letter-spacing: normal;
-      }
+      color: #666;
+      margin: 0;
     }
   }
-
-    .choices {
-    margin-bottom: var(--space-xl);
+  
+  .definition {
+    margin-bottom: 1rem;
+    
+    p {
+      font-size: 1.2rem;
+      color: #333;
+      margin: 0;
+    }
   }
-
-
-
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .question {
-      font-size: 1.125rem;
+  
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+    
+    .tag {
+      background: #e0e0e0;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      color: #666;
+    }
+    
+    .level {
+      background: #007bff;
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+  }
+  
+  .show-answer-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    
+    &:hover {
+      background: #0056b3;
     }
   }
 } 
