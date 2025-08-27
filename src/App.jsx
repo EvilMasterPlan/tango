@@ -1,10 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useState } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
-import { Header, Footer } from '@/components';
-import { Home } from '@/pages/Home';
-import { KanjiFocusPage } from '@/pages/Vocab';
-import { KanjiFocusPracticePage } from '@/pages/Vocab/KanjiFocus/practice';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
+import { Home } from '@/pages/Home/Home';
+import KanjiFocusPage from '@/pages/Vocab/KanjiFocus/KanjiFocusPage';
+import KanjiFocusPracticePage from '@/pages/Vocab/KanjiFocus/practice/KanjiFocusPracticePage';
 import './App.scss';
 
 function App() {

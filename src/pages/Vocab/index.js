@@ -1,1 +1,0 @@
-export { KanjiFocusPage } from './KanjiFocus';
