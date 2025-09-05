@@ -19,8 +19,6 @@ function App() {
             <div className="container">
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/vocab/focus" element={<KanjiFocusPage />} />
-                <Route path="/vocab/focus/practice" element={<KanjiFocusPracticePage />} />
               </Routes>
             </div>
           </main>
