@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { LessonHeader } from '@/components/lesson/LessonHeader';
@@ -6,6 +6,7 @@ import { LessonFooter } from '@/components/lesson/LessonFooter';
 import { SpellingQuestionBlock } from '@/components/quiz/SpellingQuestionBlock';
 import { QuestionBlock } from '@/components/quiz/QuestionBlock';
 import { ChoiceGrid } from '@/components/quiz/ChoiceGrid';
+import { MatchingQuestionBlock } from '@/components/quiz/MatchingQuestionBlock';
 import '@/pages/Lesson/Page.scss';
 
 export function LessonPage() {
@@ -13,6 +14,27 @@ export function LessonPage() {
   
   // Hardcoded questions data
   const questions = [
+    {
+      type: "matching",
+      subtype: "word to meaning",
+      answers: [0, 1, 2, 3, 4],
+      choices: {
+        sources: [
+          "浴びる",
+          "危ない",
+          "あっち",
+          "あちら",
+          "上げる",
+        ],
+        destinations: [
+          "to bathe",
+          "dangerous",
+          "over there",
+          "there",
+          "to raise",
+        ],
+      },
+    },
     {
       word_id: "W_001",
       type: "choice",
@@ -53,6 +75,9 @@ export function LessonPage() {
   const [hasCheckedAnswer, setHasCheckedAnswer] = useState(false);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState(false);
   const [currentSpelling, setCurrentSpelling] = useState('');
+  const [matchingAnswers, setMatchingAnswers] = useState([]);
+  const [selectedSource, setSelectedSource] = useState(null);
+  const [selectedDestination, setSelectedDestination] = useState(null);
 
   const currentQuestion = questions[currentQuestionIndex];
 
@@ -80,6 +105,9 @@ export function LessonPage() {
       if (currentQuestion.type === 'choice') {
         const selectedChoice = currentQuestion.choices[selectedChoiceIndex];
         isCorrect = selectedChoice === currentQuestion.answer;
+      } else if (currentQuestion.type === 'matching') {
+        // Compare matching answers array with the correct answers
+        isCorrect = JSON.stringify(matchingAnswers) === JSON.stringify(currentQuestion.answers);
       } else {
         // spelling type
         isCorrect = currentSpelling === currentQuestion.answer;
@@ -101,6 +129,9 @@ export function LessonPage() {
       setHasCheckedAnswer(false);
       setIsAnswerCorrect(false);
       setCurrentSpelling('');
+      setMatchingAnswers([]);
+      setSelectedSource(null);
+      setSelectedDestination(null);
     } else {
       navigate('/');
     }
@@ -118,12 +149,71 @@ export function LessonPage() {
     setCurrentSpelling(spelling);
   };
 
+  const handleMatchingSelect = (type, index) => {
+    if (hasCheckedAnswer) return; // Don't allow changes after checking
+    
+    // Don't allow selection of already matched items
+    if (type === 'source' && matchingAnswers[index] !== undefined) return;
+    if (type === 'destination' && matchingAnswers.some(answer => answer === index)) return;
+    
+    if (type === 'source') {
+      if (selectedSource === index) {
+        // Clicking same source - deselect it
+        setSelectedSource(null);
+      } else {
+        // Select new source
+        setSelectedSource(index);
+        
+        // If we have both source and destination selected, create match
+        if (selectedDestination !== null) {
+          const newAnswers = [...matchingAnswers];
+          newAnswers[index] = selectedDestination;
+          setMatchingAnswers(newAnswers);
+          setSelectedSource(null);
+          setSelectedDestination(null);
+        }
+      }
+    } else if (type === 'destination') {
+      if (selectedDestination === index) {
+        // Clicking same destination - deselect it
+        setSelectedDestination(null);
+      } else {
+        // Select new destination
+        setSelectedDestination(index);
+        
+        // If we have both source and destination selected, create match
+        if (selectedSource !== null) {
+          const newAnswers = [...matchingAnswers];
+          newAnswers[selectedSource] = index;
+          setMatchingAnswers(newAnswers);
+          setSelectedSource(null);
+          setSelectedDestination(null);
+        }
+      }
+    }
+  };
+
   // Determine if check button should be disabled
   const isCheckDisabled = hasCheckedAnswer 
     ? false // Always enabled after checking (to show Continue)
     : currentQuestion.type === 'choice' 
       ? selectedChoiceIndex === null
-      : !isSpellingComplete;
+      : currentQuestion.type === 'matching'
+        ? matchingAnswers.length !== currentQuestion.choices.sources.length || matchingAnswers.some(answer => answer === undefined)
+        : !isSpellingComplete;
+
+  // Handle Enter key to trigger Check/Continue button
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (event.key === 'Enter' && !isCheckDisabled) {
+        event.preventDefault();
+        handleCheck();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, [isCheckDisabled, hasCheckedAnswer]);
 
   const renderQuestion = () => {
     const isDisabled = hasCheckedAnswer; // Disable all choices once checked, regardless of correctness
@@ -140,6 +230,22 @@ export function LessonPage() {
           hasCheckedAnswer={hasCheckedAnswer}
           isAnswerCorrect={isAnswerCorrect}
           correctAnswer={currentQuestion.answer}
+        />
+      );
+    } else if (currentQuestion.type === 'matching') {
+      return (
+        <MatchingQuestionBlock 
+          question={{ subtype: currentQuestion.subtype }}
+          sources={currentQuestion.choices.sources}
+          destinations={currentQuestion.choices.destinations}
+          disabled={isDisabled}
+          hasCheckedAnswer={hasCheckedAnswer}
+          isAnswerCorrect={isAnswerCorrect}
+          matchingAnswers={matchingAnswers}
+          onMatchingSelect={handleMatchingSelect}
+          correctAnswers={currentQuestion.answers}
+          selectedSource={selectedSource}
+          selectedDestination={selectedDestination}
         />
       );
     } else {
