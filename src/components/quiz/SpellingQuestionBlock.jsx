@@ -4,7 +4,7 @@ import { SpellingSlot } from '@/components/quiz/SpellingSlot';
 import { SymbolGrid } from '@/components/quiz/SymbolGrid';
 import './SpellingQuestionBlock.scss';
 
-export function SpellingQuestionBlock({ question, reading, choices, onCompletionChange, onSpellingChange, disabled = false }) {
+export function SpellingQuestionBlock({ question, reading, choices, onCompletionChange, onSpellingChange, disabled = false, hasCheckedAnswer = false, isAnswerCorrect = false, correctAnswer = '' }) {
   const [slots, setSlots] = useState(Array(reading.length).fill(null));
   const [usedSymbols, setUsedSymbols] = useState(new Set());
 
@@ -75,6 +75,9 @@ export function SpellingQuestionBlock({ question, reading, choices, onCompletion
               key={index}
               symbol={symbol}
               onClick={() => handleSlotClick(index)}
+              hasCheckedAnswer={hasCheckedAnswer}
+              isCorrect={hasCheckedAnswer && symbol === correctAnswer[index]}
+              isIncorrect={hasCheckedAnswer && symbol !== null && symbol !== correctAnswer[index]}
             />
           ))}
         </div>
@@ -84,6 +87,7 @@ export function SpellingQuestionBlock({ question, reading, choices, onCompletion
           usedSymbols={usedSymbols}
           onSymbolSelect={handleSymbolSelect}
           disabled={disabled}
+          hasCheckedAnswer={hasCheckedAnswer}
         />
       </div>
     </div>

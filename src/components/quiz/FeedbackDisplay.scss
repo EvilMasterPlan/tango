@@ -2,7 +2,9 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1rem;
+  padding: 1rem 2rem; // Match button padding
+  height: 100%; // Fill available height
+  flex: 1; // Take up available space like buttons do
   
   .feedback-icon {
     width: 3rem;
@@ -46,7 +48,7 @@
 // Mobile responsiveness
 @media (max-width: 768px) {
   .feedback-display {
-    padding: 0.75rem;
+    padding: 0.875rem 1.5rem; // Match mobile button padding
     gap: 0.75rem;
     
     .feedback-icon {

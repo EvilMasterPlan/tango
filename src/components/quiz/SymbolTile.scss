@@ -47,6 +47,17 @@
       box-shadow: none;
     }
   }
+  
+  &.checked {
+    cursor: default;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.1); // No hover effect
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: none; // No transform on hover
+      box-shadow: none; // No shadow on hover
+    }
+  }
 }
 
 // Mobile responsiveness

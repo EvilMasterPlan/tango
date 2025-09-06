@@ -1,9 +1,11 @@
 .lesson-footer {
   display: flex;
+  align-items: center; // Center contents vertically
   gap: 1rem;
   padding: 1.5rem;
   backdrop-filter: blur(10px);
   border-top: 1px solid rgba(255, 255, 255, 0.2);
+  min-height: 8.5rem; // Accommodate feedback display height
   
   .action-button {
     flex: 1;
@@ -80,6 +82,7 @@
       padding: 0.875rem 1.5rem;
       font-size: 1rem;
       max-width: none;
+      max-height: 3rem; // Smaller max-height for mobile
       
       &.check-button {
         margin-left: 0;

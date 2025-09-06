@@ -1,17 +1,18 @@
 .choice-button {
   background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.2); // Consistent 3px border for all states
   border-radius: 12px;
   padding: 1.5rem 1rem;
-  color: white;
+  color: rgba(255, 255, 255, 0.8); // Slightly off-white for unselected
   font-size: 1.2rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-normal);
   backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   gap: 1rem;
+  position: relative;
   
   .choice-number {
     width: 2.5rem;
@@ -24,6 +25,8 @@
     font-weight: 600;
     font-size: 1.1rem;
     flex-shrink: 0;
+    color: rgba(255, 255, 255, 0.8); // Slightly off-white for unselected
+    transition: all var(--transition-normal); // Smooth transitions for background and color
   }
   
   .choice-text {
@@ -35,11 +38,7 @@
     background: rgba(255, 255, 255, 0.2);
     border-color: rgba(255, 255, 255, 0.4);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    
-    .choice-number {
-      background: rgba(255, 255, 255, 0.3);
-    }
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.6); // Add inner glow
   }
   
   &:active {
@@ -63,20 +62,73 @@
   }
   
   &.selected {
-    background: rgba(74, 222, 128, 0.3);
-    border-color: rgba(74, 222, 128, 0.6);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.6);
+    color: white; // Stark white for selected text
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.8) inset, 0 0 0 1px rgba(255, 255, 255, 0.6); // Inner glow + bottom emphasis
     
     .choice-number {
-      background: rgba(74, 222, 128, 0.8);
+      background: rgba(255, 255, 255, 0.4);
+      color: white; // Stark white for selected number
+    }
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.7);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9) inset, 0 0 0 1px rgba(255, 255, 255, 0.7);
+      
+      .choice-number {
+        background: rgba(255, 255, 255, 0.5);
+      }
+    }
+  }
+  
+  // Correct answer feedback (green)
+  &.correct {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: rgba(34, 197, 94, 0.6);
+    color: white;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.8) inset, 0 0 0 1px rgba(34, 197, 94, 0.6);
+    cursor: default; // Disable hover cursor
+    
+    .choice-number {
+      background: rgba(34, 197, 94, 0.8);
       color: white;
     }
     
     &:hover {
-      background: rgba(74, 222, 128, 0.4);
-      border-color: rgba(74, 222, 128, 0.8);
+      background: rgba(34, 197, 94, 0.2); // No hover effect
+      border-color: rgba(34, 197, 94, 0.6);
+      transform: none; // No transform on hover
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.8) inset, 0 0 0 1px rgba(34, 197, 94, 0.6);
       
       .choice-number {
-        background: rgba(74, 222, 128, 0.9);
+        background: rgba(34, 197, 94, 0.8); // No hover effect
+      }
+    }
+  }
+  
+  // Incorrect answer feedback (red)
+  &.incorrect {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.6);
+    color: white;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.8) inset, 0 0 0 1px rgba(239, 68, 68, 0.6);
+    cursor: default; // Disable hover cursor
+    
+    .choice-number {
+      background: rgba(239, 68, 68, 0.8);
+      color: white;
+    }
+    
+    &:hover {
+      background: rgba(239, 68, 68, 0.2); // No hover effect
+      border-color: rgba(239, 68, 68, 0.6);
+      transform: none; // No transform on hover
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.8) inset, 0 0 0 1px rgba(239, 68, 68, 0.6);
+      
+      .choice-number {
+        background: rgba(239, 68, 68, 0.8); // No hover effect
       }
     }
   }

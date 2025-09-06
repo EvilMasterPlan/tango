@@ -124,7 +124,7 @@ export function LessonPage() {
     : !isSpellingComplete;
 
   const renderQuestion = () => {
-    const isDisabled = hasCheckedAnswer && !isAnswerCorrect;
+    const isDisabled = hasCheckedAnswer; // Disable all choices once checked, regardless of correctness
     
     if (currentQuestion.type === 'spelling') {
       return (
@@ -135,6 +135,9 @@ export function LessonPage() {
           onCompletionChange={handleSpellingCompletionChange}
           onSpellingChange={handleSpellingChange}
           disabled={isDisabled}
+          hasCheckedAnswer={hasCheckedAnswer}
+          isAnswerCorrect={isAnswerCorrect}
+          correctAnswer={currentQuestion.answer}
         />
       );
     } else {
@@ -146,6 +149,9 @@ export function LessonPage() {
             selectedIndex={selectedChoiceIndex}
             onChoiceSelect={handleChoiceSelect}
             disabled={isDisabled}
+            hasCheckedAnswer={hasCheckedAnswer}
+            isAnswerCorrect={isAnswerCorrect}
+            correctAnswer={currentQuestion.answer}
           />
         </div>
       );
