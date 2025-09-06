@@ -1,0 +1,61 @@
+.lesson-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  
+  .header-left,
+  .header-right {
+    flex: 0 0 auto;
+    width: 3rem;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .header-center {
+    flex: 1;
+    padding: 0 1rem;
+  }
+  
+  .cancel-button,
+  .settings-button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+  
+  .cancel-icon,
+  .settings-icon {
+    font-size: 1.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+// Mobile responsiveness
+@media (max-width: 768px) {
+  .lesson-header {
+    padding: 1rem;
+    
+    .header-center {
+      padding: 0 0.5rem;
+    }
+  }
+}

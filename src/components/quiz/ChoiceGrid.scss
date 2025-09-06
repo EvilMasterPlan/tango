@@ -1,0 +1,13 @@
+.choices-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+// Mobile responsiveness
+@media (max-width: 768px) {
+  .choices-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}

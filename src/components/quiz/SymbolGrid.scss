@@ -1,0 +1,16 @@
+.symbol-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+// Mobile responsiveness
+@media (max-width: 768px) {
+  .symbol-grid {
+    gap: 0.25rem;
+    max-width: 300px;
+  }
+}

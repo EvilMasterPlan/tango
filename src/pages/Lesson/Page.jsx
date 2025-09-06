@@ -1,11 +1,42 @@
+import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
-import { IoClose } from 'react-icons/io5';
-import { IoMdSettings } from 'react-icons/io';
-import { ProgressBar } from '@/components/shared/ProgressBar';
+import { LessonHeader } from '@/components/lesson/LessonHeader';
+import { LessonFooter } from '@/components/lesson/LessonFooter';
+import { SpellingQuestionBlock } from '@/components/quiz/SpellingQuestionBlock';
 import '@/pages/Lesson/Page.scss';
 
 export function LessonPage() {
+  // Hardcoded question data
+  const questionData = {
+    word_id: "W_001",
+    type: "word to spelling",
+    question: { text: "浴びる" },
+    reading: "あびる",
+    choices: [
+      "あ",
+      "び",
+      "る",
+      "お",
+      "い",
+      "ひ",
+    ],
+  };
+
+  const handleSettingsClick = () => {
+    // TODO: Implement settings functionality
+    console.log('Settings clicked');
+  };
+
+  const handleSkip = () => {
+    // TODO: Implement skip functionality
+    console.log('Skip clicked');
+  };
+
+  const handleCheck = () => {
+    // TODO: Implement check functionality
+    console.log('Check clicked');
+  };
+
   return (
     <>
       <Helmet>
@@ -14,41 +45,27 @@ export function LessonPage() {
       </Helmet>
       
       <div className="lesson-page">
-        {/* A - Top Bar */}
-        <header className="lesson-header">
-          <div className="header-left">
-            <Link to="/" className="cancel-button">
-              <IoClose className="cancel-icon" />
-            </Link>
-          </div>
-          
-          <div className="header-center">
-            <ProgressBar current={7} total={20} />
-          </div>
-          
-          <div className="header-right">
-            <button className="settings-button">
-              <IoMdSettings className="settings-icon" />
-            </button>
-          </div>
-        </header>
+        <LessonHeader 
+          current={7} 
+          total={20} 
+          onSettingsClick={handleSettingsClick}
+        />
 
         {/* B - Main Content */}
         <main className="lesson-content">
           <div className="question-area">
-            <h2>TODO</h2>
+            <SpellingQuestionBlock 
+              question={questionData.question}
+              reading={questionData.reading}
+              choices={questionData.choices}
+            />
           </div>
         </main>
 
-        {/* C - Action Footer */}
-        <footer className="lesson-footer">
-          <button className="action-button skip-button">
-            Skip
-          </button>
-          <button className="action-button check-button">
-            Check
-          </button>
-        </footer>
+        <LessonFooter 
+          onSkip={handleSkip}
+          onCheck={handleCheck}
+        />
       </div>
     </>
   );

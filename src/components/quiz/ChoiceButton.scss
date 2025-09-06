@@ -1,0 +1,82 @@
+.choice-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem 1rem;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  
+  .choice-number {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  
+  .choice-text {
+    flex: 1;
+    text-align: left;
+  }
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    
+    .choice-number {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  &.selected {
+    background: rgba(74, 222, 128, 0.3);
+    border-color: rgba(74, 222, 128, 0.6);
+    
+    .choice-number {
+      background: rgba(74, 222, 128, 0.8);
+      color: white;
+    }
+    
+    &:hover {
+      background: rgba(74, 222, 128, 0.4);
+      border-color: rgba(74, 222, 128, 0.8);
+      
+      .choice-number {
+        background: rgba(74, 222, 128, 0.9);
+      }
+    }
+  }
+}
+
+// Mobile responsiveness
+@media (max-width: 768px) {
+  .choice-button {
+    padding: 1.25rem 1rem;
+    font-size: 1.1rem;
+    gap: 0.75rem;
+    
+    .choice-number {
+      width: 2rem;
+      height: 2rem;
+      font-size: 1rem;
+    }
+  }
+}

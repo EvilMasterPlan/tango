@@ -1,0 +1,22 @@
+.question-block {
+  text-align: center;
+  margin-bottom: 3rem;
+  
+  .question-text {
+    font-size: 3rem;
+    font-weight: 600;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+}
+
+// Mobile responsiveness
+@media (max-width: 768px) {
+  .question-block {
+    margin-bottom: 2rem;
+    
+    .question-text {
+      font-size: 2rem;
+    }
+  }
+}
