@@ -1,12 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { QuestionBlock } from '@/components/quiz/QuestionBlock';
 import { SpellingSlot } from '@/components/quiz/SpellingSlot';
 import { SymbolGrid } from '@/components/quiz/SymbolGrid';
 import './SpellingQuestionBlock.scss';
 
-export function SpellingQuestionBlock({ question, reading, choices }) {
+export function SpellingQuestionBlock({ question, reading, choices, onCompletionChange }) {
   const [slots, setSlots] = useState(Array(reading.length).fill(null));
   const [usedSymbols, setUsedSymbols] = useState(new Set());
+
+  // Track completion and notify parent
+  useEffect(() => {
+    const isComplete = slots.every(slot => slot !== null);
+    onCompletionChange?.(isComplete);
+  }, [slots, onCompletionChange]);
 
   const handleSymbolSelect = (symbol, symbolIndex) => {
     // Check if symbol is already used

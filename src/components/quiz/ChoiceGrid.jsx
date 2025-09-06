@@ -7,7 +7,7 @@ export function ChoiceGrid({ choices, selectedIndex, onChoiceSelect }) {
       {choices.map((choice, index) => (
         <ChoiceButton
           key={index}
-          choice={choice}
+          choice={{ text: choice }}
           index={index}
           isSelected={selectedIndex === index}
           onSelect={onChoiceSelect}
