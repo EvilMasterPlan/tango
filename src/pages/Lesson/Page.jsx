@@ -70,14 +70,9 @@ export function LessonPage() {
   ];
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedChoiceIndex, setSelectedChoiceIndex] = useState(null);
-  const [isSpellingComplete, setIsSpellingComplete] = useState(false);
   const [hasCheckedAnswer, setHasCheckedAnswer] = useState(false);
-  const [isAnswerCorrect, setIsAnswerCorrect] = useState(false);
-  const [currentSpelling, setCurrentSpelling] = useState('');
-  const [matchingAnswers, setMatchingAnswers] = useState([]);
-  const [selectedSource, setSelectedSource] = useState(null);
-  const [selectedDestination, setSelectedDestination] = useState(null);
+  const [isQuestionComplete, setIsQuestionComplete] = useState(false);
+  const [isQuestionCorrect, setIsQuestionCorrect] = useState(false);
 
   const currentQuestion = questions[currentQuestionIndex];
 
@@ -98,22 +93,11 @@ export function LessonPage() {
   };
 
   const handleCheck = () => {
-    if (!hasCheckedAnswer) {
-      // First time checking - validate the answer
-      let isCorrect = false;
-      
-      if (currentQuestion.type === 'choice') {
-        const selectedChoice = currentQuestion.choices[selectedChoiceIndex];
-        isCorrect = selectedChoice === currentQuestion.answer;
-      } else if (currentQuestion.type === 'matching') {
-        // Compare matching answers array with the correct answers
-        isCorrect = JSON.stringify(matchingAnswers) === JSON.stringify(currentQuestion.answers);
-      } else {
-        // spelling type
-        isCorrect = currentSpelling === currentQuestion.answer;
-      }
-      
-      setIsAnswerCorrect(isCorrect);
+    if (currentQuestion.type === 'matching') {
+      // For matching questions, always proceed to next question
+      advanceToNextQuestion();
+    } else if (!hasCheckedAnswer) {
+      // First time checking - correctness is determined by the question component
       setHasCheckedAnswer(true);
     } else {
       // Continue after checking (whether correct or incorrect)
@@ -124,83 +108,28 @@ export function LessonPage() {
   const advanceToNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setSelectedChoiceIndex(null);
-      setIsSpellingComplete(false);
       setHasCheckedAnswer(false);
-      setIsAnswerCorrect(false);
-      setCurrentSpelling('');
-      setMatchingAnswers([]);
-      setSelectedSource(null);
-      setSelectedDestination(null);
+      setIsQuestionComplete(false);
+      setIsQuestionCorrect(false);
     } else {
       navigate('/');
     }
   };
 
-  const handleChoiceSelect = (choice, index) => {
-    setSelectedChoiceIndex(index);
+  const handleQuestionCompleteChange = (isComplete) => {
+    setIsQuestionComplete(isComplete);
   };
 
-  const handleSpellingCompletionChange = (isComplete) => {
-    setIsSpellingComplete(isComplete);
-  };
-
-  const handleSpellingChange = (spelling) => {
-    setCurrentSpelling(spelling);
-  };
-
-  const handleMatchingSelect = (type, index) => {
-    if (hasCheckedAnswer) return; // Don't allow changes after checking
-    
-    // Don't allow selection of already matched items
-    if (type === 'source' && matchingAnswers[index] !== undefined) return;
-    if (type === 'destination' && matchingAnswers.some(answer => answer === index)) return;
-    
-    if (type === 'source') {
-      if (selectedSource === index) {
-        // Clicking same source - deselect it
-        setSelectedSource(null);
-      } else {
-        // Select new source
-        setSelectedSource(index);
-        
-        // If we have both source and destination selected, create match
-        if (selectedDestination !== null) {
-          const newAnswers = [...matchingAnswers];
-          newAnswers[index] = selectedDestination;
-          setMatchingAnswers(newAnswers);
-          setSelectedSource(null);
-          setSelectedDestination(null);
-        }
-      }
-    } else if (type === 'destination') {
-      if (selectedDestination === index) {
-        // Clicking same destination - deselect it
-        setSelectedDestination(null);
-      } else {
-        // Select new destination
-        setSelectedDestination(index);
-        
-        // If we have both source and destination selected, create match
-        if (selectedSource !== null) {
-          const newAnswers = [...matchingAnswers];
-          newAnswers[selectedSource] = index;
-          setMatchingAnswers(newAnswers);
-          setSelectedSource(null);
-          setSelectedDestination(null);
-        }
-      }
-    }
+  const handleQuestionCorrectnessChange = (isCorrect) => {
+    setIsQuestionCorrect(isCorrect);
   };
 
   // Determine if check button should be disabled
-  const isCheckDisabled = hasCheckedAnswer 
-    ? false // Always enabled after checking (to show Continue)
-    : currentQuestion.type === 'choice' 
-      ? selectedChoiceIndex === null
-      : currentQuestion.type === 'matching'
-        ? matchingAnswers.length !== currentQuestion.choices.sources.length || matchingAnswers.some(answer => answer === undefined)
-        : !isSpellingComplete;
+  const isCheckDisabled = currentQuestion.type === 'matching'
+    ? !isQuestionComplete // For matching: disabled until all matches are made
+    : hasCheckedAnswer 
+      ? false // Always enabled after checking (to show Continue)
+      : !isQuestionComplete;
 
   // Handle Enter key to trigger Check/Continue button
   useEffect(() => {
@@ -221,31 +150,31 @@ export function LessonPage() {
     if (currentQuestion.type === 'spelling') {
       return (
         <SpellingQuestionBlock 
+          key={currentQuestionIndex}
           question={{ text: currentQuestion.question }}
           reading={currentQuestion.answer}
           choices={currentQuestion.choices}
-          onCompletionChange={handleSpellingCompletionChange}
-          onSpellingChange={handleSpellingChange}
           disabled={isDisabled}
           hasCheckedAnswer={hasCheckedAnswer}
-          isAnswerCorrect={isAnswerCorrect}
+          isAnswerCorrect={isQuestionCorrect}
           correctAnswer={currentQuestion.answer}
+          onCompleteChange={handleQuestionCompleteChange}
+          onCorrectnessChange={handleQuestionCorrectnessChange}
         />
       );
     } else if (currentQuestion.type === 'matching') {
       return (
         <MatchingQuestionBlock 
+          key={currentQuestionIndex}
           question={{ subtype: currentQuestion.subtype }}
           sources={currentQuestion.choices.sources}
           destinations={currentQuestion.choices.destinations}
           disabled={isDisabled}
           hasCheckedAnswer={hasCheckedAnswer}
-          isAnswerCorrect={isAnswerCorrect}
-          matchingAnswers={matchingAnswers}
-          onMatchingSelect={handleMatchingSelect}
+          isAnswerCorrect={isQuestionCorrect}
           correctAnswers={currentQuestion.answers}
-          selectedSource={selectedSource}
-          selectedDestination={selectedDestination}
+          onCompleteChange={handleQuestionCompleteChange}
+          onCorrectnessChange={handleQuestionCorrectnessChange}
         />
       );
     } else {
@@ -253,13 +182,14 @@ export function LessonPage() {
         <div className="choice-question">
           <QuestionBlock question={{ text: currentQuestion.question }} />
           <ChoiceGrid 
+            key={currentQuestionIndex}
             choices={currentQuestion.choices}
-            selectedIndex={selectedChoiceIndex}
-            onChoiceSelect={handleChoiceSelect}
             disabled={isDisabled}
             hasCheckedAnswer={hasCheckedAnswer}
-            isAnswerCorrect={isAnswerCorrect}
+            isAnswerCorrect={isQuestionCorrect}
             correctAnswer={currentQuestion.answer}
+            onCompleteChange={handleQuestionCompleteChange}
+            onCorrectnessChange={handleQuestionCorrectnessChange}
           />
         </div>
       );
@@ -293,9 +223,10 @@ export function LessonPage() {
           onCheck={handleCheck}
           checkDisabled={isCheckDisabled}
           hasCheckedAnswer={hasCheckedAnswer}
-          isAnswerIncorrect={hasCheckedAnswer && !isAnswerCorrect}
+          isAnswerIncorrect={hasCheckedAnswer && !isQuestionCorrect}
           correctAnswer={currentQuestion.answer}
           questionType={currentQuestion.type}
+          isMatchingQuestion={currentQuestion.type === 'matching'}
         />
       </div>
     </>

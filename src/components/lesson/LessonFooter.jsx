@@ -1,7 +1,7 @@
 import '@/components/lesson/LessonFooter.scss';
 import { FeedbackDisplay } from '@/components/quiz/FeedbackDisplay';
 
-export function LessonFooter({ onSkip, onCheck, skipDisabled = false, checkDisabled = false, hasCheckedAnswer = false, isAnswerIncorrect = false, correctAnswer = '', questionType = '' }) {
+export function LessonFooter({ onSkip, onCheck, skipDisabled = false, checkDisabled = false, hasCheckedAnswer = false, isAnswerIncorrect = false, correctAnswer = '', questionType = '', isMatchingQuestion = false }) {
   return (
     <footer className="lesson-footer">
       {hasCheckedAnswer ? (
@@ -24,7 +24,7 @@ export function LessonFooter({ onSkip, onCheck, skipDisabled = false, checkDisab
         onClick={onCheck}
         disabled={checkDisabled}
       >
-        {hasCheckedAnswer ? 'Continue' : 'Check'}
+        {isMatchingQuestion ? 'Continue' : (hasCheckedAnswer ? 'Continue' : 'Check')}
       </button>
     </footer>
   );

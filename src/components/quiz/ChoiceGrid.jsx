@@ -1,7 +1,40 @@
+import { useState } from 'react';
 import { ChoiceButton } from '@/components/quiz/ChoiceButton';
 import './ChoiceGrid.scss';
 
-export function ChoiceGrid({ choices, selectedIndex, onChoiceSelect, disabled = false, hasCheckedAnswer = false, isAnswerCorrect = false, correctAnswer = '' }) {
+export function ChoiceGrid({ 
+  choices, 
+  disabled = false, 
+  hasCheckedAnswer = false, 
+  isAnswerCorrect = false, 
+  correctAnswer = '',
+  onCompleteChange,
+  onCorrectnessChange
+}) {
+  const [selectedIndex, setSelectedIndex] = useState(null);
+
+  const handleChoiceSelect = (choice, index) => {
+    if (disabled) return;
+    
+    setSelectedIndex(index);
+    
+    // Choice questions are complete as soon as a choice is selected
+    onCompleteChange?.(true);
+    
+    // Evaluate correctness when answer is checked
+    if (hasCheckedAnswer) {
+      const isCorrect = choice.text === correctAnswer;
+      onCorrectnessChange?.(isCorrect);
+    }
+  };
+
+  // Evaluate correctness when answers are checked
+  if (hasCheckedAnswer && selectedIndex !== null) {
+    const selectedChoice = choices[selectedIndex];
+    const isCorrect = selectedChoice === correctAnswer;
+    onCorrectnessChange?.(isCorrect);
+  }
+
   return (
     <div className="choices-grid">
       {choices.map((choice, index) => (
@@ -10,7 +43,7 @@ export function ChoiceGrid({ choices, selectedIndex, onChoiceSelect, disabled = 
           choice={{ text: choice }}
           index={index}
           isSelected={selectedIndex === index}
-          onSelect={disabled ? () => {} : onChoiceSelect}
+          onSelect={disabled ? () => {} : handleChoiceSelect}
           disabled={disabled}
           hasCheckedAnswer={hasCheckedAnswer}
           isAnswerCorrect={isAnswerCorrect}

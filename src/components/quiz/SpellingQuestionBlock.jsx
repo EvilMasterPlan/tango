@@ -4,19 +4,34 @@ import { SpellingSlot } from '@/components/quiz/SpellingSlot';
 import { SymbolGrid } from '@/components/quiz/SymbolGrid';
 import './SpellingQuestionBlock.scss';
 
-export function SpellingQuestionBlock({ question, reading, choices, onCompletionChange, onSpellingChange, disabled = false, hasCheckedAnswer = false, isAnswerCorrect = false, correctAnswer = '' }) {
+export function SpellingQuestionBlock({ 
+  question, 
+  reading, 
+  choices, 
+  disabled = false, 
+  hasCheckedAnswer = false, 
+  isAnswerCorrect = false, 
+  correctAnswer = '',
+  onCompleteChange,
+  onCorrectnessChange
+}) {
   const [slots, setSlots] = useState(Array(reading.length).fill(null));
   const [usedSymbols, setUsedSymbols] = useState(new Set());
 
   // Track completion and notify parent
   useEffect(() => {
     const isComplete = slots.every(slot => slot !== null);
-    onCompletionChange?.(isComplete);
-    
-    // Send current spelling to parent
-    const currentSpelling = slots.join('');
-    onSpellingChange?.(currentSpelling);
-  }, [slots, onCompletionChange, onSpellingChange]);
+    onCompleteChange?.(isComplete);
+  }, [slots, onCompleteChange]);
+
+  // Evaluate correctness when answers are checked
+  useEffect(() => {
+    if (hasCheckedAnswer) {
+      const currentSpelling = slots.join('');
+      const isCorrect = currentSpelling === correctAnswer;
+      onCorrectnessChange?.(isCorrect);
+    }
+  }, [hasCheckedAnswer, slots, correctAnswer, onCorrectnessChange]);
 
   const handleSymbolSelect = (symbol, symbolIndex) => {
     // Check if disabled or symbol is already used
