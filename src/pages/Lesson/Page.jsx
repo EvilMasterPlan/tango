@@ -119,9 +119,11 @@ export function LessonPage() {
   };
 
   // Determine if check button should be disabled
-  const isCheckDisabled = currentQuestion.type === 'choice' 
-    ? selectedChoiceIndex === null
-    : !isSpellingComplete;
+  const isCheckDisabled = hasCheckedAnswer 
+    ? false // Always enabled after checking (to show Continue)
+    : currentQuestion.type === 'choice' 
+      ? selectedChoiceIndex === null
+      : !isSpellingComplete;
 
   const renderQuestion = () => {
     const isDisabled = hasCheckedAnswer; // Disable all choices once checked, regardless of correctness

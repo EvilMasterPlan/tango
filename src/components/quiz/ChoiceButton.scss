@@ -4,8 +4,8 @@
   border-radius: 12px;
   padding: 1.5rem 1rem;
   color: rgba(255, 255, 255, 0.8); // Slightly off-white for unselected
-  font-size: 1.2rem;
-  font-weight: 500;
+  font-size: 1.3rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all var(--transition-normal);
   backdrop-filter: blur(10px);
@@ -27,11 +27,13 @@
     flex-shrink: 0;
     color: rgba(255, 255, 255, 0.8); // Slightly off-white for unselected
     transition: all var(--transition-normal); // Smooth transitions for background and color
+    user-select: none; // Numbers are UI elements, not selectable content
   }
   
   .choice-text {
     flex: 1;
     text-align: left;
+    user-select: text; // Allow text selection even when button is disabled
   }
   
   &:hover {
@@ -108,37 +110,13 @@
     }
   }
   
-  // Incorrect answer feedback (red)
-  &.incorrect {
-    background: rgba(239, 68, 68, 0.2);
-    border-color: rgba(239, 68, 68, 0.6);
-    color: white;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.8) inset, 0 0 0 1px rgba(239, 68, 68, 0.6);
-    cursor: default; // Disable hover cursor
-    
-    .choice-number {
-      background: rgba(239, 68, 68, 0.8);
-      color: white;
-    }
-    
-    &:hover {
-      background: rgba(239, 68, 68, 0.2); // No hover effect
-      border-color: rgba(239, 68, 68, 0.6);
-      transform: none; // No transform on hover
-      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.8) inset, 0 0 0 1px rgba(239, 68, 68, 0.6);
-      
-      .choice-number {
-        background: rgba(239, 68, 68, 0.8); // No hover effect
-      }
-    }
-  }
 }
 
 // Mobile responsiveness
 @media (max-width: 768px) {
   .choice-button {
     padding: 1.25rem 1rem;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     gap: 0.75rem;
     
     .choice-number {
