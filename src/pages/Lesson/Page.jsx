@@ -18,6 +18,7 @@ export function LessonPage() {
       type: "choice",
       subtype: "kanji to reading",
       question: "浴びる",
+      answer: "あびる",
       choices: ["あびる", "あばる", "おびる", "いひる"],
     },
     {
@@ -25,6 +26,7 @@ export function LessonPage() {
       type: "choice",
       subtype: "word to meaning",
       question: "浴びる",
+      answer: "to bathe",
       choices: ["to bathe", "to lie", "to eat", "to sleep"],
     },
     {
@@ -48,6 +50,9 @@ export function LessonPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedChoiceIndex, setSelectedChoiceIndex] = useState(null);
   const [isSpellingComplete, setIsSpellingComplete] = useState(false);
+  const [hasCheckedAnswer, setHasCheckedAnswer] = useState(false);
+  const [isAnswerCorrect, setIsAnswerCorrect] = useState(false);
+  const [currentSpelling, setCurrentSpelling] = useState('');
 
   const currentQuestion = questions[currentQuestionIndex];
 
@@ -57,15 +62,45 @@ export function LessonPage() {
   };
 
   const handleSkip = () => {
-    // TODO: Implement skip functionality
-    console.log('Skip clicked');
+    if (!hasCheckedAnswer) {
+      // Skip without checking - treat as incorrect
+      setIsAnswerCorrect(false);
+      setHasCheckedAnswer(true);
+    } else {
+      // Continue after skipping
+      advanceToNextQuestion();
+    }
   };
 
   const handleCheck = () => {
+    if (!hasCheckedAnswer) {
+      // First time checking - validate the answer
+      let isCorrect = false;
+      
+      if (currentQuestion.type === 'choice') {
+        const selectedChoice = currentQuestion.choices[selectedChoiceIndex];
+        isCorrect = selectedChoice === currentQuestion.answer;
+      } else {
+        // spelling type
+        isCorrect = currentSpelling === currentQuestion.answer;
+      }
+      
+      setIsAnswerCorrect(isCorrect);
+      setHasCheckedAnswer(true);
+    } else {
+      // Continue after checking (whether correct or incorrect)
+      advanceToNextQuestion();
+    }
+  };
+
+  const advanceToNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedChoiceIndex(null);
       setIsSpellingComplete(false);
+      setHasCheckedAnswer(false);
+      setIsAnswerCorrect(false);
+      setCurrentSpelling('');
     } else {
       navigate('/');
     }
@@ -79,12 +114,18 @@ export function LessonPage() {
     setIsSpellingComplete(isComplete);
   };
 
+  const handleSpellingChange = (spelling) => {
+    setCurrentSpelling(spelling);
+  };
+
   // Determine if check button should be disabled
   const isCheckDisabled = currentQuestion.type === 'choice' 
     ? selectedChoiceIndex === null
     : !isSpellingComplete;
 
   const renderQuestion = () => {
+    const isDisabled = hasCheckedAnswer && !isAnswerCorrect;
+    
     if (currentQuestion.type === 'spelling') {
       return (
         <SpellingQuestionBlock 
@@ -92,6 +133,8 @@ export function LessonPage() {
           reading={currentQuestion.answer}
           choices={currentQuestion.choices}
           onCompletionChange={handleSpellingCompletionChange}
+          onSpellingChange={handleSpellingChange}
+          disabled={isDisabled}
         />
       );
     } else {
@@ -102,6 +145,7 @@ export function LessonPage() {
             choices={currentQuestion.choices}
             selectedIndex={selectedChoiceIndex}
             onChoiceSelect={handleChoiceSelect}
+            disabled={isDisabled}
           />
         </div>
       );
@@ -119,6 +163,7 @@ export function LessonPage() {
         <LessonHeader 
           current={currentQuestionIndex + 1} 
           total={questions.length} 
+          hasCheckedAnswer={hasCheckedAnswer}
           onSettingsClick={handleSettingsClick}
         />
 
@@ -133,6 +178,10 @@ export function LessonPage() {
           onSkip={handleSkip}
           onCheck={handleCheck}
           checkDisabled={isCheckDisabled}
+          hasCheckedAnswer={hasCheckedAnswer}
+          isAnswerIncorrect={hasCheckedAnswer && !isAnswerCorrect}
+          correctAnswer={currentQuestion.answer}
+          questionType={currentQuestion.type}
         />
       </div>
     </>

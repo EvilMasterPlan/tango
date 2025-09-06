@@ -4,7 +4,7 @@ import { SpellingSlot } from '@/components/quiz/SpellingSlot';
 import { SymbolGrid } from '@/components/quiz/SymbolGrid';
 import './SpellingQuestionBlock.scss';
 
-export function SpellingQuestionBlock({ question, reading, choices, onCompletionChange }) {
+export function SpellingQuestionBlock({ question, reading, choices, onCompletionChange, onSpellingChange, disabled = false }) {
   const [slots, setSlots] = useState(Array(reading.length).fill(null));
   const [usedSymbols, setUsedSymbols] = useState(new Set());
 
@@ -12,11 +12,15 @@ export function SpellingQuestionBlock({ question, reading, choices, onCompletion
   useEffect(() => {
     const isComplete = slots.every(slot => slot !== null);
     onCompletionChange?.(isComplete);
-  }, [slots, onCompletionChange]);
+    
+    // Send current spelling to parent
+    const currentSpelling = slots.join('');
+    onSpellingChange?.(currentSpelling);
+  }, [slots, onCompletionChange, onSpellingChange]);
 
   const handleSymbolSelect = (symbol, symbolIndex) => {
-    // Check if symbol is already used
-    if (usedSymbols.has(symbolIndex)) return;
+    // Check if disabled or symbol is already used
+    if (disabled || usedSymbols.has(symbolIndex)) return;
 
     // Find the last filled slot to place at the end
     const lastFilledIndex = slots.findLastIndex(slot => slot !== null);
@@ -35,7 +39,7 @@ export function SpellingQuestionBlock({ question, reading, choices, onCompletion
 
   const handleSlotClick = (slotIndex) => {
     const symbol = slots[slotIndex];
-    if (!symbol) return;
+    if (disabled || !symbol) return;
 
     // Find which symbol index this corresponds to
     const symbolIndex = choices.findIndex(s => s === symbol);
@@ -79,6 +83,7 @@ export function SpellingQuestionBlock({ question, reading, choices, onCompletion
           symbols={choices}
           usedSymbols={usedSymbols}
           onSymbolSelect={handleSymbolSelect}
+          disabled={disabled}
         />
       </div>
     </div>

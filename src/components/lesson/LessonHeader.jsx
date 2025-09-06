@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
 import { IoClose } from 'react-icons/io5';
 import { IoMdSettings } from 'react-icons/io';
-import { ProgressBar } from '@/components/shared/ProgressBar';
+import { LessonProgressBar } from '@/components/lesson/LessonProgressBar';
 import '@/components/lesson/LessonHeader.scss';
 
-export function LessonHeader({ current = 7, total = 20, onSettingsClick }) {
+export function LessonHeader({ current = 7, total = 20, hasCheckedAnswer = false, onSettingsClick }) {
   return (
     <header className="lesson-header">
       <div className="header-left">
@@ -14,7 +14,7 @@ export function LessonHeader({ current = 7, total = 20, onSettingsClick }) {
       </div>
       
       <div className="header-center">
-        <ProgressBar current={current} total={total} />
+        <LessonProgressBar current={current} total={total} hasCheckedAnswer={hasCheckedAnswer} />
       </div>
       
       <div className="header-right">

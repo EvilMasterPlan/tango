@@ -1,7 +1,7 @@
 import '@/components/shared/ProgressBar.scss';
 
-export function ProgressBar({ current = 0, total = 1 }) {
-  const progress = Math.min(Math.max((current / total) * 100, 0), 100);
+export function ProgressBar({ percentage = 0 }) {
+  const progress = Math.min(Math.max(percentage, 0), 100);
   
   return (
     <div className="progress-bar">

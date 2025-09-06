@@ -1,7 +1,7 @@
 import { ChoiceButton } from '@/components/quiz/ChoiceButton';
 import './ChoiceGrid.scss';
 
-export function ChoiceGrid({ choices, selectedIndex, onChoiceSelect }) {
+export function ChoiceGrid({ choices, selectedIndex, onChoiceSelect, disabled = false }) {
   return (
     <div className="choices-grid">
       {choices.map((choice, index) => (
@@ -10,7 +10,8 @@ export function ChoiceGrid({ choices, selectedIndex, onChoiceSelect }) {
           choice={{ text: choice }}
           index={index}
           isSelected={selectedIndex === index}
-          onSelect={onChoiceSelect}
+          onSelect={disabled ? () => {} : onChoiceSelect}
+          disabled={disabled}
         />
       ))}
     </div>
