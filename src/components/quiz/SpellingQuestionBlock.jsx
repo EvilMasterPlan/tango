@@ -18,6 +18,12 @@ export function SpellingQuestionBlock({
   const [slots, setSlots] = useState(Array(reading.length).fill(null));
   const [usedSymbols, setUsedSymbols] = useState(new Set());
 
+  // Reset state when reading changes (new question)
+  useEffect(() => {
+    setSlots(Array(reading.length).fill(null));
+    setUsedSymbols(new Set());
+  }, [reading]);
+
   // Track completion and notify parent
   useEffect(() => {
     const isComplete = slots.every(slot => slot !== null);

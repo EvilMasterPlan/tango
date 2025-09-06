@@ -7,67 +7,18 @@ import { SpellingQuestionBlock } from '@/components/quiz/SpellingQuestionBlock';
 import { QuestionBlock } from '@/components/quiz/QuestionBlock';
 import { ChoiceGrid } from '@/components/quiz/ChoiceGrid';
 import { MatchingQuestionBlock } from '@/components/quiz/MatchingQuestionBlock';
+import { generateLesson } from '@/utils/lessonGeneration';
 import '@/pages/Lesson/Page.scss';
 
 export function LessonPage() {
   const navigate = useNavigate();
   
-  // Hardcoded questions data
-  const questions = [
-    {
-      type: "matching",
-      subtype: "word to meaning",
-      answers: [0, 1, 2, 3, 4],
-      choices: {
-        sources: [
-          "浴びる",
-          "危ない",
-          "あっち",
-          "あちら",
-          "上げる",
-        ],
-        destinations: [
-          "to bathe",
-          "dangerous",
-          "over there",
-          "there",
-          "to raise",
-        ],
-      },
-    },
-    {
-      word_id: "W_001",
-      type: "choice",
-      subtype: "kanji to reading",
-      question: "浴びる",
-      answer: "あびる",
-      choices: ["あびる", "あばる", "おびる", "いひる"],
-    },
-    {
-      word_id: "W_001",
-      type: "choice",
-      subtype: "word to meaning",
-      question: "浴びる",
-      answer: "to bathe",
-      choices: ["to bathe", "to lie", "to eat", "to sleep"],
-    },
-    {
-      word_id: "W_001",
-      type: "choice",
-      subtype: "meaning to word",
-      question: "to bathe",
-      answer: "浴びる",
-      choices: ["浴びる", "峪びる", "郤びる", "欲びる"],
-    },
-    {
-      word_id: "W_001",
-      type: "spelling",
-      subtype: "word to spelling",
-      question: "浴びる",
-      answer: "あびる",
-      choices: ["あ", "び", "る", "お", "い", "ひ"],
-    },
-  ];
+  // Generate questions directly - no need for useEffect since it's synchronous
+  const questions = generateLesson({
+    numWords: 5,
+    numMatchingQuestions: 2,
+    numSpellingQuestions: 5
+  });
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [hasCheckedAnswer, setHasCheckedAnswer] = useState(false);
@@ -93,10 +44,7 @@ export function LessonPage() {
   };
 
   const handleCheck = () => {
-    if (currentQuestion.type === 'matching') {
-      // For matching questions, always proceed to next question
-      advanceToNextQuestion();
-    } else if (!hasCheckedAnswer) {
+    if (!hasCheckedAnswer) {
       // First time checking - correctness is determined by the question component
       setHasCheckedAnswer(true);
     } else {
@@ -199,7 +147,7 @@ export function LessonPage() {
   return (
     <>
       <Helmet>
-        <title>Lesson - SarabaJa</title>
+        <title>Lesson</title>
         <meta name="description" content="Japanese vocabulary lesson" />
       </Helmet>
       
@@ -211,7 +159,6 @@ export function LessonPage() {
           onSettingsClick={handleSettingsClick}
         />
 
-        {/* B - Main Content */}
         <main className="lesson-content">
           <div className="question-area">
             {renderQuestion()}

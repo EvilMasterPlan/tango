@@ -19,6 +19,14 @@ export function MatchingQuestionBlock({
   const [selectedDestination, setSelectedDestination] = useState(null);
   const [incorrectMatches, setIncorrectMatches] = useState(new Set());
 
+  // Reset state when sources change (new question)
+  useEffect(() => {
+    setMatchingAnswers([]);
+    setSelectedSource(null);
+    setSelectedDestination(null);
+    setIncorrectMatches(new Set());
+  }, [sources]);
+
   const handleMatchingSelect = (type, index) => {
     if (disabled) return;
     
