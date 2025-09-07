@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import classNames from 'classnames';
 import './MatchingQuestionBlock.scss';
 
@@ -79,7 +79,7 @@ export function MatchingQuestionBlock({
           
           // Check if ready to submit
           const isReady = newAnswers.length === sources.length && !newAnswers.some(answer => answer === undefined);
-          onCompleteChange?.(isReady);
+          setTimeout(() => onCompleteChange?.(isReady), 0);
         }
       }
     } else if (type === 'destination') {
@@ -127,17 +127,19 @@ export function MatchingQuestionBlock({
           
           // Check if ready to submit
           const isReady = newAnswers.length === sources.length && !newAnswers.some(answer => answer === undefined);
-          onCompleteChange?.(isReady);
+          setTimeout(() => onCompleteChange?.(isReady), 0);
         }
       }
     }
   };
 
   // Evaluate correctness when answers are checked
-  const isCorrect = hasCheckedAnswer && JSON.stringify(matchingAnswers) === JSON.stringify(correctAnswers);
-  if (hasCheckedAnswer && onCorrectnessChange) {
-    onCorrectnessChange(isCorrect);
-  }
+  useEffect(() => {
+    if (hasCheckedAnswer) {
+      const isCorrect = JSON.stringify(matchingAnswers) === JSON.stringify(correctAnswers);
+      onCorrectnessChange?.(isCorrect);
+    }
+  }, [hasCheckedAnswer, matchingAnswers, correctAnswers, onCorrectnessChange]);
   return (
     <div className="matching-question-block">
       <div className="matching-container">
