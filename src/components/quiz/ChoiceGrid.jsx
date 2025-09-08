@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChoiceButton } from '@/components/quiz/ChoiceButton';
 import './ChoiceGrid.scss';
 
@@ -28,12 +28,14 @@ export function ChoiceGrid({
     }
   };
 
-  // Evaluate correctness when answers are checked
-  if (hasCheckedAnswer && selectedIndex !== null) {
-    const selectedChoice = choices[selectedIndex];
-    const isCorrect = selectedChoice === correctAnswer;
-    onCorrectnessChange?.(isCorrect);
-  }
+  // Evaluate correctness when answers are checked - moved to useEffect to avoid setState during render
+  useEffect(() => {
+    if (hasCheckedAnswer && selectedIndex !== null) {
+      const selectedChoice = choices[selectedIndex];
+      const isCorrect = selectedChoice === correctAnswer;
+      onCorrectnessChange?.(isCorrect);
+    }
+  }, [hasCheckedAnswer, selectedIndex, choices, correctAnswer, onCorrectnessChange]);
 
   return (
     <div className="choices-grid">

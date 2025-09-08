@@ -1,7 +1,8 @@
 import { vocab } from '@/data/vocab';
 import { 
   generateMatchingQuestion, 
-  generateSpellingQuestion 
+  generateSpellingQuestion,
+  generateChoiceQuestions
 } from '@/utils/questionGeneration';
 
 /**
@@ -10,13 +11,15 @@ import {
  * @param {number} options.numWords - Number of vocab words to use (default: 5)
  * @param {number} options.numMatchingQuestions - Number of matching questions (default: 2)
  * @param {number} options.numSpellingQuestions - Number of spelling questions (default: 5)
+ * @param {number} options.numChoiceQuestions - Number of choice questions (default: 3)
  * @returns {Array} Array of question objects for the lesson
  */
 export function generateLesson(options = {}) {
   const {
     numWords = 5,
     numMatchingQuestions = 2,
-    numSpellingQuestions = 5
+    numSpellingQuestions = 5,
+    numChoiceQuestions = 3
   } = options;
 
   // Pick random words from vocab
@@ -27,25 +30,25 @@ export function generateLesson(options = {}) {
 
   // Generate matching questions
   const matchingSubtypes = ["word to meaning", "word to reading", "meaning to word"];
-  for (let i = 0; i < numMatchingQuestions; i++) {
-    // Pick a random subtype
+  const matchingQuestions = Array.from({ length: numMatchingQuestions }, () => {
     const randomSubtype = matchingSubtypes[Math.floor(Math.random() * matchingSubtypes.length)];
-    
-    // Generate matching question using all selected words
-    const matchingQuestion = generateMatchingQuestion(selectedWords, randomSubtype);
-    if (matchingQuestion) {
-      questions.push(matchingQuestion);
-    }
-  }
+    return generateMatchingQuestion(selectedWords, randomSubtype);
+  }).filter(Boolean);
+  
+  questions.push(...matchingQuestions);
 
   // Generate spelling questions (one per word, up to numSpellingQuestions)
   const wordsForSpelling = selectedWords.slice(0, numSpellingQuestions);
-  for (const word of wordsForSpelling) {
-    const spellingQuestion = generateSpellingQuestion(word);
-    if (spellingQuestion) {
-      questions.push(spellingQuestion);
-    }
-  }
+  const spellingQuestions = wordsForSpelling
+    .map(word => generateSpellingQuestion(word))
+    .filter(Boolean);
+  
+  questions.push(...spellingQuestions);
+
+  // Generate choice questions (word to reading only)
+  const wordsForChoice = selectedWords.slice(0, numChoiceQuestions);
+  const choiceQuestions = generateChoiceQuestions(wordsForChoice, ["word to reading"]);
+  questions.push(...choiceQuestions);
 
   // Shuffle the final questions array
   return questions.sort(() => Math.random() - 0.5);
@@ -70,25 +73,25 @@ export function generateCustomLesson(options = {}) {
 
   const questions = [];
 
-  for (const questionType of questionTypes) {
+  const generatedQuestions = questionTypes.flatMap(questionType => {
     const { type, subtype, count = 1 } = questionType;
     
-    for (let i = 0; i < count; i++) {
-      let question = null;
-      
+    return Array.from({ length: count }, () => {
       if (type === 'matching') {
-        question = generateMatchingQuestion(selectedWords, subtype);
+        return generateMatchingQuestion(selectedWords, subtype);
       } else if (type === 'spelling') {
-        // For spelling, pick a random word from selected words
         const randomWord = selectedWords[Math.floor(Math.random() * selectedWords.length)];
-        question = generateSpellingQuestion(randomWord);
+        return generateSpellingQuestion(randomWord);
+      } else if (type === 'choice') {
+        const randomWord = selectedWords[Math.floor(Math.random() * selectedWords.length)];
+        const choiceQuestions = generateChoiceQuestions([randomWord], [subtype || "word to reading"]);
+        return choiceQuestions[0];
       }
-      
-      if (question) {
-        questions.push(question);
-      }
-    }
-  }
+      return null;
+    }).filter(Boolean);
+  });
+  
+  questions.push(...generatedQuestions);
 
   // Shuffle the final questions array
   return questions.sort(() => Math.random() - 0.5);

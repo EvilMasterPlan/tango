@@ -1,3 +1,6 @@
+// Import choice generation functions
+import { generateAnswerChoices } from './choiceGeneration.js';
+
 /**
  * Generates spelling question from vocab object
  * @param {Object} vocab - Vocab object with word, reading, etc.
@@ -156,19 +159,24 @@ export function generateMatchingQuestions(vocabArray, subtypes = ["word to meani
 /**
  * Generates a choice question from a vocab object
  * @param {Object} vocab - Vocab object with word, reading, definition, etc.
- * @param {string} subtype - Type of choice question ("kanji to reading", "word to meaning", "meaning to word")
+ * @param {string} subtype - Type of choice question ("word to reading", "word to meaning", "meaning to word")
+ * @param {Array} allReadings - Array of all readings from vocab for generating similar options
  * @returns {Object} Choice question object
  */
-export function generateChoiceQuestion(vocab, subtype = "word to meaning") {
+export function generateChoiceQuestion(vocab, subtype = "word to reading", allReadings = []) {
   let question, answer, choices;
   
   switch (subtype) {
-    case "kanji to reading":
+    case "word to reading":
       if (!vocab.reading) return null;
       question = vocab.word;
       answer = vocab.reading;
-      // For now, all choices are the same (correct answer)
-      choices = [vocab.reading, vocab.reading, vocab.reading, vocab.reading];
+      
+      // Generate proper answer choices with mutations
+      const choiceObjects = generateAnswerChoices(vocab.reading, allReadings, {
+        originalWord: vocab.word
+      });
+      choices = choiceObjects.map(choice => choice.text);
       break;
       
     case "word to meaning":
@@ -204,12 +212,17 @@ export function generateChoiceQuestion(vocab, subtype = "word to meaning") {
 /**
  * Generates multiple choice questions from an array of vocab objects
  * @param {Array} vocabArray - Array of vocab objects
- * @param {Array} subtypes - Array of subtypes to generate (default: ["word to meaning"])
+ * @param {Array} subtypes - Array of subtypes to generate (default: ["word to reading"])
  * @returns {Array} Array of choice question objects (filtered out nulls)
  */
-export function generateChoiceQuestions(vocabArray, subtypes = ["word to meaning"]) {
+export function generateChoiceQuestions(vocabArray, subtypes = ["word to reading"]) {
+  // Extract all readings for generating similar options
+  const allReadings = vocabArray
+    .map(vocab => vocab.reading)
+    .filter(reading => reading); // Remove null/undefined readings
+  
   return vocabArray
-    .map(vocab => subtypes.map(subtype => generateChoiceQuestion(vocab, subtype)))
+    .map(vocab => subtypes.map(subtype => generateChoiceQuestion(vocab, subtype, allReadings)))
     .flat()
     .filter(question => question !== null);
 }

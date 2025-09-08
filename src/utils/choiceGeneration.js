@@ -256,9 +256,6 @@ export function generateAnswerChoices(
     attempts--;
   }
   
-  // Create pool of all options (excluding correct choice)
-  const allOptions = [...similarReadings, ...mutations];
-  
   // Sample from pool to fill remaining 3 slots, ensuring uniqueness
   const remainingChoices = 3;
   const selectedOptions = new Set();
