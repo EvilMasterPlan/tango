@@ -47,7 +47,7 @@ export function generateLesson(options = {}) {
 
   // Generate choice questions (word to reading only)
   const wordsForChoice = selectedWords.slice(0, numChoiceQuestions);
-  const choiceQuestions = generateChoiceQuestions(wordsForChoice, [QuestionSubtype.WORD_TO_READING]);
+  const choiceQuestions = generateChoiceQuestions(wordsForChoice, [QuestionSubtype.WORD_TO_READING, QuestionSubtype.WORD_TO_READING, QuestionSubtype.WORD_TO_MEANING]);
   questions.push(...choiceQuestions);
 
   // Shuffle the final questions array

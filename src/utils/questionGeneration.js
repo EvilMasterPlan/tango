@@ -3,6 +3,28 @@ import { generateAnswerChoices } from './choiceGeneration.js';
 import { QuestionType, QuestionSubtype } from './questionTypes.js';
 
 /**
+ * Generates random choices for word/definition questions
+ * @param {string} correctAnswer - The correct answer
+ * @param {Array} allOptions - Array of all possible options (words or definitions)
+ * @param {number} numChoices - Number of choices to generate (default: 3)
+ * @returns {Array} Array of choice strings
+ */
+function generateRandomChoices(correctAnswer, allOptions, numChoices = 3) {
+  // Filter out the correct answer and get unique options
+  const availableOptions = [...new Set(allOptions.filter(option => option !== correctAnswer))];
+  
+  // If we don't have enough unique options, we can't generate the requested number
+  if (availableOptions.length < numChoices) {
+    // Return all available options (less than requested)
+    return availableOptions;
+  }
+  
+  // Shuffle and take the requested number of unique choices
+  const shuffledOptions = [...availableOptions].sort(() => Math.random() - 0.5);
+  return shuffledOptions.slice(0, numChoices);
+}
+
+/**
  * Generates spelling question from vocab object
  * @param {Object} vocab - Vocab object with word, reading, etc.
  * @returns {Object} Spelling question object
@@ -162,9 +184,11 @@ export function generateMatchingQuestions(vocabArray, subtypes = [QuestionSubtyp
  * @param {Object} vocab - Vocab object with word, reading, definition, etc.
  * @param {string} subtype - Type of choice question (QuestionSubtype.WORD_TO_READING, QuestionSubtype.WORD_TO_MEANING, QuestionSubtype.MEANING_TO_WORD)
  * @param {Array} allReadings - Array of all readings from vocab for generating similar options
+ * @param {Array} allWords - Array of all words from vocab for generating random word choices
+ * @param {Array} allDefinitions - Array of all definitions from vocab for generating random definition choices
  * @returns {Object} Choice question object
  */
-export function generateChoiceQuestion(vocab, subtype = QuestionSubtype.WORD_TO_READING, allReadings = []) {
+export function generateChoiceQuestion(vocab, subtype = QuestionSubtype.WORD_TO_READING, allReadings = [], allWords = [], allDefinitions = []) {
   let question, answer, choices;
   
   switch (subtype) {
@@ -184,21 +208,28 @@ export function generateChoiceQuestion(vocab, subtype = QuestionSubtype.WORD_TO_
       if (!vocab.definition || vocab.definition.length === 0) return null;
       question = vocab.word;
       answer = vocab.definition[0]; // Use first definition
-      // For now, all choices are the same (correct answer)
-      choices = [vocab.definition[0], vocab.definition[0], vocab.definition[0], vocab.definition[0]];
+      
+      // Generate random definition choices (excluding the correct answer)
+      const randomDefinitions = generateRandomChoices(answer, allDefinitions, 3);
+      choices = [answer, ...randomDefinitions];
       break;
       
     case QuestionSubtype.MEANING_TO_WORD:
       if (!vocab.definition || vocab.definition.length === 0) return null;
       question = vocab.definition[0]; // Use first definition
       answer = vocab.word;
-      // For now, all choices are the same (correct answer)
-      choices = [vocab.word, vocab.word, vocab.word, vocab.word];
+      
+      // Generate random word choices (excluding the correct answer)
+      const randomWords = generateRandomChoices(answer, allWords, 3);
+      choices = [answer, ...randomWords];
       break;
       
     default:
       return null;
   }
+  
+  // Shuffle the choices array so the correct answer isn't always first
+  const shuffledChoices = [...choices].sort(() => Math.random() - 0.5);
   
   return {
     word_id: vocab.id || vocab.word_id,
@@ -206,7 +237,7 @@ export function generateChoiceQuestion(vocab, subtype = QuestionSubtype.WORD_TO_
     subtype: subtype,
     question: question,
     answer: answer,
-    choices: choices
+    choices: shuffledChoices
   };
 }
 
@@ -222,8 +253,18 @@ export function generateChoiceQuestions(vocabArray, subtypes = [QuestionSubtype.
     .map(vocab => vocab.reading)
     .filter(reading => reading); // Remove null/undefined readings
   
+  // Extract all words for generating random word choices
+  const allWords = vocabArray
+    .map(vocab => vocab.word)
+    .filter(word => word); // Remove null/undefined words
+  
+  // Extract all definitions for generating random definition choices
+  const allDefinitions = vocabArray
+    .flatMap(vocab => vocab.definition || [])
+    .filter(definition => definition); // Remove null/undefined definitions
+  
   return vocabArray
-    .map(vocab => subtypes.map(subtype => generateChoiceQuestion(vocab, subtype, allReadings)))
+    .map(vocab => subtypes.map(subtype => generateChoiceQuestion(vocab, subtype, allReadings, allWords, allDefinitions)))
     .flat()
     .filter(question => question !== null);
 }
