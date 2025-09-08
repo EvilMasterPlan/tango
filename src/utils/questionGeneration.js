@@ -1,5 +1,6 @@
 // Import choice generation functions
 import { generateAnswerChoices } from './choiceGeneration.js';
+import { QuestionType, QuestionSubtype } from './questionTypes.js';
 
 /**
  * Generates spelling question from vocab object
@@ -53,8 +54,8 @@ export function generateSpellingQuestion(vocab) {
 
   return {
     word_id: vocab.id || vocab.word_id,
-    type: "spelling",
-    subtype: "word to spelling",
+    type: QuestionType.SPELLING,
+    subtype: QuestionSubtype.WORD_TO_SPELLING,
     question: vocab.word,
     answer: reading,
     choices: shuffledChoices
@@ -75,16 +76,16 @@ export function generateSpellingQuestions(vocabArray) {
 /**
  * Generates a matching question from an array of vocab objects
  * @param {Array} vocabArray - Array of vocab objects (minimum 3, maximum 8)
- * @param {string} subtype - Type of matching ("word to meaning", "word to reading", "meaning to word")
+ * @param {string} subtype - Type of matching (QuestionSubtype.WORD_TO_MEANING, QuestionSubtype.WORD_TO_READING, QuestionSubtype.MEANING_TO_WORD)
  * @returns {Object} Matching question object
  */
-export function generateMatchingQuestion(vocabArray, subtype = "word to meaning") {
+export function generateMatchingQuestion(vocabArray, subtype = QuestionSubtype.WORD_TO_MEANING) {
   // Filter out words without the required data for the subtype
   let validVocab = vocabArray;
   
-  if (subtype === "word to reading") {
+  if (subtype === QuestionSubtype.WORD_TO_READING) {
     validVocab = vocabArray.filter(vocab => vocab.reading);
-  } else if (subtype === "word to meaning" || subtype === "meaning to word") {
+  } else if (subtype === QuestionSubtype.WORD_TO_MEANING || subtype === QuestionSubtype.MEANING_TO_WORD) {
     validVocab = vocabArray.filter(vocab => vocab.definition && vocab.definition.length > 0);
   }
   
@@ -99,19 +100,19 @@ export function generateMatchingQuestion(vocabArray, subtype = "word to meaning"
   let sources, destinations, answers;
   
   switch (subtype) {
-    case "word to meaning":
+    case QuestionSubtype.WORD_TO_MEANING:
       sources = selectedVocab.map(vocab => vocab.word);
       destinations = selectedVocab.map(vocab => vocab.definition[0]); // Use first definition
       answers = Array.from({ length: numItems }, (_, i) => i);
       break;
       
-    case "word to reading":
+    case QuestionSubtype.WORD_TO_READING:
       sources = selectedVocab.map(vocab => vocab.word);
       destinations = selectedVocab.map(vocab => vocab.reading);
       answers = Array.from({ length: numItems }, (_, i) => i);
       break;
       
-    case "meaning to word":
+    case QuestionSubtype.MEANING_TO_WORD:
       sources = selectedVocab.map(vocab => vocab.definition[0]); // Use first definition
       destinations = selectedVocab.map(vocab => vocab.word);
       answers = Array.from({ length: numItems }, (_, i) => i);
@@ -134,7 +135,7 @@ export function generateMatchingQuestion(vocabArray, subtype = "word to meaning"
   });
   
   return {
-    type: "matching",
+    type: QuestionType.MATCHING,
     subtype: subtype,
     answers: shuffledAnswers,
     choices: {
@@ -147,10 +148,10 @@ export function generateMatchingQuestion(vocabArray, subtype = "word to meaning"
 /**
  * Generates multiple matching questions from an array of vocab objects
  * @param {Array} vocabArray - Array of vocab objects
- * @param {Array} subtypes - Array of subtypes to generate (default: ["word to meaning"])
+ * @param {Array} subtypes - Array of subtypes to generate (default: [QuestionSubtype.WORD_TO_MEANING])
  * @returns {Array} Array of matching question objects (filtered out nulls)
  */
-export function generateMatchingQuestions(vocabArray, subtypes = ["word to meaning"]) {
+export function generateMatchingQuestions(vocabArray, subtypes = [QuestionSubtype.WORD_TO_MEANING]) {
   return subtypes
     .map(subtype => generateMatchingQuestion(vocabArray, subtype))
     .filter(question => question !== null);
@@ -159,15 +160,15 @@ export function generateMatchingQuestions(vocabArray, subtypes = ["word to meani
 /**
  * Generates a choice question from a vocab object
  * @param {Object} vocab - Vocab object with word, reading, definition, etc.
- * @param {string} subtype - Type of choice question ("word to reading", "word to meaning", "meaning to word")
+ * @param {string} subtype - Type of choice question (QuestionSubtype.WORD_TO_READING, QuestionSubtype.WORD_TO_MEANING, QuestionSubtype.MEANING_TO_WORD)
  * @param {Array} allReadings - Array of all readings from vocab for generating similar options
  * @returns {Object} Choice question object
  */
-export function generateChoiceQuestion(vocab, subtype = "word to reading", allReadings = []) {
+export function generateChoiceQuestion(vocab, subtype = QuestionSubtype.WORD_TO_READING, allReadings = []) {
   let question, answer, choices;
   
   switch (subtype) {
-    case "word to reading":
+    case QuestionSubtype.WORD_TO_READING:
       if (!vocab.reading) return null;
       question = vocab.word;
       answer = vocab.reading;
@@ -179,7 +180,7 @@ export function generateChoiceQuestion(vocab, subtype = "word to reading", allRe
       choices = choiceObjects.map(choice => choice.text);
       break;
       
-    case "word to meaning":
+    case QuestionSubtype.WORD_TO_MEANING:
       if (!vocab.definition || vocab.definition.length === 0) return null;
       question = vocab.word;
       answer = vocab.definition[0]; // Use first definition
@@ -187,7 +188,7 @@ export function generateChoiceQuestion(vocab, subtype = "word to reading", allRe
       choices = [vocab.definition[0], vocab.definition[0], vocab.definition[0], vocab.definition[0]];
       break;
       
-    case "meaning to word":
+    case QuestionSubtype.MEANING_TO_WORD:
       if (!vocab.definition || vocab.definition.length === 0) return null;
       question = vocab.definition[0]; // Use first definition
       answer = vocab.word;
@@ -201,7 +202,7 @@ export function generateChoiceQuestion(vocab, subtype = "word to reading", allRe
   
   return {
     word_id: vocab.id || vocab.word_id,
-    type: "choice",
+    type: QuestionType.CHOICE,
     subtype: subtype,
     question: question,
     answer: answer,
@@ -212,10 +213,10 @@ export function generateChoiceQuestion(vocab, subtype = "word to reading", allRe
 /**
  * Generates multiple choice questions from an array of vocab objects
  * @param {Array} vocabArray - Array of vocab objects
- * @param {Array} subtypes - Array of subtypes to generate (default: ["word to reading"])
+ * @param {Array} subtypes - Array of subtypes to generate (default: [QuestionSubtype.WORD_TO_READING])
  * @returns {Array} Array of choice question objects (filtered out nulls)
  */
-export function generateChoiceQuestions(vocabArray, subtypes = ["word to reading"]) {
+export function generateChoiceQuestions(vocabArray, subtypes = [QuestionSubtype.WORD_TO_READING]) {
   // Extract all readings for generating similar options
   const allReadings = vocabArray
     .map(vocab => vocab.reading)
