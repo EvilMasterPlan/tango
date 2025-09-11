@@ -15,7 +15,7 @@ export function LessonPage() {
   return (
     <>
       <Helmet>
-        <title>Lesson</title>
+        <title>Tango Tanuki - Lesson</title>
         <meta name="description" content="Japanese vocabulary lesson" />
       </Helmet>
       
