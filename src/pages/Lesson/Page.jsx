@@ -7,7 +7,7 @@ import '@/pages/Lesson/Page.scss';
 export function LessonPage() {
   // Generate questions once when component mounts
   const [questions] = useState(() => generateLesson({
-    numWords: 5,
+    numWords: 10,
     numMatchingQuestions: 2,
     numSpellingQuestions: 5
   }));

@@ -111,8 +111,8 @@ export function generateMatchingQuestion(vocabArray, subtype = QuestionSubtype.W
     validVocab = vocabArray.filter(vocab => vocab.definition && vocab.definition.length > 0);
   }
   
-  // Ensure we have at least 3 items, maximum 8
-  const numItems = Math.min(Math.max(validVocab.length, 3), 8);
+  // Ensure we have at least 3 items, maximum 5 for matching questions
+  const numItems = Math.min(Math.max(validVocab.length, 3), 5);
   const selectedVocab = validVocab.slice(0, numItems);
   
   if (selectedVocab.length < 3) {

@@ -7,7 +7,7 @@ export function Home() {
   return (
     <>
       <Helmet>
-        <title>SarabaJa - Japanese Learning Platform</title>
+        <title>Tango Tanuki</title>
         <meta name="description" content="Master Japanese kanji, vocabulary, and JLPT preparation with personalized study plans." />
       </Helmet>
       
@@ -15,7 +15,7 @@ export function Home() {
         {/* Left Sidebar - Logo & Navigation */}
         <aside className="left-sidebar">
           <div className="logo" onClick={() => window.location.href = '/'}>
-            <span className="english">Sarabaja</span>
+            <span className="english">Tango Tanuki</span>
           </div>
           
           <nav className="sidebar-nav">
