@@ -211,7 +211,22 @@ export function generateChoiceQuestion(vocab, subtype = QuestionSubtype.WORD_TO_
       
       // Generate random definition choices (excluding the correct answer)
       const randomDefinitions = generateRandomChoices(answer, allDefinitions, 3);
-      choices = [answer, ...randomDefinitions];
+      
+      // If we don't have enough wrong answers, add some generic ones
+      const genericWrongAnswers = ['something', 'nothing', 'everything', 'anything'];
+      let finalWrongAnswers = [...randomDefinitions];
+      
+      while (finalWrongAnswers.length < 3) {
+        const genericAnswer = genericWrongAnswers[finalWrongAnswers.length % genericWrongAnswers.length];
+        if (!finalWrongAnswers.includes(genericAnswer) && genericAnswer !== answer) {
+          finalWrongAnswers.push(genericAnswer);
+        } else {
+          // If we've exhausted generic answers, just add a numbered one
+          finalWrongAnswers.push(`option ${finalWrongAnswers.length + 1}`);
+        }
+      }
+      
+      choices = [answer, ...finalWrongAnswers];
       break;
       
     case QuestionSubtype.MEANING_TO_WORD:
