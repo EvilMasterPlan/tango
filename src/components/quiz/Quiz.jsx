@@ -19,7 +19,6 @@ export function Quiz({ questions }) {
 
   const handleSettingsClick = () => {
     // TODO: Implement settings functionality
-    console.log('Settings clicked');
   };
 
   const advanceToNextQuestion = useCallback(() => {
@@ -45,7 +44,6 @@ export function Quiz({ questions }) {
   };
 
   const handleCheck = useCallback(() => {
-    console.log('handleCheck called', { hasCheckedAnswer, isQuestionComplete, currentQuestionType: currentQuestion.type });
     if (!hasCheckedAnswer) {
       // First time checking - correctness is determined by the question component
       setHasCheckedAnswer(true);

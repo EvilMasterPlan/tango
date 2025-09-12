@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { Home } from '@/pages/Home/Page';
-import { LessonPage } from '@/pages/Lesson/Page';
+import { LessonContainer } from '@/pages/Lesson/Container';
 import '@/App.scss';
 
 function App() {
@@ -13,7 +13,7 @@ function App() {
             <div className="container">
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/lesson" element={<LessonPage />} />
+                <Route path="/lesson" element={<LessonContainer />} />
               </Routes>
             </div>
           </main>

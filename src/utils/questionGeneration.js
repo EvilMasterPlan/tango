@@ -108,7 +108,7 @@ export function generateMatchingQuestion(vocabArray, subtype = QuestionSubtype.W
   if (subtype === QuestionSubtype.WORD_TO_READING) {
     validVocab = vocabArray.filter(vocab => vocab.reading);
   } else if (subtype === QuestionSubtype.WORD_TO_MEANING || subtype === QuestionSubtype.MEANING_TO_WORD) {
-    validVocab = vocabArray.filter(vocab => vocab.definition && vocab.definition.length > 0);
+    validVocab = vocabArray.filter(vocab => vocab.definition && vocab.definition.trim().length > 0);
   }
   
   // Ensure we have at least 3 items, maximum 5 for matching questions
@@ -124,7 +124,7 @@ export function generateMatchingQuestion(vocabArray, subtype = QuestionSubtype.W
   switch (subtype) {
     case QuestionSubtype.WORD_TO_MEANING:
       sources = selectedVocab.map(vocab => vocab.word);
-      destinations = selectedVocab.map(vocab => vocab.definition[0]); // Use first definition
+      destinations = selectedVocab.map(vocab => vocab.definition);
       answers = Array.from({ length: numItems }, (_, i) => i);
       break;
       
@@ -135,7 +135,7 @@ export function generateMatchingQuestion(vocabArray, subtype = QuestionSubtype.W
       break;
       
     case QuestionSubtype.MEANING_TO_WORD:
-      sources = selectedVocab.map(vocab => vocab.definition[0]); // Use first definition
+      sources = selectedVocab.map(vocab => vocab.definition);
       destinations = selectedVocab.map(vocab => vocab.word);
       answers = Array.from({ length: numItems }, (_, i) => i);
       break;
@@ -205,9 +205,9 @@ export function generateChoiceQuestion(vocab, subtype = QuestionSubtype.WORD_TO_
       break;
       
     case QuestionSubtype.WORD_TO_MEANING:
-      if (!vocab.definition || vocab.definition.length === 0) return null;
+      if (!vocab.definition || vocab.definition.trim().length === 0) return null;
       question = vocab.word;
-      answer = vocab.definition[0]; // Use first definition
+      answer = vocab.definition;
       
       // Generate random definition choices (excluding the correct answer)
       const randomDefinitions = generateRandomChoices(answer, allDefinitions, 3);
@@ -215,8 +215,8 @@ export function generateChoiceQuestion(vocab, subtype = QuestionSubtype.WORD_TO_
       break;
       
     case QuestionSubtype.MEANING_TO_WORD:
-      if (!vocab.definition || vocab.definition.length === 0) return null;
-      question = vocab.definition[0]; // Use first definition
+      if (!vocab.definition || vocab.definition.trim().length === 0) return null;
+      question = vocab.definition;
       answer = vocab.word;
       
       // Generate random word choices (excluding the correct answer)
@@ -260,7 +260,7 @@ export function generateChoiceQuestions(vocabArray, subtypes = [QuestionSubtype.
   
   // Extract all definitions for generating random definition choices
   const allDefinitions = vocabArray
-    .flatMap(vocab => vocab.definition || [])
+    .map(vocab => vocab.definition)
     .filter(definition => definition); // Remove null/undefined definitions
   
   return vocabArray

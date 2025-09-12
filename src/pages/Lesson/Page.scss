@@ -5,6 +5,19 @@
   color: white;
 }
 
+.loading-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.loading-spinner {
+  font-size: 1.2rem;
+  opacity: 0.8;
+}
+
 
 
 // B - Main Content
