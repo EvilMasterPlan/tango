@@ -2,7 +2,7 @@ import { makePostRequest, makeGetRequest, getUrl } from './common';
 
 const prefix = 'c5d81bb4-f511-484b-9ea1-a9b6ff936f21';
 
-// /${TANGO_UUID}/vocab/practice/record
+// /${TANGO_UUID}/vocab/lesson/generate
 
 export const api = {
   getAllVocab: async () => {
@@ -16,6 +16,11 @@ export const api = {
       vocabId,
       type,
       correct,
+    });
+  },
+  postVocabLessonGenerate: async (vocabId) => {
+    return makePostRequest(getUrl(`${prefix}/vocab/lesson/generate`), {
+      vocabId,
     });
   },
 }

@@ -1,7 +1,3 @@
-/**
- * Question type and subtype enums for type safety
- */
-
 export const QuestionType = {
   SPELLING: "spelling",
   MATCHING: "matching", 
@@ -22,7 +18,7 @@ export const MATCHING_SUBTYPES = [
 ];
 
 export const CHOICE_SUBTYPES = [
-  QuestionSubtype.WORD_TO_READING,
   QuestionSubtype.WORD_TO_MEANING,
+  QuestionSubtype.WORD_TO_READING,
   QuestionSubtype.MEANING_TO_WORD
 ];

@@ -68,7 +68,6 @@ export function Quiz({ questions, api }) {
   // Record vocab practice when question is first checked
   const recordVocabPractice = async (question, isCorrect) => {
     if (!question.id) return; // Skip if no id (e.g., matching questions)
-    console.log(question);
     
     try {
       // Fire-and-forget call - don't await or handle errors
