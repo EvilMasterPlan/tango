@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { Quiz } from '@/components/quiz/Quiz';
 import '@/pages/Lesson/Page.scss';
 
-export function LessonPage({ questions }) {
+export function LessonPage({ questions, api }) {
   return (
     <>
       <Helmet>
@@ -10,7 +10,7 @@ export function LessonPage({ questions }) {
         <meta name="description" content="Japanese vocabulary lesson" />
       </Helmet>
       
-      <Quiz questions={questions} />
+      <Quiz questions={questions} api={api} />
     </>
   );
 }

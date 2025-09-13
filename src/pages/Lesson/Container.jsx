@@ -6,7 +6,10 @@ import { LessonPage } from './Page';
 
 export function LessonContainer() {
   const { isLoading, error, data } = useApiCall(api.getAllVocab);
+  const { isLoading: isLoadingPractice, error: errorPractice, data: dataPractice } = useApiCall(api.getAllVocabPractice);
   const [questions, setQuestions] = useState([]);
+
+  console.log(dataPractice);
 
   // Generate questions when vocab data is available
   useEffect(() => {
@@ -47,5 +50,5 @@ export function LessonContainer() {
     );
   }
 
-  return <LessonPage questions={questions} />;
+  return <LessonPage questions={questions} api={api} />;
 }

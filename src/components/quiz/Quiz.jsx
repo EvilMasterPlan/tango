@@ -7,7 +7,7 @@ import { QuestionBlock } from '@/components/quiz/QuestionBlock';
 import { ChoiceGrid } from '@/components/quiz/ChoiceGrid';
 import { MatchingQuestionBlock } from '@/components/quiz/MatchingQuestionBlock';
 
-export function Quiz({ questions }) {
+export function Quiz({ questions, api }) {
   const navigate = useNavigate();
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -37,6 +37,8 @@ export function Quiz({ questions }) {
       // Skip without checking - treat as incorrect
       setIsQuestionCorrect(false);
       setHasCheckedAnswer(true);
+      // Record vocab practice for skipped question (marked as incorrect)
+      recordVocabPractice(currentQuestion, false);
     } else {
       // Continue after skipping
       advanceToNextQuestion();
@@ -47,11 +49,13 @@ export function Quiz({ questions }) {
     if (!hasCheckedAnswer) {
       // First time checking - correctness is determined by the question component
       setHasCheckedAnswer(true);
+      // Record vocab practice for this question
+      recordVocabPractice(currentQuestion, isQuestionCorrect);
     } else {
       // Continue after checking (whether correct or incorrect)
       advanceToNextQuestion();
     }
-  }, [hasCheckedAnswer, advanceToNextQuestion, isQuestionComplete, currentQuestion.type]);
+  }, [hasCheckedAnswer, advanceToNextQuestion, isQuestionComplete, currentQuestion.type, currentQuestion, isQuestionCorrect]);
 
   const handleQuestionCompleteChange = (isComplete) => {
     setIsQuestionComplete(isComplete);
@@ -59,6 +63,20 @@ export function Quiz({ questions }) {
 
   const handleQuestionCorrectnessChange = (isCorrect) => {
     setIsQuestionCorrect(isCorrect);
+  };
+
+  // Record vocab practice when question is first checked
+  const recordVocabPractice = async (question, isCorrect) => {
+    if (!question.id) return; // Skip if no id (e.g., matching questions)
+    console.log(question);
+    
+    try {
+      // Fire-and-forget call - don't await or handle errors
+      api.postVocabPracticeRecord(question.id, question.subtype, isCorrect);
+    } catch (error) {
+      // Silently ignore errors for fire-and-forget behavior
+      console.warn('Failed to record vocab practice:', error);
+    }
   };
 
   // Auto-check matching questions when complete

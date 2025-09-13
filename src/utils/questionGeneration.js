@@ -75,7 +75,7 @@ export function generateSpellingQuestion(vocab) {
   const shuffledChoices = allChoices.sort(() => Math.random() - 0.5);
 
   return {
-    word_id: vocab.id || vocab.word_id,
+    id: vocab.id,
     type: QuestionType.SPELLING,
     subtype: QuestionSubtype.WORD_TO_SPELLING,
     question: vocab.word,
@@ -247,7 +247,7 @@ export function generateChoiceQuestion(vocab, subtype = QuestionSubtype.WORD_TO_
   const shuffledChoices = [...choices].sort(() => Math.random() - 0.5);
   
   return {
-    word_id: vocab.id || vocab.word_id,
+    id: vocab.id,
     type: QuestionType.CHOICE,
     subtype: subtype,
     question: question,
