@@ -7,7 +7,7 @@ import '@/App.scss';
 function App() {
   return (
     <HelmetProvider>
-      <Router>
+      <Router basename="/tango">
         <div className="app">
           <main className="main">
             <div className="container">
