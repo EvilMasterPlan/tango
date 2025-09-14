@@ -37,8 +37,6 @@ export function Quiz({ questions, api }) {
       // Skip without checking - treat as incorrect
       setIsQuestionCorrect(false);
       setHasCheckedAnswer(true);
-      // Record vocab practice for skipped question (marked as incorrect)
-      recordVocabPractice(currentQuestion, false);
     } else {
       // Continue after skipping
       advanceToNextQuestion();
@@ -46,6 +44,7 @@ export function Quiz({ questions, api }) {
   };
 
   const handleCheck = useCallback(() => {
+    console.log(currentQuestion, hasCheckedAnswer, isQuestionCorrect);
     if (!hasCheckedAnswer) {
       // First time checking - correctness is determined by the question component
       setHasCheckedAnswer(true);
@@ -53,6 +52,9 @@ export function Quiz({ questions, api }) {
       recordVocabPractice(currentQuestion, isQuestionCorrect);
     } else {
       // Continue after checking (whether correct or incorrect)
+      if (currentQuestion.type === 'matching') {
+        recordVocabPractice(currentQuestion, true);
+      }
       advanceToNextQuestion();
     }
   }, [hasCheckedAnswer, advanceToNextQuestion, isQuestionComplete, currentQuestion.type, currentQuestion, isQuestionCorrect]);
@@ -67,11 +69,38 @@ export function Quiz({ questions, api }) {
 
   // Record vocab practice when question is first checked
   const recordVocabPractice = async (question, isCorrect) => {
-    if (!question.id) return; // Skip if no id (e.g., matching questions)
-    
     try {
+      // Extract commonly used question properties
+      const { id, vocabIds, type, subtype } = question;
+      let practiceRecords = [];
+      
+      if (type === 'matching') {        
+        // Check if the question has vocab IDs stored
+        if (vocabIds && Array.isArray(vocabIds)) {
+          // Create practice records for each vocab ID in the matching question
+          practiceRecords = vocabIds.map(vocabId => ({
+            vocabId: vocabId,
+            type: subtype,
+            correct: isCorrect
+          }));
+        } else {
+          console.log('No vocab IDs found in matching question, skipping practice recording');
+          return;
+        }
+      } else if (type === 'choice' || type === 'spelling') {
+        // For spelling and choice questions with individual vocab IDs
+        practiceRecords = [{
+          vocabId: id,
+          type: subtype,
+          correct: isCorrect
+        }];
+      } else {
+        // Skip other question types
+        return;
+      }
+      
       // Fire-and-forget call - don't await or handle errors
-      api.postVocabPracticeRecord(question.id, question.subtype, isCorrect);
+      api.postVocabPracticeRecord(practiceRecords);
     } catch (error) {
       // Silently ignore errors for fire-and-forget behavior
       console.warn('Failed to record vocab practice:', error);

@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { api } from '@/utils/api/tango';
 import { useApiCall } from '@/utils/api/common';
 import { LessonPage } from './Page';
 
 export function LessonContainer() {
-  const { isLoading: isLoadingPractice, data: dataPractice } = useApiCall(api.getAllVocabPractice);
-  const { isLoading: isLoadingLesson, error: errorLesson, data: dataLesson } = useApiCall(api.postVocabLessonGenerate);
+  const [searchParams] = useSearchParams();
+  const tagID = searchParams.get('tagID');
+  
+  const { isLoading: isLoadingLesson, error: errorLesson, data: dataLesson } = useApiCall(() => 
+    api.postVocabLessonGenerate(tagID ? [tagID] : [])
+  );
   const [questions, setQuestions] = useState([]);
 
   // Generate questions when vocab data is available

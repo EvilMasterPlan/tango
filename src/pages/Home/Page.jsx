@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { GoalItem } from '@/components/shared/GoalItem';
 import '@/pages/Home/Page.scss';
 
-export function Home() {
+export function HomePage({ tags }) {
   return (
     <>
       <Helmet>
@@ -26,11 +26,23 @@ export function Home() {
           </nav>
         </aside>
 
-        {/* Main Content - Next Lesson Button */}
+        {/* Main Content - Lesson Buttons */}
         <main className="main-content">
-          <Link to="/lesson" className="next-lesson-button">
-            Next Lesson
-          </Link>
+          <div className="lesson-buttons">
+            <Link to="/lesson" className="lesson-button all-words-button">
+              All Words
+            </Link>
+            
+            {tags && Array.isArray(tags) && tags.map((tag) => (
+              <Link 
+                key={tag.id} 
+                to={`/lesson?tagID=${tag.id}`} 
+                className="lesson-button tag-button"
+              >
+                {tag.label}
+              </Link>
+            ))}
+          </div>
         </main>
 
         {/* Right Sidebar - Progress, Goals & Stats */}

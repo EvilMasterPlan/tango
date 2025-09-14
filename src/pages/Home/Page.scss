@@ -82,25 +82,59 @@
   justify-content: center;
   padding: 2rem;
 
-  .next-lesson-button {
-    background: linear-gradient(135deg, var(--color-accent-primary), #4f46e5);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    padding: 1.5rem 3rem;
-    font-size: 1.25rem;
-    font-weight: 600;
+  .lesson-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .lesson-button {
+    background-color: #f8f9fa;
+    color: var(--color-text-primary);
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(96, 165, 250, 0.3);
+    transition: all 0.2s ease;
+    text-decoration: none;
+    text-align: center;
     
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(96, 165, 250, 0.4);
+      background-color: #e9ecef;
+      border-color: #adb5bd;
+      transform: translateY(-1px);
     }
     
     &:active {
       transform: translateY(0);
+    }
+
+    &.all-words-button {
+      background: linear-gradient(135deg, var(--color-accent-primary), #4f46e5);
+      color: white;
+      border-color: var(--color-accent-primary);
+      font-weight: 600;
+      
+      &:hover {
+        background: linear-gradient(135deg, #60a5fa, #6366f1);
+        border-color: #60a5fa;
+      }
+    }
+
+    &.tag-button {
+      background: linear-gradient(135deg, var(--color-accent-primary), #4f46e5);
+      color: white;
+      border-color: var(--color-accent-primary);
+      font-weight: 600;
+      
+      &:hover {
+        background: linear-gradient(135deg, #60a5fa, #6366f1);
+        border-color: #60a5fa;
+      }
     }
   }
 }
@@ -151,6 +185,11 @@
   
   .main-content {
     padding: 1rem;
+    
+    .lesson-buttons {
+      grid-template-columns: 1fr;
+      max-width: 400px;
+    }
   }
   
   .small-progress-circles {
