@@ -1,214 +1,128 @@
 /* Homepage Layout */
 .homepage-layout {
-  display: grid;
-  grid-template-columns: 250px 1fr 300px;
-  gap: 2rem;
-  min-height: calc(100vh - 120px);
-  padding: 2rem 0;
-}
-
-/* Left Sidebar */
-.left-sidebar {
-  background-color: var(--color-bg-secondary);
-  border-radius: 12px;
-  padding: 1.5rem;
-  height: fit-content;
-  border: 1px solid var(--color-border-primary);
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: var(--space-md);
-    cursor: pointer;
-    transition: transform var(--transition-fast);
-    padding: var(--space-sm);
-    border-radius: var(--radius-md);
-
-    &:hover {
-      transform: scale(1.05);
-    }
-
-    .english {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--accent-primary);
-    }
-  }
-
-  .sidebar-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      color: var(--color-text-secondary);
-
-      &:hover {
-        background-color: var(--color-bg-tertiary);
-        color: var(--color-text-primary);
-      }
-
-      &.active {
-        background-color: var(--color-accent-primary);
-        color: var(--color-text-primary);
-      }
-
-      .nav-icon {
-        font-size: 1.25rem;
-      }
-
-      .nav-label {
-        font-weight: 500;
-        font-size: 0.95rem;
-      }
-    }
-  }
-}
-
-/* Main Content */
-.main-content {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: calc(100vh - 120px);
   padding: 2rem;
+}
 
-  .lesson-buttons {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    width: 100%;
-    max-width: 600px;
+.lesson-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  width: 100%;
+  max-width: 600px;
+}
+
+.lesson-button {
+  background-color: #2d3748;
+  color: #f7fafc;
+  border: 1px solid #4a5568;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  text-align: center;
+  
+  &:hover {
+    background-color: #4a5568;
+    border-color: #718096;
+    transform: translateY(-1px);
   }
-
-  .lesson-button {
-    background-color: #f8f9fa;
-    color: var(--color-text-primary);
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 1rem 1.5rem;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-decoration: none;
-    text-align: center;
-    
-    &:hover {
-      background-color: #e9ecef;
-      border-color: #adb5bd;
-      transform: translateY(-1px);
-    }
-    
-    &:active {
-      transform: translateY(0);
-    }
-
-    &.all-words-button {
-      background: linear-gradient(135deg, var(--color-accent-primary), #4f46e5);
-      color: white;
-      border-color: var(--color-accent-primary);
-      font-weight: 600;
-      
-      &:hover {
-        background: linear-gradient(135deg, #60a5fa, #6366f1);
-        border-color: #60a5fa;
-      }
-    }
-
-    &.tag-button {
-      background: linear-gradient(135deg, var(--color-accent-primary), #4f46e5);
-      color: white;
-      border-color: var(--color-accent-primary);
-      font-weight: 600;
-      
-      &:hover {
-        background: linear-gradient(135deg, #60a5fa, #6366f1);
-        border-color: #60a5fa;
-      }
-    }
+  
+  &:active {
+    transform: translateY(0);
   }
 }
 
+.tag-section {
+  background-color: #2d3748;
+  border: 1px solid #4a5568;
+  border-radius: 8px;
+  padding: 1rem;
+  text-decoration: none;
+  color: #f7fafc;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: #4a5568;
+    border-color: #718096;
+    transform: translateY(-1px);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
 
-/* Right Sidebar */
-.right-sidebar {
+.tag-icon-section {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #4a5568;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(135deg, var(--color-accent-primary), #4f46e5);
+  transition: height 0.3s ease;
+}
+
+.star-icon {
+  position: relative;
+  z-index: 1;
+  font-size: 1.5rem;
+}
+
+.tag-info {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.25rem;
+}
 
-  .sidebar-section {
-    background-color: var(--color-bg-secondary);
-    border-radius: 12px;
-    padding: 1.5rem;
-    border: 1px solid var(--color-border-primary);
+.tag-label {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #f7fafc;
+}
 
-    .progress-title,
-    .goals-title,
-    .stats-title {
-      font-size: 1.125rem;
-      font-weight: 600;
-      color: var(--color-text-primary);
-      margin: 0 0 1rem 0;
-    }
-  }
+.tag-progress {
+  font-size: 0.875rem;
+  color: #a0aec0;
 }
 
 /* Responsive Design */
-@media (max-width: 1024px) {
-  .homepage-layout {
-    grid-template-columns: 200px 1fr 250px;
-    gap: 1.5rem;
-  }
-}
-
 @media (max-width: 768px) {
   .homepage-layout {
+    padding: 1rem;
+  }
+  
+  .lesson-buttons {
     grid-template-columns: 1fr;
-    gap: 1rem;
-    padding: 1rem 0;
+    max-width: 400px;
   }
-  
-  .left-sidebar,
-  .right-sidebar {
-    display: none;
-  }
-  
-  .main-content {
-    padding: 1rem;
-    
-    .lesson-buttons {
-      grid-template-columns: 1fr;
-      max-width: 400px;
-    }
-  }
-  
-  .small-progress-circles {
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .homepage-layout {
-    padding: 0.5rem 0;
-  }
-  
-  .left-sidebar,
-  .right-sidebar,
-  .progress-section,
-  .goals-section,
-  .stats-section {
-    padding: 1rem;
-  }
-  
 }

@@ -1,6 +1,5 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { GoalItem } from '@/components/shared/GoalItem';
 import '@/pages/Home/Page.scss';
 
 export function HomePage({ tags }) {
@@ -12,65 +11,41 @@ export function HomePage({ tags }) {
       </Helmet>
       
       <div className="homepage-layout">
-        {/* Left Sidebar - Logo & Navigation */}
-        <aside className="left-sidebar">
-          <div className="logo" onClick={() => window.location.href = '/'}>
-            <span className="english">Tango Tanuki</span>
-          </div>
-          
-          <nav className="sidebar-nav">
-            <div className="nav-item active">
-              <span className="nav-icon">📚</span>
-              <span className="nav-label">Vocab</span>
+        <div className="lesson-buttons">
+          <Link to="/lesson" className="tag-section all-words-section">
+            <div className="tag-icon-section">
+              <div className="progress-background">
+                <div className="progress-fill" style={{ height: '25%' }}></div>
+              </div>
+              <div className="star-icon">⭐</div>
             </div>
-          </nav>
-        </aside>
-
-        {/* Main Content - Lesson Buttons */}
-        <main className="main-content">
-          <div className="lesson-buttons">
-            <Link to="/lesson" className="lesson-button all-words-button">
-              All Words
+            
+            <div className="tag-info">
+              <div className="tag-label">All Words</div>
+              <div className="tag-progress">25/25</div>
+            </div>
+          </Link>
+          
+          {tags && Array.isArray(tags) && tags.map((tag) => (
+            <Link 
+              key={tag.id} 
+              to={`/lesson?tagID=${tag.id}`} 
+              className="tag-section"
+            >
+              <div className="tag-icon-section">
+                <div className="progress-background">
+                  <div className="progress-fill" style={{ height: '25%' }}></div>
+                </div>
+                <div className="star-icon">⭐</div>
+              </div>
+              
+              <div className="tag-info">
+                <div className="tag-label">{tag.label}</div>
+                <div className="tag-progress">25/25</div>
+              </div>
             </Link>
-            
-            {tags && Array.isArray(tags) && tags.map((tag) => (
-              <Link 
-                key={tag.id} 
-                to={`/lesson?tagID=${tag.id}`} 
-                className="lesson-button tag-button"
-              >
-                {tag.label}
-              </Link>
-            ))}
-          </div>
-        </main>
-
-        {/* Right Sidebar - Progress, Goals & Stats */}
-        <aside className="right-sidebar">
-
-          <div className="sidebar-section">
-            <h3 className="goals-title">Today's Goals</h3>
-            
-            <GoalItem
-              label="Review Words"
-              current={7}
-              target={10}
-            />
-
-            <GoalItem
-              label="New Words"
-              current={3}
-              target={5}
-            />
-
-            <GoalItem
-              label="Practice Time"
-              current={15}
-              target={30}
-              unit="min"
-            />
-          </div>
-        </aside>
+          ))}
+        </div>
       </div>
     </>
   );
