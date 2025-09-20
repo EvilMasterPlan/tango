@@ -8,6 +8,9 @@ export const api = {
   getAllTags: async () => {
     return makeGetRequest(getUrl(`${prefix}/tags/all`));
   },
+  getOverallProgress: async () => {
+    return makeGetRequest(getUrl(`${prefix}/progress/get-progress-overview`));
+  },
   getAllVocab: async () => {
     return makeGetRequest(getUrl(`${prefix}/vocab/all`));
   },

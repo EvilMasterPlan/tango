@@ -4,6 +4,7 @@ import { HomePage } from './Page';
 
 export function HomeContainer() {
   const { isLoading, error, data: tags } = useApiCall(api.getAllTags);
+  // const { isLoading: isLoadingOverallProgress, error: errorOverallProgress, data: overallProgress } = useApiCall(api.getOverallProgress);
   
   // Console log the tags when they're loaded
   if (tags) {

@@ -14,8 +14,8 @@ export function HomePage({ tags }) {
         <div className="lesson-buttons">
           <Link to="/lesson" className="tag-section all-words-section">
             <div className="tag-icon-section">
-              <div className="progress-background">
-                <div className="progress-fill" style={{ height: '25%' }}></div>
+              <div className="home-progress-background">
+                <div className="home-progress-fill" style={{ height: '25%' }}></div>
               </div>
               <div className="star-icon">⭐</div>
             </div>
@@ -33,8 +33,8 @@ export function HomePage({ tags }) {
               className="tag-section"
             >
               <div className="tag-icon-section">
-                <div className="progress-background">
-                  <div className="progress-fill" style={{ height: '25%' }}></div>
+                <div className="home-progress-background">
+                  <div className="home-progress-fill" style={{ height: '25%' }}></div>
                 </div>
                 <div className="star-icon">⭐</div>
               </div>
