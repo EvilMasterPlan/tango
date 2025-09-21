@@ -3,13 +3,12 @@ import { useApiCall } from '@/utils/api/common';
 import { HomePage } from './Page';
 
 export function HomeContainer() {
-  const { isLoading, error, data: tags } = useApiCall(api.getAllTags);
-  // const { isLoading: isLoadingOverallProgress, error: errorOverallProgress, data: overallProgress } = useApiCall(api.getOverallProgress);
+  const { isLoading, error, data: overallProgress } = useApiCall(api.getOverallProgress);
   
-  // Console log the tags when they're loaded
-  if (tags) {
-    console.log('Tags loaded:', tags);
-    console.log('Tags structure:', typeof tags, Array.isArray(tags));
+  // Console log the overallProgress when it's loaded
+  if (overallProgress) {
+    console.log('OverallProgress loaded:', overallProgress);
+    console.log('OverallProgress structure:', typeof overallProgress, Array.isArray(overallProgress));
   }
 
   // Show loading state
@@ -36,9 +35,7 @@ export function HomeContainer() {
     'N5',
     'adjective',
     'adverb',
-    'counter',
     'day of month',
-    'day of week',
     'relative day',
     'kanji',
     'kanji (full)',
@@ -48,8 +45,8 @@ export function HomeContainer() {
     'numeric'
   ];
 
-  // Convert tags object to array format and filter by desired labels
-  const tagsArray = tags?.tags ? Object.entries(tags.tags)
+  // Convert overallProgress object to array format and filter by desired labels
+  const tagsArray = overallProgress?.tags ? Object.entries(overallProgress.tags)
     .map(([id, tagData]) => ({
       id,
       ...tagData
