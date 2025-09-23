@@ -1,16 +1,9 @@
 import '@/components/lesson/LessonFooter.scss';
-import { FeedbackDisplay } from '@/components/quiz/FeedbackDisplay';
 
 export function LessonFooter({ onSkip, onCheck, skipDisabled = false, checkDisabled = false, hasCheckedAnswer = false, isAnswerIncorrect = false, correctAnswer = '', questionType = '', isMatchingQuestion = false }) {
   return (
     <footer className="lesson-footer">
-      {hasCheckedAnswer ? (
-        <FeedbackDisplay 
-          isCorrect={!isAnswerIncorrect}
-          correctAnswer={correctAnswer}
-          questionType={questionType}
-        />
-      ) : (
+      {!hasCheckedAnswer && (
         <button 
           className="action-button skip-button"
           onClick={onSkip}

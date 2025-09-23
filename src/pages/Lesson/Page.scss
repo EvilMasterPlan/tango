@@ -31,6 +31,7 @@
   padding: 2rem 1.5rem;
   overflow: hidden;
   min-height: 0; // Allow flex item to shrink below content size
+  position: relative; // Enable absolute positioning for overlay
   
   .question-area {
     text-align: center;

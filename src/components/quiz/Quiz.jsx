@@ -6,6 +6,7 @@ import { SpellingQuestionBlock } from '@/components/quiz/SpellingQuestionBlock';
 import { QuestionBlock } from '@/components/quiz/QuestionBlock';
 import { ChoiceGrid } from '@/components/quiz/ChoiceGrid';
 import { MatchingQuestionBlock } from '@/components/quiz/MatchingQuestionBlock';
+import { FeedbackOverlay } from '@/components/quiz/FeedbackOverlay';
 
 export function Quiz({ questions, api }) {
   const navigate = useNavigate();
@@ -206,6 +207,13 @@ export function Quiz({ questions, api }) {
         <div className="question-area">
           {renderQuestion()}
         </div>
+        {hasCheckedAnswer && (
+          <FeedbackOverlay 
+            isCorrect={isQuestionCorrect}
+            correctAnswer={currentQuestion.answer}
+            questionType={currentQuestion.type}
+          />
+        )}
       </main>
 
       <LessonFooter 
