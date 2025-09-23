@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import classNames from 'classnames';
 import './MatchingQuestionBlock.scss';
 
@@ -133,8 +133,8 @@ export function MatchingQuestionBlock({
     }
   };
 
-  // Evaluate correctness when answers are checked
-  useEffect(() => {
+  // Evaluate correctness when answers are checked - use useLayoutEffect for synchronous execution
+  useLayoutEffect(() => {
     if (hasCheckedAnswer) {
       const isCorrect = JSON.stringify(matchingAnswers) === JSON.stringify(correctAnswers);
       onCorrectnessChange?.(isCorrect);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import { QuestionBlock } from '@/components/quiz/QuestionBlock';
 import { SpellingSlot } from '@/components/quiz/SpellingSlot';
 import { SymbolGrid } from '@/components/quiz/SymbolGrid';
@@ -30,8 +30,8 @@ export function SpellingQuestionBlock({
     onCompleteChange?.(isComplete);
   }, [slots, onCompleteChange]);
 
-  // Evaluate correctness when answers are checked
-  useEffect(() => {
+  // Evaluate correctness when answers are checked - use useLayoutEffect for synchronous execution
+  useLayoutEffect(() => {
     if (hasCheckedAnswer) {
       const currentSpelling = slots.join('');
       const isCorrect = currentSpelling === correctAnswer;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import { ChoiceButton } from '@/components/quiz/ChoiceButton';
 import './ChoiceGrid.scss';
 
@@ -21,15 +21,15 @@ export function ChoiceGrid({
     // Choice questions are complete as soon as a choice is selected
     onCompleteChange?.(true);
     
-    // Evaluate correctness when answer is checked
+    // Evaluate correctness immediately when answer is checked
     if (hasCheckedAnswer) {
-      const isCorrect = choice.text === correctAnswer;
+      const isCorrect = choice === correctAnswer;
       onCorrectnessChange?.(isCorrect);
     }
   };
 
-  // Evaluate correctness when answers are checked - moved to useEffect to avoid setState during render
-  useEffect(() => {
+  // Evaluate correctness when answers are checked - use useLayoutEffect for synchronous execution
+  useLayoutEffect(() => {
     if (hasCheckedAnswer && selectedIndex !== null) {
       const selectedChoice = choices[selectedIndex];
       const isCorrect = selectedChoice === correctAnswer;
