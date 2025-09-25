@@ -15,13 +15,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-// Prevent scroll bars on mobile
-@media (max-width: 768px) {
-  html, body {
-    overflow: hidden;
-    height: 100vh;
-  }
-}
+// Remove global scroll prevention - let individual pages handle their own scrolling
 
 #root {
   min-height: 100vh;
