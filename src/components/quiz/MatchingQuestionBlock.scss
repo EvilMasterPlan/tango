@@ -28,27 +28,34 @@
       background: rgba(255, 255, 255, 0.1);
       border: 3px solid rgba(255, 255, 255, 0.2);
       border-radius: 12px;
-      padding: 1.5rem 1rem;
+      padding: var(--item-padding);
       color: rgba(255, 255, 255, 0.8);
-      font-size: 1.3rem;
+      font-size: var(--item-font-size);
       font-weight: 600;
       backdrop-filter: blur(10px);
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: var(--item-gap);
       transition: all var(--transition-normal);
       cursor: pointer;
       
+      // CSS custom properties for responsive scaling
+      --item-padding: 1.5rem 1rem;
+      --item-font-size: 1.3rem;
+      --item-gap: 1rem;
+      --item-number-size: 2.5rem;
+      --item-number-font-size: 1.1rem;
+      
       .item-number {
-        width: 2.5rem;
-        height: 2.5rem;
+        width: var(--item-number-size);
+        height: var(--item-number-size);
         border-radius: 50%;
         background: rgba(255, 255, 255, 0.2);
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 600;
-        font-size: 1.1rem;
+        font-size: var(--item-number-font-size);
         flex-shrink: 0;
         color: rgba(255, 255, 255, 0.8);
         transition: all var(--transition-normal);
@@ -283,7 +290,7 @@
   }
 }
 
-// Mobile responsiveness
+// Progressive responsive scaling
 @media (max-width: 768px) {
   .matching-question-block {
     gap: 1.5rem;
@@ -299,15 +306,39 @@
     
     .matching-column {
       .matching-item {
-        padding: 0.75rem 0.5rem;
-        font-size: 0.9rem;
-        gap: 0.5rem;
-        
-        .item-number {
-          width: 1.5rem;
-          height: 1.5rem;
-          font-size: 0.8rem;
-        }
+        --item-padding: 1rem 0.75rem;
+        --item-font-size: 1.1rem;
+        --item-gap: 0.75rem;
+        --item-number-size: 2rem;
+        --item-number-font-size: 1rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .matching-question-block {
+    .matching-column {
+      .matching-item {
+        --item-padding: 0.75rem 0.5rem;
+        --item-font-size: 1rem;
+        --item-gap: 0.5rem;
+        --item-number-size: 1.75rem;
+        --item-number-font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 360px) {
+  .matching-question-block {
+    .matching-column {
+      .matching-item {
+        --item-padding: 0.5rem 0.5rem;
+        --item-font-size: 0.9rem;
+        --item-gap: 0.5rem;
+        --item-number-size: 1.5rem;
+        --item-number-font-size: 0.8rem;
       }
     }
   }

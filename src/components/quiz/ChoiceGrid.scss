@@ -5,11 +5,22 @@
   overflow: hidden;
 }
 
-// Mobile responsiveness
+// Progressive responsive scaling
 @media (max-width: 768px) {
   .choices-grid {
     grid-template-columns: 1fr;
     gap: 0.75rem;
-    // Remove height constraints to allow full expansion
+  }
+}
+
+@media (max-width: 480px) {
+  .choices-grid {
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .choices-grid {
+    gap: 0.4rem;
   }
 }
