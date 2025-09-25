@@ -1,6 +1,8 @@
 .lesson-page {
-  height: 100vh;
+  height: 100vh; /* Fallback for browsers that don't support env() */
+  height: 100dvh; /* Dynamic viewport height - accounts for mobile browser UI */
   max-height: 100vh;
+  max-height: 100dvh;
   display: flex;
   flex-direction: column;
   color: white;
@@ -8,7 +10,8 @@
 }
 
 .loading-container {
-  min-height: 100vh;
+  min-height: 100vh; /* Fallback */
+  min-height: 100dvh; /* Dynamic viewport height */
   display: flex;
   align-items: center;
   justify-content: center;

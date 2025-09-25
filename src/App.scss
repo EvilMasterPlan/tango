@@ -36,7 +36,8 @@
 
 /* App Layout */
 .app {
-  min-height: 100vh;
+  min-height: 100vh; /* Fallback */
+  min-height: 100dvh; /* Dynamic viewport height */
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
 }
