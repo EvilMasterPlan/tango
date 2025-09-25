@@ -16,6 +16,9 @@
     cursor: pointer;
     transition: all 0.2s;
     max-width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     
     &:disabled {
       opacity: 0.5;
