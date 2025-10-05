@@ -27,6 +27,12 @@ export function MatchingQuestionBlock({
     setIncorrectMatches(new Set());
   }, [sources]);
 
+  // Check completion status whenever matchingAnswers changes
+  useEffect(() => {
+    const isReady = matchingAnswers.length === sources.length && !matchingAnswers.some(answer => answer === undefined);
+    onCompleteChange?.(isReady);
+  }, [matchingAnswers, sources.length, onCompleteChange]);
+
   const handleMatchingSelect = (type, index) => {
     if (disabled) return;
     
@@ -76,10 +82,6 @@ export function MatchingQuestionBlock({
           // Always reset selections after making a match
           setSelectedSource(null);
           setSelectedDestination(null);
-          
-          // Check if ready to submit
-          const isReady = newAnswers.length === sources.length && !newAnswers.some(answer => answer === undefined);
-          setTimeout(() => onCompleteChange?.(isReady), 0);
         }
       }
     } else if (type === 'destination') {
@@ -124,10 +126,6 @@ export function MatchingQuestionBlock({
           // Always reset selections after making a match
           setSelectedSource(null);
           setSelectedDestination(null);
-          
-          // Check if ready to submit
-          const isReady = newAnswers.length === sources.length && !newAnswers.some(answer => answer === undefined);
-          setTimeout(() => onCompleteChange?.(isReady), 0);
         }
       }
     }
