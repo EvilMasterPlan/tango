@@ -3,6 +3,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
   overflow: hidden;
+  min-width: 420px; // Ensure grid doesn't get too narrow (2 * 200px + gap)
 }
 
 // Progressive responsive scaling
@@ -10,17 +11,20 @@
   .choices-grid {
     grid-template-columns: 1fr;
     gap: 0.75rem;
+    min-width: 180px; // Single column, so just button min-width
   }
 }
 
 @media (max-width: 480px) {
   .choices-grid {
     gap: 0.5rem;
+    min-width: 160px; // Match button min-width for small mobile
   }
 }
 
 @media (max-width: 360px) {
   .choices-grid {
     gap: 0.4rem;
+    min-width: 140px; // Match button min-width for very small screens
   }
 }
