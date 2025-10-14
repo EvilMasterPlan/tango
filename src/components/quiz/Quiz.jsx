@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LessonHeader } from '@/components/lesson/LessonHeader';
 import { LessonFooter } from '@/components/lesson/LessonFooter';
@@ -17,7 +17,6 @@ export function Quiz({ questions, api }) {
   const [isQuestionCorrect, setIsQuestionCorrect] = useState(false);
 
   const currentQuestion = questions[currentQuestionIndex];
-  const containerRef = useRef(null);
 
   const handleSettingsClick = () => {
     // TODO: Implement settings functionality
@@ -121,20 +120,25 @@ export function Quiz({ questions, api }) {
       ? false // Always enabled after checking (to show Continue)
       : !isQuestionComplete;
 
-  // Handle Enter key to trigger Check/Continue button
-  const handleKeyDown = (event) => {
-    if (event.key === 'Enter') {
-      // Check if button should be enabled
-      const shouldEnable = currentQuestion.type === 'matching'
-        ? isQuestionComplete
-        : hasCheckedAnswer ? true : isQuestionComplete;
-        
-      if (shouldEnable) {
-        event.preventDefault();
-        handleCheck();
+  // Handle Enter key globally - only useEffect we need
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Enter') {
+        // Check if button should be enabled
+        const shouldEnable = currentQuestion.type === 'matching'
+          ? isQuestionComplete
+          : hasCheckedAnswer ? true : isQuestionComplete;
+          
+        if (shouldEnable) {
+          event.preventDefault();
+          handleCheck();
+        }
       }
-    }
-  };
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [currentQuestion.type, isQuestionComplete, hasCheckedAnswer]);
 
   const renderQuestion = () => {
     const isDisabled = hasCheckedAnswer; // Disable all choices once checked, regardless of correctness
@@ -189,7 +193,7 @@ export function Quiz({ questions, api }) {
   };
 
   return (
-    <div className="lesson-page" ref={containerRef} onKeyDown={handleKeyDown} tabIndex={0}>
+    <div className="lesson-page">
       <LessonHeader 
         current={currentQuestionIndex + 1} 
         total={questions.length} 
