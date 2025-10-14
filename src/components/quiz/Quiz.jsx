@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LessonHeader } from '@/components/lesson/LessonHeader';
 import { LessonFooter } from '@/components/lesson/LessonFooter';
@@ -17,6 +17,7 @@ export function Quiz({ questions, api }) {
   const [isQuestionCorrect, setIsQuestionCorrect] = useState(false);
 
   const currentQuestion = questions[currentQuestionIndex];
+  const hasRecordedPractice = useRef(false);
 
   const handleSettingsClick = () => {
     // TODO: Implement settings functionality
@@ -28,6 +29,7 @@ export function Quiz({ questions, api }) {
       setHasCheckedAnswer(false);
       setIsQuestionComplete(false);
       setIsQuestionCorrect(false);
+      hasRecordedPractice.current = false; // Reset practice recording flag
     } else {
       navigate('/');
     }
@@ -36,6 +38,7 @@ export function Quiz({ questions, api }) {
   const handleSkip = () => {
     if (!hasCheckedAnswer) {
       // Skip without checking - treat as incorrect
+      hasRecordedPractice.current = true; // Mark as recorded to prevent duplicates
       recordVocabPractice(currentQuestion, false);
       setIsQuestionCorrect(false);
       setHasCheckedAnswer(true);
@@ -65,10 +68,12 @@ export function Quiz({ questions, api }) {
   };
 
   const handleQuestionCorrectnessChange = (isCorrect) => {
+    console.log('Correctness change called:', { isCorrect, hasCheckedAnswer, currentQuestionIndex, hasRecorded: hasRecordedPractice.current });
     setIsQuestionCorrect(isCorrect);
     
-    // Record practice when correctness is determined
-    if (hasCheckedAnswer) {
+    // Record practice when correctness is determined (only once per question)
+    if (hasCheckedAnswer && !hasRecordedPractice.current) {
+      hasRecordedPractice.current = true;
       recordVocabPractice(currentQuestion, isCorrect);
     }
   };
