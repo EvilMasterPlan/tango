@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LessonHeader } from '@/components/lesson/LessonHeader';
 import { LessonFooter } from '@/components/lesson/LessonFooter';
@@ -17,12 +17,13 @@ export function Quiz({ questions, api }) {
   const [isQuestionCorrect, setIsQuestionCorrect] = useState(false);
 
   const currentQuestion = questions[currentQuestionIndex];
+  const containerRef = useRef(null);
 
   const handleSettingsClick = () => {
     // TODO: Implement settings functionality
   };
 
-  const advanceToNextQuestion = useCallback(() => {
+  const advanceToNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setHasCheckedAnswer(false);
@@ -31,11 +32,12 @@ export function Quiz({ questions, api }) {
     } else {
       navigate('/');
     }
-  }, [currentQuestionIndex, questions.length, navigate]);
+  };
 
   const handleSkip = () => {
     if (!hasCheckedAnswer) {
       // Skip without checking - treat as incorrect
+      recordVocabPractice(currentQuestion, false);
       setIsQuestionCorrect(false);
       setHasCheckedAnswer(true);
     } else {
@@ -44,28 +46,32 @@ export function Quiz({ questions, api }) {
     }
   };
 
-  const handleCheck = useCallback(() => {
-    console.log(currentQuestion, hasCheckedAnswer, isQuestionCorrect);
+  const handleCheck = () => {
     if (!hasCheckedAnswer) {
-      // First time checking - correctness is determined by the question component
+      // First time checking - just show feedback, don't record practice yet
       setHasCheckedAnswer(true);
-      // Record vocab practice for this question
-      recordVocabPractice(currentQuestion, isQuestionCorrect);
     } else {
       // Continue after checking (whether correct or incorrect)
-      if (currentQuestion.type === 'matching') {
-        recordVocabPractice(currentQuestion, true);
-      }
       advanceToNextQuestion();
     }
-  }, [hasCheckedAnswer, advanceToNextQuestion, isQuestionComplete, currentQuestion.type, currentQuestion, isQuestionCorrect]);
+  };
 
   const handleQuestionCompleteChange = (isComplete) => {
     setIsQuestionComplete(isComplete);
+    
+    // Auto-check matching questions when complete
+    if (currentQuestion.type === 'matching' && isComplete && !hasCheckedAnswer) {
+      setHasCheckedAnswer(true);
+    }
   };
 
   const handleQuestionCorrectnessChange = (isCorrect) => {
     setIsQuestionCorrect(isCorrect);
+    
+    // Record practice when correctness is determined
+    if (hasCheckedAnswer) {
+      recordVocabPractice(currentQuestion, isCorrect);
+    }
   };
 
   // Record vocab practice when question is first checked
@@ -108,13 +114,6 @@ export function Quiz({ questions, api }) {
     }
   };
 
-  // Auto-check matching questions when complete
-  useEffect(() => {
-    if (currentQuestion.type === 'matching' && isQuestionComplete && !hasCheckedAnswer) {
-      setHasCheckedAnswer(true);
-    }
-  }, [currentQuestion.type, isQuestionComplete, hasCheckedAnswer]);
-
   // Determine if check button should be disabled
   const isCheckDisabled = currentQuestion.type === 'matching'
     ? !isQuestionComplete // For matching: disabled until all matches are made
@@ -123,24 +122,19 @@ export function Quiz({ questions, api }) {
       : !isQuestionComplete;
 
   // Handle Enter key to trigger Check/Continue button
-  useEffect(() => {
-    const handleKeyPress = (event) => {
-      if (event.key === 'Enter') {
-        // Check if button should be enabled
-        const shouldEnable = currentQuestion.type === 'matching'
-          ? isQuestionComplete
-          : hasCheckedAnswer ? true : isQuestionComplete;
-          
-        if (shouldEnable) {
-          event.preventDefault();
-          handleCheck();
-        }
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      // Check if button should be enabled
+      const shouldEnable = currentQuestion.type === 'matching'
+        ? isQuestionComplete
+        : hasCheckedAnswer ? true : isQuestionComplete;
+        
+      if (shouldEnable) {
+        event.preventDefault();
+        handleCheck();
       }
-    };
-
-    document.addEventListener('keydown', handleKeyPress);
-    return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [isQuestionComplete, hasCheckedAnswer, currentQuestion.type, handleCheck]);
+    }
+  };
 
   const renderQuestion = () => {
     const isDisabled = hasCheckedAnswer; // Disable all choices once checked, regardless of correctness
@@ -195,7 +189,7 @@ export function Quiz({ questions, api }) {
   };
 
   return (
-    <div className="lesson-page">
+    <div className="lesson-page" ref={containerRef} onKeyDown={handleKeyDown} tabIndex={0}>
       <LessonHeader 
         current={currentQuestionIndex + 1} 
         total={questions.length} 
