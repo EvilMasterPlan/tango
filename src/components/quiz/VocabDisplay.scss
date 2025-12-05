@@ -1,0 +1,74 @@
+.vocab-display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  
+  .vocab-word-with-furigana {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+    
+    .vocab-reading-furigana {
+      font-size: 1rem;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.2;
+      margin-bottom: 0.1rem;
+    }
+    
+    .vocab-word {
+      font-size: 2rem;
+      font-weight: 600;
+      color: white;
+      line-height: 1;
+    }
+  }
+  
+  .vocab-reading {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+  }
+  
+  .vocab-word {
+    font-size: 2rem;
+    font-weight: 600;
+    color: white;
+  }
+  
+  .vocab-meaning {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+  }
+}
+
+// Mobile responsiveness
+@media (max-width: 768px) {
+  .vocab-display {
+    .vocab-word-with-furigana {
+      .vocab-reading-furigana {
+        font-size: 0.875rem;
+      }
+      
+      .vocab-word {
+        font-size: 1.75rem;
+      }
+    }
+    
+    .vocab-reading {
+      font-size: 1.25rem;
+    }
+    
+    .vocab-word {
+      font-size: 1.75rem;
+    }
+    
+    .vocab-meaning {
+      font-size: 1.25rem;
+    }
+  }
+}
+

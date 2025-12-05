@@ -215,6 +215,7 @@ export function Quiz({ questions, api }) {
             isCorrect={isQuestionCorrect}
             correctAnswer={currentQuestion.answer}
             questionType={currentQuestion.type}
+            vocab={currentQuestion.vocab}
           />
         )}
       </main>

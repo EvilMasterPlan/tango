@@ -1,7 +1,20 @@
 import './FeedbackDisplay.scss';
+import { VocabDisplay } from '@/components/quiz/VocabDisplay';
 
-export function FeedbackDisplay({ isCorrect, correctAnswer, questionType }) {
+export function FeedbackDisplay({ isCorrect, correctAnswer, questionType, vocab }) {
   if (isCorrect) {
+    // Extract word, reading, and meaning from vocab object
+    const word = vocab?.word;
+    const reading = vocab?.reading;
+    const meaning = vocab?.definition && Array.isArray(vocab.definition) 
+      ? vocab.definition.join(', ') 
+      : vocab?.definition;
+    
+    const hasWord = word && word.trim();
+    const hasReading = reading && reading.trim();
+    const hasMeaning = meaning && meaning.trim();
+    const hasAnyData = hasWord || hasReading || hasMeaning;
+    
     return (
       <div className="feedback-display correct">
         <div className="feedback-content-wrapper">
@@ -11,11 +24,27 @@ export function FeedbackDisplay({ isCorrect, correctAnswer, questionType }) {
               <path d="M7 12l3 3 7-7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
-          <div className="feedback-text">Great!</div>
+          {hasAnyData ? (
+            <div className="feedback-content">
+              <VocabDisplay word={word} reading={reading} meaning={meaning} />
+            </div>
+          ) : null}
         </div>
       </div>
     );
   }
+
+  // Extract word, reading, and meaning from vocab object for incorrect display
+  const word = vocab?.word;
+  const reading = vocab?.reading;
+  const meaning = vocab?.definition && Array.isArray(vocab.definition) 
+    ? vocab.definition.join(', ') 
+    : vocab?.definition;
+  
+  const hasWord = word && word.trim();
+  const hasReading = reading && reading.trim();
+  const hasMeaning = meaning && meaning.trim();
+  const hasAnyData = hasWord || hasReading || hasMeaning;
 
   return (
     <div className="feedback-display incorrect">
@@ -26,10 +55,11 @@ export function FeedbackDisplay({ isCorrect, correctAnswer, questionType }) {
             <path d="M8 8l8 8M16 8l-8 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
-        <div className="feedback-content">
-          <div className="feedback-label">Correct answer:</div>
-          <div className="feedback-answer">{correctAnswer}</div>
-        </div>
+        {hasAnyData ? (
+          <div className="feedback-content">
+            <VocabDisplay word={word} reading={reading} meaning={meaning} />
+          </div>
+        ) : null}
       </div>
     </div>
   );

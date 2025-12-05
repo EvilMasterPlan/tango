@@ -36,7 +36,6 @@
   .feedback-content {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
     
     .feedback-label {
       font-size: 1rem;
@@ -46,10 +45,22 @@
       letter-spacing: 0.05em;
     }
     
-    .feedback-answer {
-      font-size: 1.5rem;
+    .feedback-word {
+      font-size: 2rem;
       font-weight: 600;
       color: white;
+    }
+    
+    .feedback-reading {
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .feedback-meaning {
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.9);
     }
   }
 }
@@ -78,7 +89,15 @@
         font-size: 0.875rem;
       }
       
-      .feedback-answer {
+      .feedback-word {
+        font-size: 1.75rem;
+      }
+      
+      .feedback-reading {
+        font-size: 1.25rem;
+      }
+      
+      .feedback-meaning {
         font-size: 1.25rem;
       }
     }
