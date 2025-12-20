@@ -1,3 +1,5 @@
+@import '../../styles/tierColors';
+
 /* Homepage Layout */
 .homepage-layout {
   display: flex;
@@ -41,7 +43,7 @@
 
 .tag-section {
   background-color: #2d3748;
-  border: 1px solid #4a5568;
+  border: 3px solid #4a5568;
   border-radius: 8px;
   padding: 1rem;
   text-decoration: none;
@@ -50,15 +52,69 @@
   gap: 1rem;
   align-items: center;
   transition: all 0.2s ease;
+  position: relative;
   
   &:hover {
     background-color: #4a5568;
-    border-color: #718096;
     transform: translateY(-1px);
   }
   
   &:active {
     transform: translateY(0);
+  }
+  
+  // Metallic tier styling - generated from tier color definitions
+  @each $tier, $colors in $tier-colors {
+    &.tier-#{$tier} {
+      $border: tier-color($tier, border);
+      $glow-base: tier-color($tier, glow-base);
+      $glow-inset: tier-color($tier, glow-inset);
+      $glow-hover: tier-color($tier, glow-hover);
+      
+      .tag-progress-fill {
+        background: linear-gradient(135deg, 
+          tier-color($tier, progress-start), 
+          tier-color($tier, progress-end)
+        );
+      }
+      
+      .tag-icon-section {
+        background: linear-gradient(135deg, 
+          tier-color($tier, badge-start), 
+          tier-color($tier, badge-end)
+        );
+        border: 2px solid $border;
+        box-shadow: 0 0 10px tier-rgba($tier, $glow-base), 
+                    inset 0 0 10px tier-rgba($tier, $glow-inset);
+        
+        // Special handling for diamond tier glow
+        @if $tier == diamond {
+          box-shadow: 0 0 25px tier-rgba($tier, $glow-base), 
+                      0 0 50px tier-rgba($tier, $glow-base * 0.57),
+                      inset 0 0 25px tier-rgba($tier, $glow-inset);
+        }
+      }
+      
+      .tier-name, .tier-pips-row {
+        color: tier-color($tier, text);
+      }
+    }
+    
+    // Hover states for badge
+    &:hover.tier-#{$tier} {
+      $glow-hover: tier-color($tier, glow-hover);
+      
+      .tag-icon-section {
+        @if $tier == diamond {
+          box-shadow: 0 0 30px tier-rgba($tier, $glow-hover), 
+                      0 0 60px tier-rgba($tier, $glow-hover * 0.56),
+                      inset 0 0 30px tier-rgba($tier, $glow-hover * 0.44);
+        } @else {
+          box-shadow: 0 0 15px tier-rgba($tier, $glow-hover), 
+                      inset 0 0 15px tier-rgba($tier, $glow-hover * 0.3);
+        }
+      }
+    }
   }
 }
 
@@ -69,33 +125,35 @@
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.home-progress-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #4a5568;
+  background-color: #1a202c;
   border-radius: 8px;
-  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4),
+              inset 0 -1px 2px rgba(255, 255, 255, 0.05),
+              0 1px 2px rgba(0, 0, 0, 0.2);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0) 30%,
+      rgba(255, 255, 255, 0.3) 50%,
+      rgba(255, 255, 255, 0) 70%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0.4;
+  }
 }
 
-.home-progress-fill {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: linear-gradient(135deg, var(--color-accent-primary), #4f46e5);
-  transition: height 0.3s ease;
-}
 
-.star-icon {
-  position: relative;
-  z-index: 1;
-  font-size: 1.5rem;
-}
 
 .tag-info {
   flex: 1;
@@ -110,9 +168,51 @@
   color: #f7fafc;
 }
 
-.tag-progress {
-  font-size: 0.875rem;
-  color: #a0aec0;
+.tag-progress-bar {
+  position: relative;
+  width: 100%;
+  height: 24px;
+  background-color: #1a202c;
+  border: 1px solid #2d3748;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3), 
+              inset 0 -1px 2px rgba(255, 255, 255, 0.1);
+}
+
+.tag-progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  // Default bronze colors, will be overridden by tier classes
+  background: linear-gradient(135deg, tier-color(bronze, progress-start), tier-color(bronze, progress-end));
+  transition: width 0.3s ease;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+.tag-progress-text {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #f7fafc;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  gap: 0.5rem;
+  
+  .numerator {
+    font-weight: 700;
+    color: #ffffff;
+  }
+  
+  .denominator {
+    font-weight: 600;
+    color: #e2e8f0;
+  }
 }
 
 .proficiency-metrics {

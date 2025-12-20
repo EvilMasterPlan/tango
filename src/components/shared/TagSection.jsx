@@ -1,45 +1,37 @@
 import { Link } from 'react-router-dom';
-import { ProficiencyMetric } from './ProficiencyMetric';
+import { getTierName } from '@/constants/tierColors';
+import { RankBadge } from './RankBadge';
 
-export function TagSection({ tag, proficiencyData }) {
-  const total = tag.proficiency?.total || 0;
+export function TagSection({ tag, rankingData }) {
+  const currentLevel = rankingData?.currentLevel ?? 0;
+  const currentVocab = rankingData?.currentVocab ?? 0;
+  const totalVocab = rankingData?.totalVocab ?? 0;
   
-  const getStarCount = (rank) => {
-    switch (rank) {
-      case 'novice': return 1;
-      case 'adept': return 2;
-      case 'expert': return 3;
-      default: return 0;
-    }
-  };
-  
-  const starCount = proficiencyData ? getStarCount(proficiencyData.rank) : 0;
-  const stars = '⭐'.repeat(starCount);
+  const tierName = getTierName(currentLevel);
+  const tierClass = `tier-${tierName}`;
 
   return (
     <Link 
       key={tag.id} 
       to={`/lesson?tagID=${tag.id}`} 
-      className="tag-section"
+      className={`tag-section ${tierClass}`}
     >
       <div className="tag-icon-section">
-        <div className="home-progress-background">
-          <div 
-            className="home-progress-fill" 
-            style={{ height: proficiencyData ? `${proficiencyData.percentage}%` : '0%' }}
-          ></div>
-        </div>
-        <div className="star-icon">{stars}</div>
+        <RankBadge level={currentLevel} />
       </div>
       
       <div className="tag-info">
         <div className="tag-label">{tag.label}</div>
-        <div className="proficiency-metrics">
-          <ProficiencyMetric
-            label={proficiencyData.rank}
-            numerator={proficiencyData.count}
-            denominator={proficiencyData.total}
-          />
+        <div className="tag-progress-bar">
+          <div 
+            className="tag-progress-fill"
+            style={{ width: rankingData ? `${rankingData.percentage}%` : '0%' }}
+          ></div>
+          <div className="tag-progress-text">
+            <span className="numerator">{currentVocab}</span>
+            <span> / </span>
+            <span className="denominator">{totalVocab}</span>
+          </div>
         </div>
       </div>
     </Link>

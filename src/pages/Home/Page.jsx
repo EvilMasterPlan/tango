@@ -4,27 +4,16 @@ import { TagSection } from '@/components/shared/TagSection';
 import '@/pages/Home/Page.scss';
 
 export function HomePage({ tags }) {
-  const calculateProficiencyData = (proficiency) => {
-    if (!proficiency) return null;
+  const calculateRankingData = (ranking) => {
+    if (!ranking) return null;
     
-    const { rank, total, breakout = {} } = proficiency;
-    const { none, novice, adept, expert } = breakout;
-    
-    // Calculate the count for the current rank
-    let count = 0;
-    if (rank === 'novice') {
-      count = novice + adept + expert;
-    } else if (rank === 'adept') {
-      count = adept + expert;
-    } else if (rank === 'expert') {
-      count = expert;
-    }
+    const { currentVocab, totalVocab, currentLevel } = ranking;
     
     return {
-      rank,
-      count,
-      total,
-      percentage: Math.round((count / total) * 100)
+      currentVocab,
+      totalVocab,
+      currentLevel,
+      percentage: totalVocab > 0 ? Math.round((currentVocab / totalVocab) * 100) : 0
     };
   };
   return (
@@ -41,23 +30,22 @@ export function HomePage({ tags }) {
               <div className="home-progress-background">
                 <div className="home-progress-fill" style={{ height: '25%' }}></div>
               </div>
-              <div className="star-icon">⭐</div>
+              <div className="star-icon">全</div>
             </div>
             
             <div className="tag-info">
               <div className="tag-label">All Words</div>
-              <div className="tag-progress">25/25</div>
             </div>
           </Link>
           
           {tags && Array.isArray(tags) && tags.map((tag) => {
-            const proficiencyData = calculateProficiencyData(tag.proficiency);
+            const rankingData = calculateRankingData(tag.ranking);
             
             return (
               <TagSection
                 key={tag.id}
                 tag={tag}
-                proficiencyData={proficiencyData}
+                rankingData={rankingData}
               />
             );
           })}

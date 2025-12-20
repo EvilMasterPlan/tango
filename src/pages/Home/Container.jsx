@@ -34,15 +34,12 @@ export function HomeContainer() {
     'N4',
     'N5',
     'adjective',
-    'adverb',
-    'day of month',
     'relative day',
     'kanji',
     'kanji (full)',
     'katakana',
     'noun',
     'verb',
-    'numeric'
   ];
 
   // Convert overallProgress object to array format and filter by desired labels

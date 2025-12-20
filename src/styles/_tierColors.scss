@@ -1,0 +1,111 @@
+// Tier color definitions
+$tier-colors: (
+  bronze: (
+    border: #cd7f32,
+    border-rgb: 205 127 50,
+    progress-start: #cd7f32,
+    progress-end: #b87333,
+    badge-start: #5a3d28,
+    badge-end: #4a2f1f,
+    text: #ffb84d,
+    glow-base: 0.3,
+    glow-inset: 0.1,
+    glow-hover: 0.5
+  ),
+  silver: (
+    border: #c0c0c0,
+    border-rgb: 192 192 192,
+    progress-start: #c0c0c0,
+    progress-end: #a8a8a8,
+    badge-start: #3d3d3d,
+    badge-end: #323232,
+    text: #e8e8e8,
+    glow-base: 0.4,
+    glow-inset: 0.15,
+    glow-hover: 0.6
+  ),
+  gold: (
+    border: #ffd700,
+    border-rgb: 255 215 0,
+    progress-start: #ffd700,
+    progress-end: #ffed4e,
+    badge-start: #5a4517,
+    badge-end: #4a3512,
+    text: #ffed4e,
+    glow-base: 0.5,
+    glow-inset: 0.2,
+    glow-hover: 0.7
+  ),
+  platinum: (
+    border: #e5e4e2,
+    border-rgb: 229 228 226,
+    progress-start: #e5e4e2,
+    progress-end: #d4d3d1,
+    badge-start: #3d3c3a,
+    badge-end: #2f2e2d,
+    text: #f5f4f2,
+    glow-base: 0.5,
+    glow-inset: 0.2,
+    glow-hover: 0.7
+  ),
+  emerald: (
+    border: #50c878,
+    border-rgb: 80 200 120,
+    progress-start: #50c878,
+    progress-end: #3db568,
+    badge-start: #1a4a2a,
+    badge-end: #153d1f,
+    text: #6dd89a,
+    glow-base: 0.5,
+    glow-inset: 0.2,
+    glow-hover: 0.7
+  ),
+  topaz: (
+    border: #ffc87c,
+    border-rgb: 255 200 124,
+    progress-start: #ffc87c,
+    progress-end: #ffb85c,
+    badge-start: #5a3d22,
+    badge-end: #4a2f17,
+    text: #ffd99c,
+    glow-base: 0.5,
+    glow-inset: 0.2,
+    glow-hover: 0.7
+  ),
+  ruby: (
+    border: #e0115f,
+    border-rgb: 224 17 95,
+    progress-start: #e0115f,
+    progress-end: #c0104f,
+    badge-start: #3d1525,
+    badge-end: #2f0f1a,
+    text: #ff2d7f,
+    glow-base: 0.6,
+    glow-inset: 0.25,
+    glow-hover: 0.8
+  ),
+  diamond: (
+    border: #b9f2ff,
+    border-rgb: 185 242 255,
+    progress-start: #b9f2ff,
+    progress-end: #7dd3ff,
+    badge-start: #1a2a3a,
+    badge-end: #15222f,
+    text: #d9f5ff,
+    glow-base: 0.7,
+    glow-inset: 0.3,
+    glow-hover: 0.9
+  )
+);
+
+// Helper function to get tier color value
+@function tier-color($tier, $property) {
+  @return map-get(map-get($tier-colors, $tier), $property);
+}
+
+// Helper function to get rgba from rgb values
+@function tier-rgba($tier, $alpha) {
+  $rgb: tier-color($tier, border-rgb);
+  @return rgba(nth($rgb, 1), nth($rgb, 2), nth($rgb, 3), $alpha);
+}
+
