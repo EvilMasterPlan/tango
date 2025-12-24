@@ -1,6 +1,9 @@
+@use 'sass:list';
+@use 'sass:map';
+
 // Tier color definitions
 $tier-colors: (
-  bronze: (
+  'bronze': (
     border: #cd7f32,
     border-rgb: 205 127 50,
     progress-start: #cd7f32,
@@ -12,7 +15,7 @@ $tier-colors: (
     glow-inset: 0.1,
     glow-hover: 0.5
   ),
-  silver: (
+  'silver': (
     border: #c0c0c0,
     border-rgb: 192 192 192,
     progress-start: #c0c0c0,
@@ -24,7 +27,7 @@ $tier-colors: (
     glow-inset: 0.15,
     glow-hover: 0.6
   ),
-  gold: (
+  'gold': (
     border: #ffd700,
     border-rgb: 255 215 0,
     progress-start: #ffd700,
@@ -36,7 +39,7 @@ $tier-colors: (
     glow-inset: 0.2,
     glow-hover: 0.7
   ),
-  platinum: (
+  'platinum': (
     border: #e5e4e2,
     border-rgb: 229 228 226,
     progress-start: #e5e4e2,
@@ -48,7 +51,7 @@ $tier-colors: (
     glow-inset: 0.2,
     glow-hover: 0.7
   ),
-  emerald: (
+  'emerald': (
     border: #50c878,
     border-rgb: 80 200 120,
     progress-start: #50c878,
@@ -60,7 +63,7 @@ $tier-colors: (
     glow-inset: 0.2,
     glow-hover: 0.7
   ),
-  topaz: (
+  'topaz': (
     border: #ffc87c,
     border-rgb: 255 200 124,
     progress-start: #ffc87c,
@@ -72,7 +75,7 @@ $tier-colors: (
     glow-inset: 0.2,
     glow-hover: 0.7
   ),
-  ruby: (
+  'ruby': (
     border: #e0115f,
     border-rgb: 224 17 95,
     progress-start: #e0115f,
@@ -84,7 +87,7 @@ $tier-colors: (
     glow-inset: 0.25,
     glow-hover: 0.8
   ),
-  diamond: (
+  'diamond': (
     border: #b9f2ff,
     border-rgb: 185 242 255,
     progress-start: #b9f2ff,
@@ -100,12 +103,12 @@ $tier-colors: (
 
 // Helper function to get tier color value
 @function tier-color($tier, $property) {
-  @return map-get(map-get($tier-colors, $tier), $property);
+  @return map.get(map.get($tier-colors, $tier), $property);
 }
 
 // Helper function to get rgba from rgb values
 @function tier-rgba($tier, $alpha) {
   $rgb: tier-color($tier, border-rgb);
-  @return rgba(nth($rgb, 1), nth($rgb, 2), nth($rgb, 3), $alpha);
+  @return rgba(list.nth($rgb, 1), list.nth($rgb, 2), list.nth($rgb, 3), $alpha);
 }
 
