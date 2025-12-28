@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { LessonHeader } from '@/components/lesson/LessonHeader';
 import { LessonFooter } from '@/components/lesson/LessonFooter';
 import { SpellingQuestionBlock } from '@/components/quiz/SpellingQuestionBlock';
@@ -7,17 +6,49 @@ import { QuestionBlock } from '@/components/quiz/QuestionBlock';
 import { ChoiceGrid } from '@/components/quiz/ChoiceGrid';
 import { MatchingQuestionBlock } from '@/components/quiz/MatchingQuestionBlock';
 import { FeedbackOverlay } from '@/components/quiz/FeedbackOverlay';
+import { EndOfLesson } from '@/components/quiz/EndOfLesson';
 
-export function Quiz({ questions, api }) {
-  const navigate = useNavigate();
-
+export function Quiz({ questions, vocabDataMap, api }) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [hasCheckedAnswer, setHasCheckedAnswer] = useState(false);
   const [isQuestionComplete, setIsQuestionComplete] = useState(false);
   const [isQuestionCorrect, setIsQuestionCorrect] = useState(false);
+  const [lessonResults, setLessonResults] = useState([]);
+  const [isLessonComplete, setIsLessonComplete] = useState(false);
 
   const currentQuestion = questions[currentQuestionIndex];
   const hasRecordedPractice = useRef(false);
+  
+  // Capture initial vocab ranking state at lesson start
+  const initialVocabRankings = useRef(null);
+  
+  useEffect(() => {
+    if (vocabDataMap && !initialVocabRankings.current) {
+      // Deep copy the initial ranking state for each vocab
+      // Include all vocabs, even if they have no ranking (treat as empty)
+      const initialRankings = {};
+      Object.keys(vocabDataMap).forEach(vocabId => {
+        const vocab = vocabDataMap[vocabId];
+        if (vocab) {
+          if (vocab.ranking) {
+            initialRankings[vocabId] = {
+              lowest: vocab.ranking.lowest,
+              highest: vocab.ranking.highest,
+              facets: vocab.ranking.facets ? { ...vocab.ranking.facets } : {}
+            };
+          } else {
+            // Capture empty ranking for vocabs with no ranking yet
+            initialRankings[vocabId] = {
+              lowest: undefined,
+              highest: undefined,
+              facets: {}
+            };
+          }
+        }
+      });
+      initialVocabRankings.current = initialRankings;
+    }
+  }, [vocabDataMap]);
 
   const handleSettingsClick = () => {
     // TODO: Implement settings functionality
@@ -31,17 +62,17 @@ export function Quiz({ questions, api }) {
       setIsQuestionCorrect(false);
       hasRecordedPractice.current = false; // Reset practice recording flag
     } else {
-      navigate('/');
+      setIsLessonComplete(true);
     }
   };
 
   const handleSkip = () => {
     if (!hasCheckedAnswer) {
-      // Skip without checking - treat as incorrect
+      // Skip without checking - record locally for EoL stats but don't make API call
       hasRecordedPractice.current = true; // Mark as recorded to prevent duplicates
-      recordVocabPractice(currentQuestion, false);
-      setIsQuestionCorrect(false);
-      setHasCheckedAnswer(true);
+      recordQuestionResult(currentQuestion, false, true);
+      // Advance immediately without showing feedback
+      advanceToNextQuestion();
     } else {
       // Continue after skipping
       advanceToNextQuestion();
@@ -75,7 +106,34 @@ export function Quiz({ questions, api }) {
     if (hasCheckedAnswer && !hasRecordedPractice.current) {
       hasRecordedPractice.current = true;
       recordVocabPractice(currentQuestion, isCorrect);
+      recordQuestionResult(currentQuestion, isCorrect, false);
     }
+  };
+
+  // Record question result for end-of-lesson summary
+  const recordQuestionResult = (question, isCorrect, skipped) => {
+    const { id, vocabIds, type, subtype } = question;
+    
+    // Extract vocab IDs - for matching questions use vocabIds array, otherwise use single id
+    const resultVocabIds = type === 'matching' && vocabIds && Array.isArray(vocabIds)
+      ? vocabIds
+      : id ? [id] : [];
+    
+    // Skip if no vocab IDs found
+    if (resultVocabIds.length === 0) {
+      console.warn('No vocab IDs found in question, skipping result recording', question);
+      return;
+    }
+    
+    const result = {
+      vocabIds: resultVocabIds,
+      type,
+      subtype: subtype || null,
+      correct: isCorrect,
+      skipped
+    };
+    
+    setLessonResults(prev => [...prev, result]);
   };
 
   // Record vocab practice when question is first checked
@@ -197,6 +255,70 @@ export function Quiz({ questions, api }) {
     }
   };
 
+  // Calculate final rankings from initial rankings + lesson results
+  const calculateFinalRankings = () => {
+    const initial = initialVocabRankings.current || {};
+    const final = {};
+    
+    // Start with initial rankings
+    Object.keys(initial).forEach(vocabId => {
+      final[vocabId] = {
+        lowest: initial[vocabId].lowest,
+        highest: initial[vocabId].highest,
+        facets: { ...initial[vocabId].facets }
+      };
+    });
+    
+    // Process lesson results to update rankings
+    lessonResults.forEach(result => {
+      if (!result.correct || result.skipped) return; // Only count correct answers
+      
+      const { vocabIds, subtype } = result;
+      if (!vocabIds || !subtype) return;
+      
+      // Convert subtype to facet key
+      const facetKey = subtype.replace(/\s+/g, '_').toLowerCase();
+      
+      vocabIds.forEach(vocabId => {
+        // Initialize if not in final rankings
+        if (!final[vocabId]) {
+          final[vocabId] = {
+            lowest: undefined,
+            highest: undefined,
+            facets: {}
+          };
+        }
+        
+        // Increment facet value for correct answers
+        const currentValue = final[vocabId].facets[facetKey] || 0;
+        final[vocabId].facets[facetKey] = currentValue + 1;
+        
+        // Update highest (max of all facets)
+        const facetValues = Object.values(final[vocabId].facets);
+        final[vocabId].highest = facetValues.length > 0 ? Math.max(...facetValues) : undefined;
+        
+        // Update lowest (min of all facets that are > 0)
+        const positiveFacets = facetValues.filter(v => v > 0);
+        final[vocabId].lowest = positiveFacets.length > 0 ? Math.min(...positiveFacets) - 1 : undefined;
+      });
+    });
+    
+    return final;
+  };
+
+  if (isLessonComplete) {
+    const finalVocabRankings = calculateFinalRankings();
+    
+    return (
+      <EndOfLesson 
+        lessonResults={lessonResults} 
+        vocabDataMap={vocabDataMap}
+        initialVocabRankings={initialVocabRankings.current || {}}
+        finalVocabRankings={finalVocabRankings}
+      />
+    );
+  }
+
   return (
     <div className="lesson-page">
       <LessonHeader 
@@ -216,6 +338,8 @@ export function Quiz({ questions, api }) {
             correctAnswer={currentQuestion.answer}
             questionType={currentQuestion.type}
             vocab={currentQuestion.vocab}
+            vocabId={currentQuestion.id}
+            api={api}
           />
         )}
       </main>

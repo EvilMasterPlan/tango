@@ -12,12 +12,24 @@ export function LessonContainer() {
     api.postVocabLessonGenerate(tagID ? [tagID] : [])
   );
   const [questions, setQuestions] = useState([]);
+  const [vocabDataMap, setVocabDataMap] = useState({});
 
-  // Generate questions when vocab data is available
+  // Generate questions and extract vocab data when lesson data is available
   useEffect(() => {
     if (dataLesson) {
       const newQuestions = dataLesson.questions;
       setQuestions(newQuestions);
+      
+      // Extract vocab data from questions
+      const vocabMap = {};
+      newQuestions.forEach(question => {
+        if (question.vocab && question.vocab.id) {
+          if (!vocabMap[question.vocab.id]) {
+            vocabMap[question.vocab.id] = question.vocab;
+          }
+        }
+      });
+      setVocabDataMap(vocabMap);
     }
   }, [dataLesson]);
 
@@ -38,5 +50,5 @@ export function LessonContainer() {
     );
   }
 
-  return <LessonPage questions={questions} api={api} />;
+  return <LessonPage questions={questions} vocabDataMap={vocabDataMap} api={api} />;
 }

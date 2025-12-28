@@ -25,4 +25,10 @@ export const api = {
       tagIDs,
     });
   },
+  postVocabMark: async (vocabID, marker) => {
+    return makePostRequest(getUrl(`${prefix}/vocab/mark`), {
+      vocabID,
+      marker,
+    });
+  },
 }

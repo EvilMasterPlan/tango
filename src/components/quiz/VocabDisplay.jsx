@@ -1,13 +1,13 @@
 import './VocabDisplay.scss';
 
-export function VocabDisplay({ word, reading, meaning }) {
+export function VocabDisplay({ word, reading, meaning, compact = false }) {
   const hasWord = word && word.trim();
   const hasReading = reading && reading.trim();
   const hasMeaning = meaning && meaning.trim();
   const hasBothWordAndReading = hasWord && hasReading;
 
   return (
-    <div className="vocab-display">
+    <div className={`vocab-display ${compact ? 'compact' : ''}`}>
       {hasBothWordAndReading ? (
         <div className="vocab-word-with-furigana">
           <div className="vocab-reading-furigana">{reading}</div>

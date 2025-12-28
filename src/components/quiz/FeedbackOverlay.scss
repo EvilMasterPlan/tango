@@ -17,6 +17,7 @@
   // Override FeedbackDisplay styles for overlay context
   .feedback-display {
     background: color-mix(in srgb, var(--color-bg-primary) 80%, transparent);
+    pointer-events: auto; // Re-enable pointer events for the feedback display and its buttons
   }
 }
 

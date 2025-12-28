@@ -43,6 +43,34 @@
     font-weight: 500;
     color: rgba(255, 255, 255, 0.9);
   }
+  
+  // Compact mode for cards
+  &.compact {
+    gap: 0.125rem;
+    
+    .vocab-word-with-furigana {
+      .vocab-reading-furigana {
+        font-size: 0.75rem;
+        margin-bottom: 0.05rem;
+      }
+      
+      .vocab-word {
+        font-size: 1.25rem;
+      }
+    }
+    
+    .vocab-reading {
+      font-size: 1rem;
+    }
+    
+    .vocab-word {
+      font-size: 1.25rem;
+    }
+    
+    .vocab-meaning {
+      font-size: 0.875rem;
+    }
+  }
 }
 
 // Mobile responsiveness

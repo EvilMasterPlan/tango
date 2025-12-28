@@ -1,0 +1,190 @@
+@use '../../styles/tierColors' as *;
+
+.vocab-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 150px;
+  position: relative;
+  
+  // Metallic tier styling - generated from tier color definitions
+  @each $tier, $colors in $tier-colors {
+    &.tier-#{$tier} {
+      $border: tier-color($tier, border);
+      $glow-base: tier-color($tier, glow-base);
+      $glow-inset: tier-color($tier, glow-inset);
+      
+      background: linear-gradient(135deg, 
+        tier-color($tier, badge-start), 
+        tier-color($tier, badge-end)
+      );
+      border: 2px solid $border;
+      box-shadow: 0 0 10px tier-rgba($tier, $glow-base), 
+                  inset 0 0 10px tier-rgba($tier, $glow-inset);
+      
+      // Special handling for diamond tier glow
+      @if $tier == diamond {
+        box-shadow: 0 0 25px tier-rgba($tier, $glow-base), 
+                    0 0 50px tier-rgba($tier, $glow-base * 0.57),
+                    inset 0 0 25px tier-rgba($tier, $glow-inset);
+      }
+      
+      // Metallic shine effect
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 8px;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(255, 255, 255, 0) 30%,
+          rgba(255, 255, 255, 0.3) 50%,
+          rgba(255, 255, 255, 0) 70%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        pointer-events: none;
+        z-index: 2;
+        opacity: 0.4;
+      }
+      
+      .vocab-card-word {
+        color: tier-color($tier, text);
+      }
+      
+      .vocab-card-tier-section {
+        border-top-color: rgba(255, 255, 255, 0.2);
+      }
+      
+      .vocab-card-tier {
+        color: tier-color($tier, text);
+      }
+      
+    }
+  }
+  
+  .vocab-card-word {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+    line-height: 1.3;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .vocab-card-tier-section {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 0.5rem;
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .vocab-card-tier {
+    font-size: 0.625rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    text-transform: uppercase;
+  }
+  
+  .vocab-card-progress {
+    .progress-grid {
+      display: flex;
+      justify-content: center;
+      gap: 0.125rem;
+      flex-wrap: wrap;
+      
+      .progress-cell {
+        width: 8px;
+        height: 8px;
+        flex-shrink: 0;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        
+        // Pips that were already lit - no transitions, just show as lit
+        &.was-already-lit {
+          background: rgba(255, 255, 255, 0.9);
+          border-color: rgba(255, 255, 255, 0.6);
+          transition: none;
+        }
+        
+        // React-transition-group classes for new pips that animate in
+        &.pip-enter {
+          background: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.2);
+          transform: scale(0.8);
+          opacity: 0.5;
+        }
+        
+        &.pip-enter-active {
+          background: rgba(255, 255, 255, 0.9);
+          border-color: rgba(255, 255, 255, 0.6);
+          transform: scale(1);
+          opacity: 1;
+          transition: background 0.4s ease-out, 
+                      border-color 0.4s ease-out,
+                      transform 0.4s ease-out,
+                      opacity 0.4s ease-out;
+        }
+        
+        &.pip-enter-done {
+          background: rgba(255, 255, 255, 0.9);
+          border-color: rgba(255, 255, 255, 0.6);
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+    }
+  }
+}
+
+
+// Mobile responsiveness
+@media (max-width: 768px) {
+  .vocab-card {
+    padding: 0.5rem;
+    gap: 0.375rem;
+    
+    .vocab-card-word {
+      font-size: 0.8125rem;
+    }
+    
+    .vocab-card-tier-section {
+      padding-top: 0.375rem;
+      margin-top: 0.375rem;
+      gap: 0.25rem;
+    }
+    
+    .vocab-card-tier {
+      font-size: 0.5625rem;
+    }
+    
+    .vocab-card-progress {
+      .progress-grid {
+        gap: 0.125rem;
+        
+        .progress-cell {
+          width: 7px;
+          height: 7px;
+          flex-shrink: 0;
+        }
+      }
+    }
+  }
+}
+
