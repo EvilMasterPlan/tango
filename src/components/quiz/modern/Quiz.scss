@@ -1,0 +1,59 @@
+.quiz {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  text-align: center;
+  width: 100%;
+  max-width: 500px;
+}
+
+.quiz__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.quiz__content--hidden {
+  opacity: 0;
+}
+
+.quiz__answer-area {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  // ChoiceGrid/SpellingSlots/SpellingTiles all set their own width: 100%, so
+  // this only actually matters for ReadingInput, which caps out narrower
+  // than the column (max-width: 20rem) and would otherwise sit flush left
+  // under the default `stretch`.
+  align-items: center;
+  width: 100%;
+  // Only meaningful in spelling rounds (separates SpellingSlots from
+  // SpellingTiles) — a no-op when there's a single ChoiceGrid child.
+  gap: 1.5rem;
+  // Reserves height for whichever answer UI is taller — the multiple-choice
+  // grid, or the spelling slots + tiles stacked with the gap above between
+  // them — so switching between question types across the quiz never
+  // shifts the card's overall height. 19rem = ChoiceGrid's own 13.5rem vs.
+  // SpellingSlots (8.75rem) + this gap (1.5rem) + SpellingTiles (8.75rem);
+  // the taller of the two wins and the shorter one centers inside it.
+  min-height: 19rem;
+}
+
+@media (max-width: 768px) {
+  .quiz__answer-area {
+    // 22.5rem = ChoiceGrid's own mobile reservation vs. spelling's smaller
+    // 7rem + 1.5rem gap + 7rem — here ChoiceGrid is the taller one.
+    min-height: 22.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiz__content {
+    transition: none;
+  }
+}

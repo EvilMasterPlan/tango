@@ -1,0 +1,80 @@
+@use './modern';
+
+.modern-spelling-slots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  // Reserved for a 2-row worst case (readings run up to 8 characters, so up
+  // to 11 tiles) so a short reading's single row centers in the same
+  // footprint instead of the section shrinking — same technique as
+  // ChoiceGrid.scss, though a wrapping flex row's actual row count depends
+  // on rendered width in a way a fixed grid's doesn't, so this is a
+  // starting point, not an exact figure.
+  min-height: calc(4rem * 2 + 0.75rem);
+  align-content: center;
+}
+
+.modern-spelling-slot {
+  @include modern.quiz-tile-face;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.modern-spelling-slot--filled:not(:disabled):hover {
+  background-color: var(--color-bg-tertiary);
+  border-color: var(--color-accent-primary);
+  box-shadow: 0 5px 0 0 var(--color-accent-primary);
+}
+
+// Same gold/black success-fail treatment as ChoiceButton.scss, applied per
+// letter instead of per multiple-choice option.
+.modern-spelling-slot--success {
+  background-color: #fde047;
+  border-color: #fde047;
+  color: var(--color-bg-primary);
+  box-shadow: 0 4px 0 0 #a16207;
+}
+
+.modern-spelling-slot--fail {
+  background-color: #000000;
+  border-color: #000000;
+  color: #ffffff;
+  box-shadow: 0 4px 0 0 #000000;
+}
+
+.modern-spelling-slot--fail::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.12) 0,
+    rgba(255, 255, 255, 0.12) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+  pointer-events: none;
+}
+
+.modern-spelling-slot:disabled {
+  cursor: default;
+}
+
+@media (max-width: 768px) {
+  .modern-spelling-slots {
+    gap: 0.5rem;
+    min-height: calc(3.25rem * 2 + 0.5rem);
+  }
+
+  .modern-spelling-slot {
+    width: 3.25rem;
+    height: 3.25rem;
+    font-size: 1.5rem;
+  }
+}

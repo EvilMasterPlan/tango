@@ -1,0 +1,50 @@
+@use './modern';
+
+.modern-spelling-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: calc(4rem * 2 + 0.75rem); // same worst-case-2-rows reasoning as SpellingSlots.scss
+  align-content: center;
+}
+
+.modern-spelling-tile {
+  @include modern.quiz-tile-face;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
+}
+
+.modern-spelling-tile:hover:not(:disabled) {
+  background-color: var(--color-bg-tertiary);
+  border-color: var(--color-accent-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 0 var(--color-accent-primary);
+}
+
+.modern-spelling-tile:active:not(:disabled) {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 0 var(--color-border-primary);
+}
+
+.modern-spelling-tile--used {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.modern-spelling-tile:disabled {
+  cursor: default;
+}
+
+@media (max-width: 768px) {
+  .modern-spelling-tiles {
+    gap: 0.5rem;
+    min-height: calc(3.25rem * 2 + 0.5rem);
+  }
+
+  .modern-spelling-tile {
+    width: 3.25rem;
+    height: 3.25rem;
+    font-size: 1.5rem;
+  }
+}

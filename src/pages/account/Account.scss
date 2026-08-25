@@ -1,0 +1,81 @@
+.account-shell {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.account-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+}
+
+.account-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.35rem;
+}
+
+.account-subtitle {
+  color: var(--color-text-muted);
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+}
+
+.account-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.account-label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+.account-input {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.7rem;
+}
+
+.account-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.account-link {
+  color: var(--color-accent-primary);
+  text-decoration: none;
+}
+
+.account-link:hover {
+  text-decoration: underline;
+}
+
+.account-error {
+  color: var(--color-accent-error);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.account-success {
+  color: var(--color-accent-secondary);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.account-inline-note {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}

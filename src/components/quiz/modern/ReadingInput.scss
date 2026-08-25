@@ -1,0 +1,162 @@
+@use './modern';
+
+.modern-reading-input-wrap {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 20rem;
+  border-radius: 0.75rem;
+}
+
+// overflow: hidden only while showing the shine (which only ever coincides
+// with revealed + disabled, i.e. never while focused) — scoping it to just
+// this state means it can't ever clip the input's own focus ring while the
+// user is actually typing.
+.modern-reading-input-wrap--success {
+  overflow: hidden;
+}
+
+.modern-reading-input-wrap--success::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  z-index: 1;
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0) 20%,
+    rgba(255, 255, 255, 0.6) 45%,
+    rgba(255, 255, 255, 0) 65%
+  );
+  pointer-events: none;
+  animation: modern-reading-success-shine 0.25s ease-in-out;
+}
+
+@keyframes modern-reading-success-shine {
+  from {
+    transform: translate(-55%, -55%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modern-reading-input-wrap--success::before {
+    animation: none;
+  }
+}
+
+.modern-reading-input-wrap--success::after {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  z-index: 1;
+  background-image: linear-gradient(
+    135deg,
+    transparent 0%,
+    transparent 42%,
+    rgba(255, 255, 255, 0.9) 47%,
+    rgba(255, 255, 255, 0.9) 53%,
+    transparent 58%,
+    transparent 100%
+  );
+  pointer-events: none;
+  transform: translateX(100%);
+  animation: modern-reading-success-flash 0.55s linear 0.15s;
+}
+
+@keyframes modern-reading-success-flash {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modern-reading-input-wrap--success::after {
+    animation: none;
+  }
+}
+
+.modern-reading-input {
+  @include modern.quiz-button-base;
+  cursor: text;
+  width: 100%;
+  max-width: 20rem;
+  padding: 1rem 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-secondary);
+  border: 3px solid var(--color-border-primary);
+  // Inset shadow, not a raised bottom "lip" like ChoiceButton/SpellingSlot —
+  // this should read as a field to fill in, not a button to press.
+  box-shadow: inset 0 2px 4px 0 var(--color-shadow-medium);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.modern-reading-input::placeholder {
+  color: var(--color-text-disabled);
+  font-weight: 500;
+}
+
+.modern-reading-input:focus {
+  outline: none;
+  border-color: var(--color-accent-primary);
+  box-shadow: inset 0 2px 4px 0 var(--color-shadow-medium), 0 0 0 3px rgba(96, 165, 250, 0.25);
+}
+
+// Same gold/black success-fail treatment as ChoiceButton/SpellingSlots.
+// Text is transparent here, not dark-on-gold — the shine layers above sit
+// between this input and its crisp text duplicate (.success-label below),
+// so native text would otherwise render underneath the shine and go muddy.
+.modern-reading-input--success {
+  background-color: #fde047;
+  border-color: #fde047;
+  color: transparent;
+  box-shadow: none;
+}
+
+// Duplicates the answer on a layer above the shine (z-index higher than its
+// ::before/::after) so it stays crisp and dark instead of getting washed out
+// underneath the animated overlay.
+.modern-reading-input__success-label {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-bg-primary);
+  pointer-events: none;
+}
+
+.modern-reading-input--fail {
+  background-color: #000000;
+  border-color: #000000;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.modern-reading-input:disabled {
+  cursor: default;
+}
+
+@media (max-width: 768px) {
+  .modern-reading-input {
+    font-size: 1.5rem;
+    padding: 0.85rem 1.25rem;
+  }
+
+  .modern-reading-input__success-label {
+    font-size: 1.5rem;
+  }
+}

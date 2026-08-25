@@ -1,0 +1,121 @@
+$marketing-max-width: 28rem;
+$marketing-breakpoint: 48rem;
+
+.marketing {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  background-color: var(--color-bg-primary);
+}
+
+.marketing__inner {
+  width: 100%;
+  max-width: $marketing-max-width;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.marketing__header {
+  display: flex;
+  justify-content: center;
+}
+
+.marketing__wordmark {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-accent-primary);
+}
+
+.marketing__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.marketing__headline {
+  margin: 0;
+  font-size: clamp(1.5rem, 6vw, 2rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--color-text-primary);
+}
+
+.marketing__sub {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+}
+
+.marketing__features {
+  margin: 0.25rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.marketing__feature {
+  padding-left: 1.25rem;
+  position: relative;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background-color: var(--color-accent-primary);
+    opacity: 0.7;
+  }
+}
+
+.marketing__cta {
+  margin-top: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.marketing__signin {
+  margin: 0;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.marketing__signin-link {
+  color: var(--color-accent-primary);
+  text-decoration: none;
+  font-weight: 500;
+
+  &:hover {
+    color: var(--color-accent-primary-hover);
+    text-decoration: underline;
+  }
+}
+
+@media (min-width: $marketing-breakpoint) {
+  .marketing__inner {
+    padding: 3rem 2rem;
+    background-color: var(--color-bg-secondary);
+    border: 1px solid var(--color-border-primary);
+    border-radius: 1rem;
+    box-shadow: 0 0 2.5rem var(--color-shadow-heavy);
+  }
+}

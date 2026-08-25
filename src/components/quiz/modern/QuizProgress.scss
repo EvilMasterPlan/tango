@@ -1,0 +1,51 @@
+// The largest dot variant (--current) sets the slot size — every slot is
+// this size regardless of the dot it holds, so the row's width is fixed.
+$dot-slot-size: 0.9rem;
+
+.quiz-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.quiz-progress__slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: $dot-slot-size;
+  height: $dot-slot-size;
+  flex-shrink: 0;
+}
+
+.quiz-progress__dot {
+  display: block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: var(--color-text-disabled);
+  opacity: 0.5;
+  transition: width var(--transition-fast), height var(--transition-fast),
+    background-color var(--transition-fast), opacity var(--transition-fast);
+}
+
+.quiz-progress__dot--success {
+  width: 0.75rem;
+  height: 0.75rem;
+  background-color: #fde047;
+  opacity: 1;
+}
+
+.quiz-progress__dot--fail {
+  width: 0.75rem;
+  height: 0.75rem;
+  background-color: #000000;
+  opacity: 1;
+}
+
+.quiz-progress__dot--current {
+  width: 0.9rem;
+  height: 0.9rem;
+  background-color: var(--color-accent-secondary);
+  opacity: 1;
+}

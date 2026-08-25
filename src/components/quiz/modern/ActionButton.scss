@@ -1,0 +1,29 @@
+@use './modern';
+
+.modern-action-button {
+  @include modern.quiz-button-base;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-bg-primary);
+  background-color: var(--color-accent-primary);
+  border: 1px solid var(--color-accent-primary);
+  padding: 0.75rem 3rem;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.modern-action-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.modern-action-button:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.modern-action-button:not(:disabled):active {
+  transform: translateY(0);
+}
