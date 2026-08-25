@@ -15,6 +15,9 @@ function SignupPage() {
   const navigate = useNavigate();
   const { refreshUser } = useUserContext();
 
+  const next = searchParams.get('next');
+  const nextQueryParam = next ? `&next=${encodeURIComponent(next)}` : '';
+
   useEffect(() => {
     const emailParam = searchParams.get('email');
     if (emailParam) {
@@ -45,10 +48,10 @@ function SignupPage() {
     try {
       await authApi.signup(email, password);
       await refreshUser();
-      navigate('/account/rampart');
+      navigate(`/account/rampart${next ? `?next=${encodeURIComponent(next)}` : ''}`);
     } catch (apiError) {
       if (apiError?.response?.status === 409) {
-        navigate(`/account/login?email=${encodeURIComponent(email)}`);
+        navigate(`/account/login?email=${encodeURIComponent(email)}${nextQueryParam}`);
         return;
       }
       setError(apiError?.response?.data?.message || 'Could not create account.');
@@ -62,7 +65,7 @@ function SignupPage() {
       title="Create account"
       subtitle="Use one account per learner. No shared spaces, no extra setup."
       footerText="Already registered? Sign in"
-      footerHref={`/account/login${email ? `?email=${encodeURIComponent(email)}` : ''}`}
+      footerHref={`/account/login${email ? `?email=${encodeURIComponent(email)}` : ''}${nextQueryParam}`}
     >
       <form className="account-form" onSubmit={handleSubmit}>
         <label className="account-label" htmlFor="email">

@@ -14,6 +14,9 @@ function LoginPage() {
   const navigate = useNavigate();
   const { refreshUser } = useUserContext();
 
+  const next = searchParams.get('next');
+  const nextQueryParam = next ? `&next=${encodeURIComponent(next)}` : '';
+
   useEffect(() => {
     const emailParam = searchParams.get('email');
     if (emailParam) {
@@ -39,7 +42,7 @@ function LoginPage() {
     try {
       await authApi.login(email, password);
       await refreshUser();
-      navigate('/account/rampart');
+      navigate(`/account/rampart${next ? `?next=${encodeURIComponent(next)}` : ''}`);
     } catch (apiError) {
       setError(apiError?.response?.data?.message || 'Invalid email or password.');
     } finally {
@@ -52,7 +55,7 @@ function LoginPage() {
       title="Welcome back"
       subtitle="Sign in to your Tango account."
       footerText="Need an account? Sign up"
-      footerHref={`/account/signup${email ? `?email=${encodeURIComponent(email)}` : ''}`}
+      footerHref={`/account/signup${email ? `?email=${encodeURIComponent(email)}` : ''}${nextQueryParam}`}
     >
       <form className="account-form" onSubmit={handleSubmit}>
         <label className="account-label" htmlFor="email">

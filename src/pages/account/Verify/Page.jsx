@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import AccountLayout from '@/pages/account/components/AccountLayout';
 import { accountApi } from '@/utils/api/account';
 import { useUserContext } from '@/contexts/UserContext';
@@ -12,6 +12,9 @@ function VerifyPage() {
   const [message, setMessage] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const next = searchParams.get('next');
+  const nextQueryParam = next ? `?next=${encodeURIComponent(next)}` : '';
 
   const subtitle = useMemo(() => {
     if (!user?.email) {
@@ -42,7 +45,7 @@ function VerifyPage() {
     try {
       await accountApi.verifyCode(code.trim());
       await refreshUser();
-      navigate('/account/rampart');
+      navigate(`/account/rampart${nextQueryParam}`);
     } catch (apiError) {
       setError(apiError?.response?.data?.message || 'Invalid verification code.');
     } finally {
@@ -55,11 +58,11 @@ function VerifyPage() {
   }
 
   if (!user) {
-    return <Navigate to="/account/login" replace />;
+    return <Navigate to={`/account/login${nextQueryParam}`} replace />;
   }
 
   if (isAccountVerified(user)) {
-    return <Navigate to="/account/rampart" replace />;
+    return <Navigate to={`/account/rampart${nextQueryParam}`} replace />;
   }
 
   return (

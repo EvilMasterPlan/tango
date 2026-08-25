@@ -1,14 +1,18 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import AccountLayout from '@/pages/account/components/AccountLayout';
 import { authApi } from '@/utils/api/auth';
 import { isValidEmail } from '@/utils/auth';
 
 function StartPage() {
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  const next = searchParams.get('next');
+  const nextQueryParam = next ? `&next=${encodeURIComponent(next)}` : '';
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -22,13 +26,13 @@ function StartPage() {
     setIsLoading(true);
     try {
       await authApi.checkEmail(email);
-      navigate(`/account/signup?email=${encodeURIComponent(email)}`);
+      navigate(`/account/signup?email=${encodeURIComponent(email)}${nextQueryParam}`);
     } catch (apiError) {
       if (apiError?.response?.status === 409) {
-        navigate(`/account/login?email=${encodeURIComponent(email)}`);
+        navigate(`/account/login?email=${encodeURIComponent(email)}${nextQueryParam}`);
         return;
       }
-      navigate(`/account/signup?email=${encodeURIComponent(email)}`);
+      navigate(`/account/signup?email=${encodeURIComponent(email)}${nextQueryParam}`);
     } finally {
       setIsLoading(false);
     }

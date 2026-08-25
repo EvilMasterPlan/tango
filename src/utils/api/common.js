@@ -11,12 +11,12 @@ export const getUrl = (path) => {
 };
 
 export const makeGetRequest = async (url) => {
-	const response = await axios.get(url);
+	const response = await axios.get(url, { withCredentials: true });
 	return response.data;
 };
 
 export const makePostRequest = async (url, body = {}) => {
-	const response = await axios.post(url, body);
+	const response = await axios.post(url, body, { withCredentials: true });
 	return response.data;
 };
 
