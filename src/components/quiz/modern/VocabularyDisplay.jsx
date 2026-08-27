@@ -1,5 +1,6 @@
 import { Fragment } from 'react';
 import { getChallengeRating } from '@/utils/challengeRating';
+import { MasteryPentagon } from '@/components/quiz/modern/MasteryPentagon';
 import './VocabularyDisplay.scss';
 
 function Blank({ ghostText }) {
@@ -47,16 +48,18 @@ function FuriganaWord({ furigana }) {
 // 'reading' once revealed), they're merged into a single furigana display
 // so each reading segment sits directly over its own kanji instead of just
 // floating, centered, over the word as a whole.
-export function VocabularyDisplay({ entry, hidden, ghostText, revealed = false }) {
+export function VocabularyDisplay({ entry, hidden, ghostText, revealed = false, mastery, currentSkillKey }) {
   const showFurigana = hidden === 'definition' || revealed;
   const challengeRating = getChallengeRating(entry.score);
 
   return (
     <div className="vocabulary-display">
-      {/* Blank spacer the same fixed width as the rating column on the right,
-          so the centered content in the middle stays centered on the card
-          as a whole rather than drifting toward the rating's side. */}
-      <div className="vocabulary-display__side" aria-hidden="true" />
+      {/* Same fixed width as the rating column on the right, so the centered
+          content in the middle stays centered on the card as a whole rather
+          than drifting toward the rating's side. */}
+      <div className="vocabulary-display__side vocabulary-display__mastery" aria-hidden="true">
+        <MasteryPentagon mastery={mastery} currentSkillKey={currentSkillKey} />
+      </div>
 
       <div className="vocabulary-display__center">
         {/* Both layouts stay mounted, stacked in the same grid cell, so this
@@ -88,9 +91,10 @@ export function VocabularyDisplay({ entry, hidden, ghostText, revealed = false }
 
       <div
         className="vocabulary-display__side vocabulary-display__challenge-rating"
-        aria-label={`Challenge rating: ${challengeRating}`}
+        aria-label={`Challenge rating: ${challengeRating}${entry.jlpt ? `, JLPT ${entry.jlpt}` : ''}`}
       >
-        {challengeRating}
+        <span className="vocabulary-display__challenge-rating-value">{challengeRating}</span>
+        {entry.jlpt ? <span className="vocabulary-display__jlpt-level">{entry.jlpt}</span> : null}
       </div>
     </div>
   );

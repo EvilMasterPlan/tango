@@ -4,6 +4,7 @@ import { MarketingContainer } from '@/pages/Marketing/Container';
 import { HomeContainer } from '@/pages/Home/Container';
 import { LessonContainer } from '@/pages/Lesson/Container';
 import { TestContainer } from '@/pages/Test/Container';
+import { PolygonDebugContainer } from '@/pages/Debug/Polygon/Container';
 import AccountRoutes from '@/pages/account/AccountRoutes';
 import { UserProvider } from '@/contexts/UserContext';
 import RequireAuth from '@/components/auth/RequireAuth';
@@ -41,6 +42,7 @@ function App() {
                 }
               />
               <Route path="/test" element={<TestContainer />} />
+              <Route path="/debug/polygon" element={<PolygonDebugContainer />} />
               <Route
                 path="/account/*"
                 element={

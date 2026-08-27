@@ -1,6 +1,5 @@
 import { Helmet } from 'react-helmet-async';
 import { Quiz } from '@/components/quiz/modern/Quiz';
-import '@/pages/Test/Page.scss';
 
 export function TestPage() {
   return (
@@ -10,9 +9,7 @@ export function TestPage() {
         <meta name="description" content="Vocab drill test page" />
       </Helmet>
 
-      <div className="test-page">
-        <Quiz />
-      </div>
+      <Quiz />
     </>
   );
 }

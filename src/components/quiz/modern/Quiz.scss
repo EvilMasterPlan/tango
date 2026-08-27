@@ -1,11 +1,47 @@
-.quiz {
+.quiz-page {
+  height: 100vh; /* Fallback for browsers that don't support env() */
+  height: 100dvh; /* Dynamic viewport height - accounts for mobile browser UI */
+  max-height: 100vh;
+  max-height: 100dvh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+
+  // Prevent body scroll when the quiz page is active (mobile only)
+  @media (max-width: 768px) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100dvh;
+  }
+}
+
+// Bare loading/error state — shown before the first lesson has ever
+// loaded, in place of the header/main/footer layout (a subsequent "Next
+// Lesson" reload keeps that chrome and crossfades instead).
+.quiz-page--status {
   align-items: center;
-  gap: 1.5rem;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
   text-align: center;
-  width: 100%;
-  max-width: 500px;
+  color: var(--color-text-secondary);
+}
+
+// Keeps the word display in about the same vertical position across question
+// types by centering the content column in the space between the fixed-
+// height header and footer, rather than letting the page grow/shrink around it.
+.quiz-page__main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  overflow: hidden;
+  min-height: 0; // allow this flex item to shrink below its content size
 }
 
 .quiz__content {
@@ -14,6 +50,8 @@
   align-items: center;
   gap: 1.5rem;
   width: 100%;
+  max-width: 500px;
+  text-align: center;
   opacity: 1;
   transition: opacity 0.2s ease;
 }
@@ -45,6 +83,10 @@
 }
 
 @media (max-width: 768px) {
+  .quiz-page__main {
+    padding: 0.75rem 0.75rem;
+  }
+
   .quiz__answer-area {
     // 22.5rem = ChoiceGrid's own mobile reservation vs. spelling's smaller
     // 7rem + 1.5rem gap + 7rem — here ChoiceGrid is the taller one.

@@ -1,13 +1,29 @@
 @use './modern';
 
 .modern-spelling-tiles {
+  --tile-gap: 0.75rem;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.75rem;
+  gap: var(--tile-gap);
   width: 100%;
   min-height: calc(4rem * 2 + 0.75rem); // same worst-case-2-rows reasoning as SpellingSlots.scss
   align-content: center;
+}
+
+// Applied (alongside the base class above) once JS has computed an explicit,
+// balanced row-by-row split — see SpellingTiles.jsx. Each row is its own
+// flex container so line breaks are exact rather than wherever flex-wrap's
+// natural fill-to-capacity would put them.
+.modern-spelling-tiles--balanced {
+  flex-wrap: nowrap;
+  flex-direction: column;
+}
+
+.modern-spelling-tiles__row {
+  display: flex;
+  justify-content: center;
+  gap: var(--tile-gap);
 }
 
 .modern-spelling-tile {
@@ -38,7 +54,7 @@
 
 @media (max-width: 768px) {
   .modern-spelling-tiles {
-    gap: 0.5rem;
+    --tile-gap: 0.5rem;
     min-height: calc(3.25rem * 2 + 0.5rem);
   }
 

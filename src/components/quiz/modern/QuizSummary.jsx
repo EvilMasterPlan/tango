@@ -1,7 +1,6 @@
-import { ActionButton } from '@/components/quiz/modern/ActionButton';
 import './QuizSummary.scss';
 
-export function QuizSummary({ results, total, onNextLesson }) {
+export function QuizSummary({ results, total }) {
   const correct = results.filter((result) => result === 'success').length;
   const incorrect = results.filter((result) => result === 'fail').length;
 
@@ -22,7 +21,6 @@ export function QuizSummary({ results, total, onNextLesson }) {
           <dd>{incorrect}</dd>
         </div>
       </dl>
-      <ActionButton label="Next Lesson" onClick={onNextLesson} />
     </div>
   );
 }

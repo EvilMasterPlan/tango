@@ -17,20 +17,41 @@
 
 // Fixed-width so the challenge rating never grows/shrinks with its digits
 // (it's always exactly 3), and its blank mirror on the left keeps the
-// center content visually centered on the card as a whole.
+// center content visually centered on the card as a whole. Wide enough to
+// fit the mastery pentagon (2.75rem, MasteryPentagon.scss) without the
+// parent's overflow: hidden clipping it.
 .vocabulary-display__side {
-  flex: 0 0 2.5rem;
+  flex: 0 0 3rem;
 }
 
 .vocabulary-display__challenge-rating {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.15rem;
+  padding-top: 0.6rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.vocabulary-display__challenge-rating-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-disabled);
+}
+
+.vocabulary-display__jlpt-level {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-disabled);
+  opacity: 0.75;
+}
+
+.vocabulary-display__mastery {
+  display: flex;
   align-items: flex-start;
   justify-content: center;
   padding-top: 0.6rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--color-text-disabled);
 }
 
 .vocabulary-display__prompt {
