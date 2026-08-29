@@ -1,12 +1,12 @@
 import { useId } from 'react';
-import './PolygonChart.scss';
+import './RadarChart.scss';
 
 const SIZE = 40; // svg viewBox width/height — sized to leave room for the iteration rings between the floor and the outer edge
 const CENTER = SIZE / 2;
 const RADIUS = SIZE / 2 - 2; // small margin so the outer points aren't clipped
 // Floor for an axis at the bottleneck iteration, as a fraction of RADIUS —
 // collapsing every axis all the way to 0 means they'd all land on the exact
-// same center point, so with every axis at the bottleneck the polygon
+// same center point, so with every axis at the bottleneck the shape
 // degenerates into a zero-area point and doesn't render at all. A small
 // nonzero floor keeps every axis's point distinct, so the shape is always a
 // real, visible polygon. It also doubles as the current level's floor
@@ -55,7 +55,7 @@ function ringScale(iteration, iterationsForNextLevel) {
 // one per iteration remaining until the next level — e.g. iteration 2 of 5
 // needed produces radii for iterations 3, 4, and 5. The last radius always
 // equals RADIUS exactly (that's the actual level-up threshold, drawn
-// brighter than the others — see PolygonChart.scss).
+// brighter than the others — see RadarChart.scss).
 function iterationRingRadii(scale) {
   if (!scale) return [];
   return Array.from({ length: scale.stepsRemaining }, (_, index) => FLOOR_RADIUS + (index + 1) * scale.step);
@@ -81,7 +81,7 @@ function radiusForSteps(steps, scale) {
 // it's ahead of the bottleneck, capped at the outer edge once it's already
 // covered every iteration needed for the next level.
 //
-// `previewIndex` (optional) draws a second, diagonally-hatched polygon
+// `previewIndex` (optional) draws a second, diagonally-hatched radar
 // behind the real one with that one axis given one more correct answer — a
 // preview of what the shape would become, plus a small bright marker right
 // at that axis's new vertex so the change reads even when the hatched area
@@ -94,7 +94,7 @@ function radiusForSteps(steps, scale) {
 // iteration still needed, and a brighter outer ring at the actual level-up
 // threshold. Omit either to fall back to a plain extended/not-extended
 // scale with a single plain outer edge.
-export function PolygonChart({ values: correctCounts, previewIndex = null, iteration, iterationsForNextLevel }) {
+export function RadarChart({ values: correctCounts, previewIndex = null, iteration, iterationsForNextLevel }) {
   const patternId = useId();
   const count = correctCounts.length;
 
@@ -121,22 +121,22 @@ export function PolygonChart({ values: correctCounts, previewIndex = null, itera
     : null;
 
   return (
-    <svg className="polygon-chart" viewBox={`0 0 ${SIZE} ${SIZE}`}>
+    <svg className="radar-chart" viewBox={`0 0 ${SIZE} ${SIZE}`}>
       {preview && (
         <defs>
           <pattern id={patternId} patternUnits="userSpaceOnUse" width="2.2" height="2.2" patternTransform="rotate(45)">
-            <line x1="0" y1="0" x2="0" y2="2.2" className="polygon-chart__hatch-line" />
+            <line x1="0" y1="0" x2="0" y2="2.2" className="radar-chart__hatch-line" />
           </pattern>
         </defs>
       )}
-      <polygon className="polygon-chart__floor" points={floor} />
+      <polygon className="radar-chart__floor" points={floor} />
       {innerRingRadii.map((radius) => (
-        <polygon key={radius} className="polygon-chart__iteration-ring" points={ringPoints(count, radius)} />
+        <polygon key={radius} className="radar-chart__iteration-ring" points={ringPoints(count, radius)} />
       ))}
-      <polygon className="polygon-chart__outline" points={outline} />
-      {preview && <polygon className="polygon-chart__preview" points={preview} fill={`url(#${patternId})`} />}
-      <polygon className="polygon-chart__fill" points={fill} />
-      {previewMarker && <circle className="polygon-chart__preview-marker" cx={previewMarker.x} cy={previewMarker.y} r="1.4" />}
+      <polygon className="radar-chart__outline" points={outline} />
+      {preview && <polygon className="radar-chart__preview" points={preview} fill={`url(#${patternId})`} />}
+      <polygon className="radar-chart__fill" points={fill} />
+      {previewMarker && <circle className="radar-chart__preview-marker" cx={previewMarker.x} cy={previewMarker.y} r="1.4" />}
     </svg>
   );
 }

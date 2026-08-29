@@ -1,4 +1,4 @@
-.polygon-chart {
+.radar-chart {
   width: 2.75rem;
   height: 2.75rem;
   display: block;
@@ -6,7 +6,7 @@
 
 // Innermost reference pentagon — the word's current level, drawn at the
 // same radius every non-extended axis in __fill already floors at.
-.polygon-chart__floor {
+.radar-chart__floor {
   fill: none;
   stroke: var(--color-border-primary);
   stroke-width: 1;
@@ -18,7 +18,7 @@
 // rings stacked between __floor and __outline. Brighter than __floor so
 // they read as active progress markers, but still clearly dimmer than
 // __outline's level-up threshold.
-.polygon-chart__iteration-ring {
+.radar-chart__iteration-ring {
   fill: none;
   stroke: var(--color-text-muted);
   stroke-width: 1;
@@ -29,7 +29,7 @@
 // Outer edge — also the last iteration ring, i.e. the level-up threshold —
 // kept brighter than the intermediate __iteration-ring rings via both a
 // lighter stroke color and higher opacity.
-.polygon-chart__outline {
+.radar-chart__outline {
   fill: none;
   stroke: var(--color-text-muted);
   stroke-width: 1;
@@ -37,21 +37,21 @@
   opacity: 0.9;
 }
 
-.polygon-chart__hatch-line {
+.radar-chart__hatch-line {
   stroke: var(--color-text-secondary);
   stroke-width: 1.1;
 }
 
-// Rendered behind __fill (see PolygonChart.jsx's SVG element order), so it
+// Rendered behind __fill (see RadarChart.jsx's SVG element order), so it
 // only peeks out where it extends past the real (smaller) filled shape.
-.polygon-chart__preview {
+.radar-chart__preview {
   stroke: var(--color-text-secondary);
   stroke-width: 1;
   stroke-linejoin: round;
   opacity: 0.8;
 }
 
-.polygon-chart__fill {
+.radar-chart__fill {
   fill: #ffffff;
   // With exactly one axis extended, the other points all collapse onto the
   // baseline circle at the same relative position, which can still read as
@@ -65,14 +65,14 @@
 // Marks exactly where the previewed axis would land — a small dark-ringed
 // dot so the change is legible even when the hatched preview area itself is
 // too thin a sliver to read at this size (rendered last, on top of __fill).
-.polygon-chart__preview-marker {
+.radar-chart__preview-marker {
   fill: #ffffff;
   stroke: var(--color-bg-primary);
   stroke-width: 0.5;
 }
 
 @media (max-width: 768px) {
-  .polygon-chart {
+  .radar-chart {
     width: 2.5rem;
     height: 2.5rem;
   }

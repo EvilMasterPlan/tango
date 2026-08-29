@@ -1,30 +1,23 @@
-.choices-grid {
+.modern-choice-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  overflow: hidden;
-  min-width: 420px; // Ensure grid doesn't get too narrow (2 * 200px + gap)
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: 0.75rem;
+  width: 100%;
+  // Reserved for the tallest case (every choice wrapped to 2 lines, since
+  // uniform sizing matches all choices to the tallest one) so the section's
+  // footprint — and its vertical center — stays constant whether choices
+  // end up one line or two; shorter, more common rounds just center within
+  // the extra space instead of shrinking the section.
+  min-height: 13.5rem;
+  align-content: center;
 }
 
-// Progressive responsive scaling
 @media (max-width: 768px) {
-  .choices-grid {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-    min-width: 180px; // Single column, so just button min-width
-  }
-}
-
-@media (max-width: 480px) {
-  .choices-grid {
-    gap: 0.5rem;
-    min-width: 160px; // Match button min-width for small mobile
-  }
-}
-
-@media (max-width: 360px) {
-  .choices-grid {
-    gap: 0.4rem;
-    min-width: 140px; // Match button min-width for very small screens
+  .modern-choice-grid {
+    grid-template-columns: minmax(0, 1fr);
+    // Single column here means 4 stacked rows instead of 2, so the
+    // worst-case (all 4 choices at 2 lines) reserves proportionally more.
+    min-height: 22.5rem;
   }
 }

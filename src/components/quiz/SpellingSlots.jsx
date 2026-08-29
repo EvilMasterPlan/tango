@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { fireCoinConfetti, originForElement } from '@/components/quiz/modern/coinConfetti';
+import { fireCoinConfetti, originForElement } from '@/components/quiz/coinConfetti';
 import './SpellingSlots.scss';
 
 // One button per character of the answer. `slots[i]` is either `null`

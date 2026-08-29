@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { PolygonChart } from '@/components/quiz/modern/PolygonChart';
+import { RadarChart } from '@/components/quiz/RadarChart';
 import './Page.scss';
 
 const GRID_COLUMNS = 6;
@@ -34,7 +34,7 @@ function buildSection(steps) {
   return { steps, charts };
 }
 
-export function PolygonDebugPage() {
+export function RadarDebugPage() {
   // Generated once per mount rather than per render, so the grids don't
   // reshuffle themselves on every unrelated re-render.
   const sections = useMemo(() => SECTION_STEPS.map(buildSection), []);
@@ -42,17 +42,17 @@ export function PolygonDebugPage() {
   return (
     <>
       <Helmet>
-        <title>Tango Tanuki - Polygon Debug</title>
+        <title>Tango Tanuki - Radar Debug</title>
         <meta name="robots" content="noindex" />
       </Helmet>
 
-      <div className="polygon-debug">
-        <div className="polygon-debug__sections">
+      <div className="radar-debug">
+        <div className="radar-debug__sections">
           {sections.map((section) => (
-            <div className="polygon-debug__section" key={section.steps}>
-              <div className="polygon-debug__grid">
+            <div className="radar-debug__section" key={section.steps}>
+              <div className="radar-debug__grid">
                 {section.charts.map((chart) => (
-                  <PolygonChart
+                  <RadarChart
                     key={chart.id}
                     values={chart.correctCounts}
                     previewIndex={chart.previewIndex}

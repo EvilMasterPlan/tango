@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { IoClose } from 'react-icons/io5';
 import { IoMdSettings } from 'react-icons/io';
-import { QuizProgress } from '@/components/quiz/modern/QuizProgress';
+import { QuizProgress } from '@/components/quiz/QuizProgress';
 import './QuizHeader.scss';
 
 export function QuizHeader({ results, currentIndex, total, onSettingsClick }) {

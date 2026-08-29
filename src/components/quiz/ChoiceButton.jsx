@@ -1,17 +1,23 @@
 import './ChoiceButton.scss';
 
-export function ChoiceButton({ choice, index, onSelect, isSelected, disabled = false, hasCheckedAnswer = false, isAnswerCorrect = false, correctAnswer = '' }) {
-  // Determine feedback state after checking
-  const isThisChoiceCorrect = hasCheckedAnswer && choice.text === correctAnswer;
-  
+// variant: 'default' | 'selected' | 'success' | 'fail'
+// emphasized: true for word choices — slightly bigger text since subtle
+// kanji differences are easy to miss at the normal size.
+export function ChoiceButton({ text, index, variant = 'default', emphasized = false, onSelect, disabled = false, labelRef }) {
   return (
-    <button 
-      className={`choice-button ${isSelected ? 'selected' : ''} ${disabled ? 'disabled' : ''} ${isThisChoiceCorrect ? 'correct' : ''}`}
-      onClick={() => onSelect(choice, index)}
+    <button
+      type="button"
+      className={[
+        'modern-choice-button',
+        variant !== 'default' && `modern-choice-button--${variant}`,
+        emphasized && 'modern-choice-button--emphasized',
+      ].filter(Boolean).join(' ')}
+      onClick={() => onSelect(index)}
       disabled={disabled}
     >
-      <span className="choice-number">{index + 1}</span>
-      <span className="choice-text">{choice.text}</span>
+      <span ref={labelRef} className="modern-choice-button__label">
+        {text}
+      </span>
     </button>
   );
 }

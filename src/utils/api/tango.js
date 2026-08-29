@@ -14,18 +14,4 @@ export const api = {
   getAllVocabPractice: async () => {
     return makeGetRequest(getUrl(`${TANGO_API_PREFIX}/vocab/practice/all`));
   },
-  postVocabPracticeRecord: async (practiceRecords) => {
-    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/vocab/practice/record`), {answers: practiceRecords});
-  },
-  postVocabLessonGenerate: async (tagIDs) => {
-    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/vocab/lesson/generate`), {
-      tagIDs,
-    });
-  },
-  postVocabMark: async (vocabID, marker) => {
-    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/vocab/mark`), {
-      vocabID,
-      marker,
-    });
-  },
 }

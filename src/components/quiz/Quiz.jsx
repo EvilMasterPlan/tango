@@ -1,359 +1,331 @@
-import { useState, useEffect, useRef } from 'react';
-import { LessonHeader } from '@/components/lesson/LessonHeader';
-import { LessonFooter } from '@/components/lesson/LessonFooter';
-import { SpellingQuestionBlock } from '@/components/quiz/SpellingQuestionBlock';
-import { QuestionBlock } from '@/components/quiz/QuestionBlock';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { modernQuizApi } from '@/utils/api/modernQuiz';
+import { VocabularyDisplay } from '@/components/quiz/VocabularyDisplay';
 import { ChoiceGrid } from '@/components/quiz/ChoiceGrid';
-import { MatchingQuestionBlock } from '@/components/quiz/MatchingQuestionBlock';
-import { FeedbackOverlay } from '@/components/quiz/FeedbackOverlay';
-import { EndOfLesson } from '@/components/quiz/EndOfLesson';
+import { SpellingSlots } from '@/components/quiz/SpellingSlots';
+import { SpellingTiles } from '@/components/quiz/SpellingTiles';
+import { ReadingInput } from '@/components/quiz/ReadingInput';
+import { ActionButton } from '@/components/quiz/ActionButton';
+import { QuizHeader } from '@/components/quiz/QuizHeader';
+import { QuizFooter } from '@/components/quiz/QuizFooter';
+import { QuizSummary } from '@/components/quiz/QuizSummary';
+import './Quiz.scss';
 
-export function Quiz({ questions, vocabDataMap, api }) {
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [hasCheckedAnswer, setHasCheckedAnswer] = useState(false);
-  const [isQuestionComplete, setIsQuestionComplete] = useState(false);
-  const [isQuestionCorrect, setIsQuestionCorrect] = useState(false);
-  const [lessonResults, setLessonResults] = useState([]);
-  const [isLessonComplete, setIsLessonComplete] = useState(false);
+// Must match the opacity transition duration in Quiz.scss — the content
+// swap happens at the trough of the fade, once the old content is gone.
+const TRANSITION_MS = 500;
 
-  const currentQuestion = questions[currentQuestionIndex];
-  const hasRecordedPractice = useRef(false);
-  
-  // Capture initial vocab ranking state at lesson start
-  const initialVocabRankings = useRef(null);
-  
+// Minimum gap between Enter-triggered actions (Check / Next / Next Lesson).
+// Key repeat while Enter is held down fires many keydown events in quick
+// succession — without this, holding it past the first press would blow
+// through several questions' worth of Check-then-Next before the user can
+// let go.
+const ENTER_ACTION_DEBOUNCE_MS = 50;
+
+// spellingSlots[i] is null (empty) or a tile index into round.tiles — empty
+// for non-spelling rounds, one null per answer character for spelling rounds.
+function initSpellingSlots(round) {
+  return round?.mode === 'spelling' ? Array(round.correctAnswer.length).fill(null) : [];
+}
+
+export function Quiz() {
+  const [rounds, setRounds] = useState(null);
+  const [questionIndex, setQuestionIndex] = useState(0);
+  // 'success' | 'fail' per completed question index, for the progress dots
+  // and the end-of-set summary.
+  const [results, setResults] = useState([]);
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const [spellingSlots, setSpellingSlots] = useState([]);
+  // Read-only mirror of ReadingInput's live (wanakana-converted) value —
+  // never written back into the input, see ReadingInput.jsx.
+  const [typedAnswer, setTypedAnswer] = useState('');
+  // 'answer': picking a choice; 'review': Check was pressed, showing
+  // success/fail colors and waiting for Next to advance; 'summary': every
+  // question in the set is done.
+  const [phase, setPhase] = useState('answer');
+  // True for the brief window between clicking Next and the new question
+  // (or summary) appearing — drives the fade-out/fade-in crossfade. Also
+  // held true across a "Next Lesson" reload, for however long that fetch
+  // actually takes (see handleNextLesson).
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const transitionTimeoutRef = useRef(null);
+  const lastEnterActionRef = useRef(0);
+
+  useEffect(() => () => window.clearTimeout(transitionTimeoutRef.current), []);
+
+  const loadLesson = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError(null);
+    try {
+      const { questions } = await modernQuizApi.generateLesson();
+      setRounds(questions);
+      setResults([]);
+      setQuestionIndex(0);
+      setSelectedIndex(null);
+      setSpellingSlots(initSpellingSlots(questions[0]));
+      setTypedAnswer('');
+      setPhase('answer');
+    } catch (error) {
+      setLoadError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    if (vocabDataMap && !initialVocabRankings.current) {
-      // Deep copy the initial ranking state for each vocab
-      // Include all vocabs, even if they have no ranking (treat as empty)
-      const initialRankings = {};
-      Object.keys(vocabDataMap).forEach(vocabId => {
-        const vocab = vocabDataMap[vocabId];
-        if (vocab) {
-          if (vocab.ranking) {
-            initialRankings[vocabId] = {
-              lowest: vocab.ranking.lowest,
-              highest: vocab.ranking.highest,
-              facets: vocab.ranking.facets ? { ...vocab.ranking.facets } : {}
-            };
-          } else {
-            // Capture empty ranking for vocabs with no ranking yet
-            initialRankings[vocabId] = {
-              lowest: undefined,
-              highest: undefined,
-              facets: {}
-            };
-          }
-        }
+    loadLesson();
+  }, [loadLesson]);
+
+  const currentRound = rounds?.[questionIndex];
+  const { entry, hidden, mode, choices, correctIndex, tiles, correctAnswer, skillKey, mastery } = currentRound || {};
+
+  const isAnswered = !currentRound
+    ? false
+    : mode === 'spelling'
+      ? spellingSlots.every((slot) => slot !== null)
+      : mode === 'typing'
+        ? typedAnswer.trim().length > 0
+        : selectedIndex !== null;
+
+  // Tile indices currently sitting in a slot — derived rather than tracked
+  // separately, since a slot can only ever hold the one tile placed into it.
+  const usedTileIndices = new Set(spellingSlots.filter((tileIndex) => tileIndex !== null));
+
+  // Sized to the longest choice (choice mode) or the answer itself (spelling
+  // and typing modes) — not the correct answer among choices — so the
+  // blank's width never gives away which option is right. For spelling, the
+  // slot row already reveals the exact character count, so there's nothing
+  // left to hide by sizing the ghost to the real answer; typing mode has no
+  // choices to size against at all.
+  const ghostText = !currentRound
+    ? ''
+    : mode === 'spelling' || mode === 'typing'
+      ? correctAnswer
+      : choices.reduce((longest, choice) => (choice.length > longest.length ? choice : longest), '');
+
+  // Fades the current content out, runs `update` once it's invisible, then
+  // lets the (now different) content fade back in.
+  function transitionTo(update) {
+    setIsTransitioning(true);
+    transitionTimeoutRef.current = window.setTimeout(() => {
+      update();
+      setIsTransitioning(false);
+    }, TRANSITION_MS);
+  }
+
+  function handlePlaceTile(tileIndex) {
+    setSpellingSlots((prev) => {
+      const nextEmptyIndex = prev.indexOf(null);
+      if (nextEmptyIndex === -1 || prev.includes(tileIndex)) return prev;
+      const next = [...prev];
+      next[nextEmptyIndex] = tileIndex;
+      return next;
+    });
+  }
+
+  function handleRemoveTile(slotIndex) {
+    setSpellingSlots((prev) => {
+      if (prev[slotIndex] === null) return prev;
+      // Filled slots are always a contiguous prefix (place always targets
+      // the first empty slot), so dropping this one and re-padding with
+      // nulls is equivalent to shifting everything after it left.
+      const placed = prev.filter((tileIndex, i) => tileIndex !== null && i !== slotIndex);
+      return [...placed, ...Array(prev.length - placed.length).fill(null)];
+    });
+  }
+
+  async function handleAction() {
+    if (phase === 'answer') {
+      if (!isAnswered) return;
+      setPhase('review');
+
+      const isCorrect = mode === 'spelling'
+        ? spellingSlots.map((tileIndex) => tiles[tileIndex]).join('') === correctAnswer
+        : mode === 'typing'
+          ? typedAnswer.trim() === correctAnswer
+          : selectedIndex === correctIndex;
+
+      setResults((prev) => {
+        const next = [...prev];
+        next[questionIndex] = isCorrect ? 'success' : 'fail';
+        return next;
       });
-      initialVocabRankings.current = initialRankings;
-    }
-  }, [vocabDataMap]);
 
-  const handleSettingsClick = () => {
-    // TODO: Implement settings functionality
-  };
-
-  const advanceToNextQuestion = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setHasCheckedAnswer(false);
-      setIsQuestionComplete(false);
-      setIsQuestionCorrect(false);
-      hasRecordedPractice.current = false; // Reset practice recording flag
-    } else {
-      setIsLessonComplete(true);
-    }
-  };
-
-  const handleSkip = () => {
-    if (!hasCheckedAnswer) {
-      // Skip without checking - record locally for EoL stats but don't make API call
-      hasRecordedPractice.current = true; // Mark as recorded to prevent duplicates
-      recordQuestionResult(currentQuestion, false, true);
-      // Advance immediately without showing feedback
-      advanceToNextQuestion();
-    } else {
-      // Continue after skipping
-      advanceToNextQuestion();
-    }
-  };
-
-  const handleCheck = () => {
-    if (!hasCheckedAnswer) {
-      // First time checking - just show feedback, don't record practice yet
-      setHasCheckedAnswer(true);
-    } else {
-      // Continue after checking (whether correct or incorrect)
-      advanceToNextQuestion();
-    }
-  };
-
-  const handleQuestionCompleteChange = (isComplete) => {
-    setIsQuestionComplete(isComplete);
-    
-    // Auto-check matching questions when complete
-    if (currentQuestion.type === 'matching' && isComplete && !hasCheckedAnswer) {
-      setHasCheckedAnswer(true);
-    }
-  };
-
-  const handleQuestionCorrectnessChange = (isCorrect) => {
-    console.log('Correctness change called:', { isCorrect, hasCheckedAnswer, currentQuestionIndex, hasRecorded: hasRecordedPractice.current });
-    setIsQuestionCorrect(isCorrect);
-    
-    // Record practice when correctness is determined (only once per question)
-    if (hasCheckedAnswer && !hasRecordedPractice.current) {
-      hasRecordedPractice.current = true;
-      recordVocabPractice(currentQuestion, isCorrect);
-      recordQuestionResult(currentQuestion, isCorrect, false);
-    }
-  };
-
-  // Record question result for end-of-lesson summary
-  const recordQuestionResult = (question, isCorrect, skipped) => {
-    const { id, vocabIds, type, subtype } = question;
-    
-    // Extract vocab IDs - for matching questions use vocabIds array, otherwise use single id
-    const resultVocabIds = type === 'matching' && vocabIds && Array.isArray(vocabIds)
-      ? vocabIds
-      : id ? [id] : [];
-    
-    // Skip if no vocab IDs found
-    if (resultVocabIds.length === 0) {
-      console.warn('No vocab IDs found in question, skipping result recording', question);
+      try {
+        const { mastery: updatedMastery } = await modernQuizApi.recordPractice(entry.id, skillKey, isCorrect);
+        setRounds((prev) => {
+          const next = [...prev];
+          next[questionIndex] = { ...next[questionIndex], mastery: updatedMastery };
+          return next;
+        });
+      } catch (error) {
+        // Fire-and-forget from the user's perspective — a failed practice
+        // record shouldn't block moving on through the lesson.
+        console.warn('Failed to record practice attempt:', error);
+      }
       return;
     }
-    
-    const result = {
-      vocabIds: resultVocabIds,
-      type,
-      subtype: subtype || null,
-      correct: isCorrect,
-      skipped
-    };
-    
-    setLessonResults(prev => [...prev, result]);
-  };
 
-  // Record vocab practice when question is first checked
-  const recordVocabPractice = async (question, isCorrect) => {
-    try {
-      // Extract commonly used question properties
-      const { id, vocabIds, type, subtype } = question;
-      let practiceRecords = [];
-      
-      if (type === 'matching') {        
-        // Check if the question has vocab IDs stored
-        if (vocabIds && Array.isArray(vocabIds)) {
-          // Create practice records for each vocab ID in the matching question
-          practiceRecords = vocabIds.map(vocabId => ({
-            vocabId: vocabId,
-            type: subtype,
-            correct: isCorrect
-          }));
-        } else {
-          console.log('No vocab IDs found in matching question, skipping practice recording');
-          return;
-        }
-      } else if (type === 'choice' || type === 'spelling') {
-        // For spelling and choice questions with individual vocab IDs
-        practiceRecords = [{
-          vocabId: id,
-          type: subtype,
-          correct: isCorrect
-        }];
+    transitionTo(() => {
+      if (questionIndex === rounds.length - 1) {
+        setPhase('summary');
       } else {
-        // Skip other question types
-        return;
+        const nextIndex = questionIndex + 1;
+        setQuestionIndex(nextIndex);
+        setSelectedIndex(null);
+        setSpellingSlots(initSpellingSlots(rounds[nextIndex]));
+        setTypedAnswer('');
+        setPhase('answer');
       }
-      
-      // Fire-and-forget call - don't await or handle errors
-      api.postVocabPracticeRecord(practiceRecords);
-    } catch (error) {
-      // Silently ignore errors for fire-and-forget behavior
-      console.warn('Failed to record vocab practice:', error);
-    }
-  };
+    });
+  }
 
-  // Determine if check button should be disabled
-  const isCheckDisabled = currentQuestion.type === 'matching'
-    ? !isQuestionComplete // For matching: disabled until all matches are made
-    : hasCheckedAnswer 
-      ? false // Always enabled after checking (to show Continue)
-      : !isQuestionComplete;
+  function handleSettingsClick() {
+    // TODO: Implement settings functionality
+  }
 
-  // Handle Enter key globally - only useEffect we need
+  // Unlike transitionTo (a fixed cosmetic delay for the purely local
+  // per-question advance above), this fades out immediately and stays
+  // faded for however long the fresh-lesson fetch actually takes, rather
+  // than guessing a fixed duration for a network call.
+  function handleNextLesson() {
+    setIsTransitioning(true);
+    loadLesson().finally(() => setIsTransitioning(false));
+  }
+
+  // Keyboard shortcuts: 1-4 select a choice (while still answering, choice
+  // mode only), Enter triggers whatever the action button currently does
+  // (Check, Next, or — at the end of a lesson — Next Lesson).
   useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === 'Enter') {
-        // Check if button should be enabled
-        const shouldEnable = currentQuestion.type === 'matching'
-          ? isQuestionComplete
-          : hasCheckedAnswer ? true : isQuestionComplete;
-          
-        if (shouldEnable) {
-          event.preventDefault();
-          handleCheck();
+    function handleKeyDown(e) {
+      if (!currentRound || isTransitioning) return;
+
+      const num = Number(e.key);
+      if (mode === 'choice' && phase === 'answer' && num >= 1 && num <= choices.length) {
+        e.preventDefault();
+        setSelectedIndex(num - 1);
+      } else if (e.key === 'Enter' && (phase === 'summary' || phase === 'review' || isAnswered)) {
+        // If a choice button still has focus (e.g. from a prior click),
+        // Enter's native behavior is to also click it — re-selecting a
+        // choice right after handleAction() already moved on. preventDefault
+        // stops that native click, and blurring drops focus so a later
+        // plain Enter press (no keyboard selection first) can't re-trigger
+        // it either.
+        e.preventDefault();
+        document.activeElement?.blur();
+
+        // Debounce so holding Enter down (which fires repeat keydowns every
+        // ~30-50ms) doesn't blow through Check-then-Next-then-Check in
+        // rapid succession — only the first press within the window acts.
+        const now = Date.now();
+        if (now - lastEnterActionRef.current < ENTER_ACTION_DEBOUNCE_MS) return;
+        lastEnterActionRef.current = now;
+
+        if (phase === 'summary') {
+          handleNextLesson();
+        } else {
+          handleAction();
         }
       }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [currentQuestion.type, isQuestionComplete, hasCheckedAnswer]);
-
-  const renderQuestion = () => {
-    const isDisabled = hasCheckedAnswer; // Disable all choices once checked, regardless of correctness
-    
-    if (currentQuestion.type === 'spelling') {
-      return (
-        <SpellingQuestionBlock 
-          key={currentQuestionIndex}
-          question={{ text: currentQuestion.question }}
-          reading={currentQuestion.answer}
-          choices={currentQuestion.choices}
-          disabled={isDisabled}
-          hasCheckedAnswer={hasCheckedAnswer}
-          isAnswerCorrect={isQuestionCorrect}
-          correctAnswer={currentQuestion.answer}
-          onCompleteChange={handleQuestionCompleteChange}
-          onCorrectnessChange={handleQuestionCorrectnessChange}
-        />
-      );
-    } else if (currentQuestion.type === 'matching') {
-      return (
-        <MatchingQuestionBlock 
-          key={currentQuestionIndex}
-          question={{ subtype: currentQuestion.subtype }}
-          sources={currentQuestion.choices.sources}
-          destinations={currentQuestion.choices.destinations}
-          disabled={isDisabled}
-          hasCheckedAnswer={hasCheckedAnswer}
-          isAnswerCorrect={isQuestionCorrect}
-          correctAnswers={currentQuestion.answers}
-          onCompleteChange={handleQuestionCompleteChange}
-          onCorrectnessChange={handleQuestionCorrectnessChange}
-        />
-      );
-    } else {
-      return (
-        <div className="choice-question">
-          <QuestionBlock question={{ text: currentQuestion.question }} />
-          <ChoiceGrid 
-            key={currentQuestionIndex}
-            choices={currentQuestion.choices}
-            disabled={isDisabled}
-            hasCheckedAnswer={hasCheckedAnswer}
-            isAnswerCorrect={isQuestionCorrect}
-            correctAnswer={currentQuestion.answer}
-            onCompleteChange={handleQuestionCompleteChange}
-            onCorrectnessChange={handleQuestionCorrectnessChange}
-          />
-        </div>
-      );
     }
-  };
 
-  // Calculate final rankings from initial rankings + lesson results
-  const calculateFinalRankings = () => {
-    const initial = initialVocabRankings.current || {};
-    const final = {};
-    
-    // Start with initial rankings
-    Object.keys(initial).forEach(vocabId => {
-      final[vocabId] = {
-        lowest: initial[vocabId].lowest,
-        highest: initial[vocabId].highest,
-        facets: { ...initial[vocabId].facets }
-      };
-    });
-    
-    // Process lesson results to update rankings
-    lessonResults.forEach(result => {
-      if (!result.correct || result.skipped) return; // Only count correct answers
-      
-      const { vocabIds, subtype } = result;
-      if (!vocabIds || !subtype) return;
-      
-      // Convert subtype to facet key
-      const facetKey = subtype.replace(/\s+/g, '_').toLowerCase();
-      
-      vocabIds.forEach(vocabId => {
-        // Initialize if not in final rankings
-        if (!final[vocabId]) {
-          final[vocabId] = {
-            lowest: undefined,
-            highest: undefined,
-            facets: {}
-          };
-        }
-        
-        // Increment facet value for correct answers
-        const currentValue = final[vocabId].facets[facetKey] || 0;
-        final[vocabId].facets[facetKey] = currentValue + 1;
-        
-        // Update highest (max of all facets)
-        const facetValues = Object.values(final[vocabId].facets);
-        final[vocabId].highest = facetValues.length > 0 ? Math.max(...facetValues) : undefined;
-        
-        // Update lowest (min of all facets that are > 0)
-        const positiveFacets = facetValues.filter(v => v > 0);
-        final[vocabId].lowest = positiveFacets.length > 0 ? Math.min(...positiveFacets) - 1 : undefined;
-      });
-    });
-    
-    return final;
-  };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentRound, mode, choices, selectedIndex, spellingSlots, typedAnswer, phase, isTransitioning]);
 
-  if (isLessonComplete) {
-    const finalVocabRankings = calculateFinalRankings();
-    
+  // Only the very first load (no rounds yet) takes over the whole page —
+  // a "Next Lesson" reload keeps the existing chrome and reuses the
+  // crossfade instead (see handleNextLesson).
+  if (isLoading && !rounds) {
     return (
-      <EndOfLesson 
-        lessonResults={lessonResults} 
-        vocabDataMap={vocabDataMap}
-        initialVocabRankings={initialVocabRankings.current || {}}
-        finalVocabRankings={finalVocabRankings}
-      />
+      <div className="quiz-page quiz-page--status">
+        <p>Loading lesson...</p>
+      </div>
     );
   }
 
+  if (loadError && !rounds) {
+    return (
+      <div className="quiz-page quiz-page--status">
+        <p>Could not load the quiz.</p>
+        <ActionButton label="Retry" onClick={loadLesson} />
+      </div>
+    );
+  }
+
+  const footerLabel = phase === 'summary' ? 'Next Lesson' : phase === 'review' ? 'Next' : 'Check';
+  const footerAction = phase === 'summary' ? handleNextLesson : handleAction;
+  const footerDisabled = isTransitioning || (phase === 'answer' && !isAnswered);
+
   return (
-    <div className="lesson-page">
-      <LessonHeader 
-        current={currentQuestionIndex + 1} 
-        total={questions.length} 
-        hasCheckedAnswer={hasCheckedAnswer}
+    <div className="quiz-page">
+      <QuizHeader
+        results={results}
+        currentIndex={phase === 'summary' ? -1 : questionIndex}
+        total={rounds.length}
         onSettingsClick={handleSettingsClick}
       />
 
-      <main className="lesson-content">
-        <div className="question-area">
-          {renderQuestion()}
+      <main className="quiz-page__main">
+        <div className={`quiz__content${isTransitioning ? ' quiz__content--hidden' : ''}`}>
+          {phase === 'summary' ? (
+            <QuizSummary results={results} total={rounds.length} />
+          ) : (
+            <>
+              <VocabularyDisplay
+                entry={entry}
+                hidden={hidden}
+                ghostText={ghostText}
+                revealed={phase === 'review'}
+                mastery={mastery}
+                currentSkillKey={phase === 'answer' ? skillKey : null}
+              />
+              <div className="quiz__answer-area">
+                {mode === 'spelling' ? (
+                  <>
+                    <SpellingSlots
+                      tiles={tiles}
+                      slots={spellingSlots}
+                      correctAnswer={correctAnswer}
+                      revealed={phase === 'review'}
+                      onRemove={handleRemoveTile}
+                    />
+                    <SpellingTiles
+                      tiles={tiles}
+                      usedTileIndices={usedTileIndices}
+                      revealed={phase === 'review'}
+                      onSelect={handlePlaceTile}
+                    />
+                  </>
+                ) : mode === 'typing' ? (
+                  <ReadingInput
+                    key={questionIndex}
+                    typedAnswer={typedAnswer}
+                    correctAnswer={correctAnswer}
+                    revealed={phase === 'review'}
+                    onChange={setTypedAnswer}
+                  />
+                ) : (
+                  <ChoiceGrid
+                    choices={choices}
+                    selectedIndex={selectedIndex}
+                    onSelect={setSelectedIndex}
+                    correctIndex={correctIndex}
+                    revealed={phase === 'review'}
+                    emphasized={hidden === 'word'}
+                  />
+                )}
+              </div>
+            </>
+          )}
         </div>
-        {hasCheckedAnswer && (
-          <FeedbackOverlay 
-            isCorrect={isQuestionCorrect}
-            correctAnswer={currentQuestion.answer}
-            questionType={currentQuestion.type}
-            vocab={currentQuestion.vocab}
-            vocabId={currentQuestion.id}
-            api={api}
-          />
-        )}
       </main>
 
-      <LessonFooter 
-        onSkip={handleSkip}
-        onCheck={handleCheck}
-        checkDisabled={isCheckDisabled}
-        hasCheckedAnswer={hasCheckedAnswer}
-        isAnswerIncorrect={hasCheckedAnswer && !isQuestionCorrect}
-        correctAnswer={currentQuestion.answer}
-        questionType={currentQuestion.type}
-        isMatchingQuestion={currentQuestion.type === 'matching'}
-      />
+      <QuizFooter>
+        <ActionButton label={footerLabel} onClick={footerAction} disabled={footerDisabled} />
+      </QuizFooter>
     </div>
   );
 }

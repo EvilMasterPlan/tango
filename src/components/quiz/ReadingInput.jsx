@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import * as wanakana from 'wanakana';
-import { fireCoinConfetti, originForElement } from '@/components/quiz/modern/coinConfetti';
+import { fireCoinConfetti, originForElement } from '@/components/quiz/coinConfetti';
 import './ReadingInput.scss';
 
 // A free-text answer field for typing out a reading. Romaji is converted to

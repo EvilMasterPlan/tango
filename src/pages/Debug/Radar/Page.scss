@@ -1,4 +1,4 @@
-.polygon-debug {
+.radar-debug {
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
@@ -7,19 +7,19 @@
   background-color: var(--color-bg-primary);
 }
 
-.polygon-debug__sections {
+.radar-debug__sections {
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
   padding: 2rem;
 }
 
-.polygon-debug__section {
+.radar-debug__section {
   display: flex;
   justify-content: center;
 }
 
-.polygon-debug__grid {
+.radar-debug__grid {
   display: grid;
   grid-template-columns: repeat(6, auto);
   gap: 2rem;

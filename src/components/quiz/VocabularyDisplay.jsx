@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { getChallengeRating } from '@/utils/challengeRating';
-import { MasteryPentagon } from '@/components/quiz/modern/MasteryPentagon';
+import { MasteryPentagon } from '@/components/quiz/MasteryPentagon';
 import './VocabularyDisplay.scss';
 
 function Blank({ ghostText }) {
