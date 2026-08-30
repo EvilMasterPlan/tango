@@ -9,17 +9,9 @@ import { FuriganaWord } from '@/components/quiz/VocabularyDisplay';
 import { cx } from '@/utils/cx';
 import './QuizSummary.scss';
 
-// The intro auto-rotation's pacing: starts at ROTATE_START_MS between
-// words and multiplies by ROTATE_ACCELERATION every step after, so it
-// visibly speeds up as it goes rather than ticking at a flat rate —
-// floored at ROTATE_MIN_MS so it never becomes instantaneous.
-const ROTATE_START_MS = 300;
-const ROTATE_ACCELERATION = 0.88;
-const ROTATE_MIN_MS = 50;
-
-function rotateDelayForStep(step) {
-  return Math.max(ROTATE_MIN_MS, ROTATE_START_MS * ROTATE_ACCELERATION ** step);
-}
+// The intro auto-rotation's pacing: a flat delay between words, a bit
+// brisker than the old ramp's own starting speed (300ms).
+const ROTATE_DELAY_MS = 220;
 
 // How much accumulated wheel movement counts as "one notch" once manual
 // scrolling is live — deliberately coarse so an idle trackpad twitch
@@ -91,16 +83,16 @@ export function QuizSummary({ results, total, rounds, initialMasteryByWordID }) 
     return Math.max(0, Math.min(lastIndex, index));
   }
 
-  // Drives the intro sweep: schedules the next step at an ever-shorter
-  // delay until it reaches the last word, then marks the sweep done and
-  // stops scheduling entirely.
+  // Drives the intro sweep: schedules the next step at a flat delay until
+  // it reaches the last word, then marks the sweep done and stops
+  // scheduling entirely.
   useEffect(() => {
     if (!autoRotating) return;
     if (currentIndex >= lastIndex) {
       setAutoRotating(false);
       return;
     }
-    const timeout = window.setTimeout(() => setCurrentIndex((i) => i + 1), rotateDelayForStep(currentIndex));
+    const timeout = window.setTimeout(() => setCurrentIndex((i) => i + 1), ROTATE_DELAY_MS);
     return () => window.clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex, autoRotating]);

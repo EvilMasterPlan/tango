@@ -13,7 +13,13 @@
   justify-self: center;
   width: 100%;
   height: 100%;
-  min-height: 3.5rem;
+  // The actual floor governing rendered height in the common (1-line) case
+  // — ChoiceGrid's uniform-sizing measures natural content height (line-
+  // height + padding) and takes whichever of that or this is taller, so
+  // this is the lever that matters, not padding (which barely nudges the
+  // natural figure past this floor, and — since the button centers its
+  // label via flex regardless — doesn't create visible space on its own).
+  min-height: 5rem;
   // dvh-clamped the same way as VocabularyDisplay's word/reading text — a
   // safety net against short *viewports* (a resized desktop window, not
   // just a phone), separate from and layered underneath the per-choice
@@ -30,7 +36,7 @@
   color: var(--color-text-primary);
   background-color: var(--color-bg-secondary);
   border: 3px solid var(--color-border-primary);
-  padding: 0.65rem;
+  padding: 0.85rem;
   word-break: break-word;
   // Solid bottom "lip" gives the button an extruded, pressable look even
   // at rest; pressing it flattens the lip and nudges the button down into
@@ -267,22 +273,17 @@
 }
 
 @media (max-width: 768px) {
-  // Every choice button's worst-case (2-line) height feeds directly into
-  // ChoiceGrid's own mobile min-height reservation, which is one of the
-  // biggest single contributors to short phones not having room for both
-  // the word display and the answer area (see the comment there). Narrows
-  // the ceiling of the always-on dvh clamp()s above down to something that
-  // also fits comfortably at phone width — still the same dvh-driven shape
-  // underneath, just saturating at a lower value, so a short phone keeps
-  // shrinking further from here exactly as before.
+  // Narrows the ceiling of the always-on dvh clamp()s above down to
+  // something that also fits comfortably at phone width — still the same
+  // dvh-driven shape underneath, just saturating at a lower value, so a
+  // short phone keeps shrinking further from here exactly as before.
   .modern-choice-button {
-    // 2.75rem (44px) rather than a further trim — the common minimum
-    // recommended touch-target size, so this floor doesn't shrink below
-    // comfortable tap accuracy even though it's mostly moot in practice
-    // (2-line wrapped text already exceeds it, see ChoiceGrid.scss).
-    min-height: 2.75rem;
+    // Comfortably above the 2.75rem (44px) touch-target minimum already —
+    // this is the same "actual floor" lever as the desktop rule above, just
+    // scaled down for phone width.
+    min-height: 3.25rem;
     font-size: clamp(0.75rem, 2.6dvh, 1.2rem);
-    padding: 0.5rem;
+    padding: 0.65rem;
   }
 
   .modern-choice-button--emphasized {

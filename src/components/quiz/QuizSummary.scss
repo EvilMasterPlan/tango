@@ -63,11 +63,11 @@
   top: 50%;
   left: 0;
   right: 0;
-  // Shorter than before — the intro sweep starts at 300ms/step and ramps
-  // down from there (see rotateDelayForStep in QuizSummary.jsx), so this
-  // needs to keep up rather than still be easing in when the next step
-  // fires.
-  transition: transform 0.25s cubic-bezier(0.15, 0.85, 0.3, 1);
+  // Comfortably shorter than the intro sweep's flat per-word delay
+  // (ROTATE_DELAY_MS, 220ms in QuizSummary.jsx), so this always finishes
+  // easing in before the next step fires rather than getting cut off
+  // mid-transition.
+  transition: transform 0.18s cubic-bezier(0.15, 0.85, 0.3, 1);
   transform: translateY(calc(-1 * (var(--current-index, 0) + 0.5) * var(--word-row-height, 2.75rem)));
 }
 
@@ -161,10 +161,10 @@
   // shadow cast by a still-fading-in (mostly transparent) icon is itself
   // proportionally faint.
   filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.75));
-  // Short enough to still clearly register even at the intro sweep's
-  // fastest tick rate (as low as 50ms between words, see ROTATE_MIN_MS in
-  // QuizSummary.jsx) — a longer, gentler fade would barely have begun
-  // before the row moves on and snaps it back to invisible.
+  // Short enough to clearly register within the intro sweep's flat
+  // per-word delay (ROTATE_DELAY_MS in QuizSummary.jsx) — a longer,
+  // gentler fade would barely have begun before the row moves on and snaps
+  // it back to invisible.
   transition: opacity 0.08s linear;
 }
 
