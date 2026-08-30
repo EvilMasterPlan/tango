@@ -76,26 +76,27 @@ export function DigitReel({ digit, place = 0 }) {
 
   return (
     <span className="digit-reel">
-      <span
-        ref={stripRef}
-        className="digit-reel__strip"
-        style={{
-          transform: `translateY(${centerOffsetEm - ticks}em)`,
-          transitionDuration: instant ? '0ms' : `${DURATION_MS_BY_PLACE[place] ?? DURATION_MS_BY_PLACE[0]}ms`,
-          transitionTimingFunction: EASE,
-        }}
-      >
-        {strip.map((value, i) => (
-          <span className="digit-reel__digit" key={i}>{value}</span>
-        ))}
+      <span className="digit-reel__viewport">
+        <span
+          ref={stripRef}
+          className="digit-reel__strip"
+          style={{
+            transform: `translateY(${centerOffsetEm - ticks}em)`,
+            transitionDuration: instant ? '0ms' : `${DURATION_MS_BY_PLACE[place] ?? DURATION_MS_BY_PLACE[0]}ms`,
+            transitionTimingFunction: EASE,
+          }}
+        >
+          {strip.map((value, i) => (
+            <span className="digit-reel__digit" key={i}>{value}</span>
+          ))}
+        </span>
       </span>
+      {/* Siblings of .digit-reel__viewport above, not children of it — see
+          DigitReel.scss for why that's what lets these fades' own overhang
+          actually cover the clip edge instead of being clipped identically
+          alongside the spinning strip. */}
       <span className="digit-reel__fade digit-reel__fade--top" aria-hidden="true" />
       <span className="digit-reel__fade digit-reel__fade--bottom" aria-hidden="true" />
-      {/* One more, deliberately blunt: a flat, fully opaque strip sitting
-          even further out than the fade's own overhang above — see
-          DigitReel.scss for exactly where. */}
-      <span className="digit-reel__edge-cover digit-reel__edge-cover--top" aria-hidden="true" />
-      <span className="digit-reel__edge-cover digit-reel__edge-cover--bottom" aria-hidden="true" />
     </span>
   );
 }

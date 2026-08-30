@@ -241,13 +241,12 @@
 // Same color as whatever this section sits directly on (the page
 // background, not a card face — see .quiz-page in Quiz.scss) fading to
 // transparent, so the strip reads as scrolling past the viewport's edges
-// rather than being visibly clipped. Extends 0.5rem past the list's own
-// edge (into the area .quiz-summary__selection-list's overflow: hidden
-// already clips away) rather than starting the gradient exactly at 0 —
-// that overhang guarantees the solid color's real start covers wherever
-// the actual rendered clipping edge lands, so a row moving fast during the
-// intro sweep can't end up peeking out past it (same technique as
-// DigitReel's own fade).
+// rather than being visibly clipped. Siblings of .quiz-summary__selection-
+// list, not children (see QuizSummary.jsx) — living outside that element's
+// own overflow: hidden means the 0.5rem overhang below genuinely paints
+// past the list's clip edge instead of being clipped away right alongside
+// it, which is what covers the hairline seam a transformed child (the
+// strip) can leave at that edge (same technique as DigitReel's own fade).
 .quiz-summary__selection-fade {
   position: absolute;
   left: 0;

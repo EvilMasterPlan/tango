@@ -244,9 +244,17 @@ export function QuizSummary({ results, total, rounds, initialMasteryByWordID }) 
               );
             })}
           </div>
-          <span className="quiz-summary__selection-fade quiz-summary__selection-fade--top" aria-hidden="true" />
-          <span className="quiz-summary__selection-fade quiz-summary__selection-fade--bottom" aria-hidden="true" />
         </div>
+        {/* Siblings of the clipped list above, not children of it: the list's
+            own overflow: hidden clips its transformed strip and these fades
+            to slightly different device pixels (a transform forces its own
+            compositing layer, which can round its clip edge by a subpixel
+            relative to an untransformed sibling), leaving a hairline seam
+            where a row peeks through right at the edge. Living outside that
+            clip means the fades' own overhang (see below) actually paints
+            over the seam instead of being clipped away identically to it. */}
+        <span className="quiz-summary__selection-fade quiz-summary__selection-fade--top" aria-hidden="true" />
+        <span className="quiz-summary__selection-fade quiz-summary__selection-fade--bottom" aria-hidden="true" />
 
         {/* Layer 2 (foreground): the current word's full detail, absolutely
             overlaid on top of Layer 1 and centered on the section as a

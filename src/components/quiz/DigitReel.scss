@@ -7,9 +7,27 @@
   display: inline-block;
   width: 0.68em;
   height: 2em;
-  overflow: hidden;
   font-variant-numeric: tabular-nums;
   vertical-align: -0.5em;
+}
+
+// Clips the strip to a single row's height — its own element rather than
+// overflow: hidden directly on .digit-reel, so the fades below can live as
+// .digit-reel's children instead of this element's. .digit-reel__strip's
+// transform forces its own compositing layer, which can round its clip
+// edge by a subpixel relative to an untransformed sibling clipped by that
+// same overflow: hidden box — a fade living inside this box would get
+// clipped along with it, at the same rounded edge, making its own overhang
+// pointless. Landing the fades outside this box (siblings of it, not
+// children) instead means their overhang genuinely paints past wherever
+// this box's clip edge actually lands (same fix as QuizSummary's analogous
+// selection-list fades).
+.digit-reel__viewport {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 .digit-reel__strip {
@@ -30,12 +48,11 @@
 // digit (see DigitReel.jsx's centerOffsetEm — the resting row is centered
 // in the 2em-tall reel, leaving a 0.5em peek on each side) so those
 // neighbors stay fully hidden at rest, only actually fading once the strip
-// is spinning through them. Extends 5px past the reel's own edge (into the
-// area .digit-reel's overflow: hidden already clips away) rather than
-// starting its gradient exactly at 0 — that overhang is what guarantees
-// the solid color's real start covers wherever the actual rendered
-// clipping edge lands, regardless of subpixel rounding there, instead of
-// just assuming the two coincide exactly.
+// is spinning through them. Extends 5px past .digit-reel__viewport's own
+// edge rather than starting its gradient exactly at 0 — that overhang is
+// what guarantees the solid color's real start covers wherever the actual
+// rendered clipping edge lands, regardless of subpixel rounding there,
+// instead of just assuming the two coincide exactly.
 .digit-reel__fade {
   position: absolute;
   left: 0;
@@ -52,30 +69,6 @@
 .digit-reel__fade--bottom {
   bottom: -5px;
   background: linear-gradient(to top, var(--color-bg-secondary) 0, var(--color-bg-secondary) calc(5px + 0.425em), transparent 100%);
-}
-
-// One more, deliberately blunt layer on top of the fade above: a flat,
-// fully opaque strip (no gradient at all) sitting even further out — from
-// 8px past the reel's own edge in to 4px past it, i.e. touching the
-// fade's own -5px overhang with a 1px overlap so there's no seam between
-// the two. Exists purely so the small handful of pixels right around the
-// edge are unconditionally covered, independent of whether the fade's own
-// gradient math is doing its job there.
-.digit-reel__edge-cover {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background-color: var(--color-bg-secondary);
-  pointer-events: none;
-}
-
-.digit-reel__edge-cover--top {
-  top: -8px;
-}
-
-.digit-reel__edge-cover--bottom {
-  bottom: -8px;
 }
 
 @media (prefers-reduced-motion: reduce) {
