@@ -31,6 +31,18 @@
   color: var(--color-text-secondary);
 }
 
+// Wraps header/main/footer only — the settings dialog portals outside this
+// (see Quiz.jsx) — purely so `inert` can pull the quiz out of the
+// interaction/AT tree while the dialog is open. Otherwise transparent: same
+// flex column as .quiz-page so header/main/footer lay out exactly as if
+// this wrapper weren't here.
+.quiz-page__interactive {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
 // Keeps the word display in about the same vertical position across question
 // types by centering the content column in the space between the fixed-
 // height header and footer, rather than letting the page grow/shrink around it.
@@ -88,7 +100,7 @@
   // Reserves height for whichever answer UI is taller — the multiple-choice
   // grid, or the spelling slots + tiles stacked with the gap above between
   // them — so switching between question types across the quiz never
-  // shifts the card's overall height. 19rem = ChoiceGrid's own 13.5rem vs.
+  // shifts the card's overall height. 19rem = ChoiceGrid's own 12rem vs.
   // SpellingSlots (8.75rem) + this gap (1.5rem) + SpellingTiles (8.75rem);
   // the taller of the two wins and the shorter one centers inside it.
   min-height: 19rem;
@@ -110,10 +122,10 @@
 
   .quiz__answer-area {
     gap: 1rem;
-    // 19.25rem = ChoiceGrid's own mobile reservation (see ChoiceGrid.scss)
+    // 17.5rem = ChoiceGrid's own mobile reservation (see ChoiceGrid.scss)
     // vs. spelling's smaller 7rem + this gap + 7rem — here ChoiceGrid is
     // still the taller one.
-    min-height: 19.25rem;
+    min-height: 17.5rem;
   }
 }
 

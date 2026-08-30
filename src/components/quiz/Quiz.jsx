@@ -10,6 +10,7 @@ import { QuizHeader } from '@/components/quiz/QuizHeader';
 import { QuizFooter } from '@/components/quiz/QuizFooter';
 import { QuizSummary } from '@/components/quiz/QuizSummary';
 import { SettingsDialog } from '@/components/quiz/SettingsDialog';
+import { cx } from '@/utils/cx';
 import './Quiz.scss';
 
 // Must match the opacity transition duration in Quiz.scss — the content
@@ -28,6 +29,35 @@ const ENTER_ACTION_DEBOUNCE_MS = 50;
 function initSpellingSlots(round) {
   return round?.mode === 'spelling' ? Array(round.correctAnswer.length).fill(null) : [];
 }
+
+// Per-question-mode behavior, keyed by round.mode — the one place that
+// knows how to tell each mode's answer is complete (isAnswered), grade it
+// (isCorrect), and size its blank (ghostText). Adding a new mode only means
+// adding an entry here instead of extending three separate branches.
+const MODES = {
+  spelling: {
+    isAnswered: ({ spellingSlots }) => spellingSlots.every((slot) => slot !== null),
+    isCorrect: ({ spellingSlots, tiles, correctAnswer }) =>
+      spellingSlots.map((tileIndex) => tiles[tileIndex]).join('') === correctAnswer,
+    // The spelling and typing blanks are sized to the answer itself — the
+    // slot row (spelling) or lack of choices (typing) already reveals the
+    // exact character count, so there's nothing left to hide by doing
+    // otherwise.
+    ghostText: ({ correctAnswer }) => correctAnswer,
+  },
+  typing: {
+    isAnswered: ({ typedAnswer }) => typedAnswer.trim().length > 0,
+    isCorrect: ({ typedAnswer, correctAnswer }) => typedAnswer.trim() === correctAnswer,
+    ghostText: ({ correctAnswer }) => correctAnswer,
+  },
+  choice: {
+    isAnswered: ({ selectedIndex }) => selectedIndex !== null,
+    isCorrect: ({ selectedIndex, correctIndex }) => selectedIndex === correctIndex,
+    // Sized to the longest choice, not the correct one, so the blank's
+    // width never gives away which option is right.
+    ghostText: ({ choices }) => choices.reduce((longest, choice) => (choice.length > longest.length ? choice : longest), ''),
+  },
+};
 
 export function Quiz() {
   const [rounds, setRounds] = useState(null);
@@ -88,30 +118,18 @@ export function Quiz() {
 
   const currentRound = rounds?.[questionIndex];
   const { entry, hidden, mode, choices, correctIndex, tiles, correctAnswer, skillKey, mastery } = currentRound || {};
+  const modeConfig = currentRound ? MODES[mode] : null;
+  // The state every mode's isAnswered/isCorrect/ghostText draws from — each
+  // mode's functions only read the slice of this that's relevant to it.
+  const answerState = { spellingSlots, typedAnswer, selectedIndex, tiles, correctAnswer, choices, correctIndex };
 
-  const isAnswered = !currentRound
-    ? false
-    : mode === 'spelling'
-      ? spellingSlots.every((slot) => slot !== null)
-      : mode === 'typing'
-        ? typedAnswer.trim().length > 0
-        : selectedIndex !== null;
+  const isAnswered = modeConfig ? modeConfig.isAnswered(answerState) : false;
 
   // Tile indices currently sitting in a slot — derived rather than tracked
   // separately, since a slot can only ever hold the one tile placed into it.
   const usedTileIndices = new Set(spellingSlots.filter((tileIndex) => tileIndex !== null));
 
-  // Sized to the longest choice (choice mode) or the answer itself (spelling
-  // and typing modes) — not the correct answer among choices — so the
-  // blank's width never gives away which option is right. For spelling, the
-  // slot row already reveals the exact character count, so there's nothing
-  // left to hide by sizing the ghost to the real answer; typing mode has no
-  // choices to size against at all.
-  const ghostText = !currentRound
-    ? ''
-    : mode === 'spelling' || mode === 'typing'
-      ? correctAnswer
-      : choices.reduce((longest, choice) => (choice.length > longest.length ? choice : longest), '');
+  const ghostText = modeConfig ? modeConfig.ghostText(answerState) : '';
 
   // Fades the current content out, runs `update` once it's invisible, then
   // lets the (now different) content fade back in.
@@ -149,11 +167,7 @@ export function Quiz() {
       if (!isAnswered) return;
       setPhase('review');
 
-      const isCorrect = mode === 'spelling'
-        ? spellingSlots.map((tileIndex) => tiles[tileIndex]).join('') === correctAnswer
-        : mode === 'typing'
-          ? typedAnswer.trim() === correctAnswer
-          : selectedIndex === correctIndex;
+      const isCorrect = modeConfig.isCorrect(answerState);
 
       setResults((prev) => {
         const next = [...prev];
@@ -205,10 +219,12 @@ export function Quiz() {
 
   // Keyboard shortcuts: 1-4 select a choice (while still answering, choice
   // mode only), Enter triggers whatever the action button currently does
-  // (Check, Next, or — at the end of a lesson — Next Lesson).
+  // (Check, Next, or — at the end of a lesson — Next Lesson). Disabled
+  // whenever the settings dialog is open — otherwise these fire on the quiz
+  // underneath a modal that's supposed to have captured input.
   useEffect(() => {
     function handleKeyDown(e) {
-      if (!currentRound || isTransitioning) return;
+      if (!currentRound || isTransitioning || isSettingsOpen) return;
 
       const num = Number(e.key);
       if (mode === 'choice' && phase === 'answer' && num >= 1 && num <= choices.length) {
@@ -241,7 +257,7 @@ export function Quiz() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentRound, mode, choices, selectedIndex, spellingSlots, typedAnswer, phase, isTransitioning]);
+  }, [currentRound, mode, choices, selectedIndex, spellingSlots, typedAnswer, phase, isTransitioning, isSettingsOpen]);
 
   // Only the very first load (no rounds yet) takes over the whole page —
   // a "Next Lesson" reload keeps the existing chrome and reuses the
@@ -269,79 +285,83 @@ export function Quiz() {
 
   return (
     <div className="quiz-page">
-      <QuizHeader
-        results={results}
-        currentIndex={phase === 'summary' ? -1 : questionIndex}
-        total={rounds.length}
-        onSettingsClick={handleSettingsClick}
-      />
+      {/* Inert whenever the settings dialog is open — it's portaled outside
+          this subtree (see SettingsDialog), so this doesn't touch it, but it
+          does stop the quiz behind it from being reachable by Tab/click or
+          exposed to assistive tech while the dialog has focus. */}
+      <div className="quiz-page__interactive" inert={isSettingsOpen ? '' : undefined}>
+        <QuizHeader
+          results={results}
+          currentIndex={phase === 'summary' ? -1 : questionIndex}
+          total={rounds.length}
+          onSettingsClick={handleSettingsClick}
+        />
 
-      <main className="quiz-page__main">
-        <div
-          className={`quiz__content${isTransitioning ? ' quiz__content--hidden' : ''}${phase === 'summary' ? ' quiz__content--summary' : ''}`}
-        >
-          {phase === 'summary' ? (
-            <QuizSummary
-              results={results}
-              total={rounds.length}
-              rounds={rounds}
-              initialMasteryByWordID={initialMasteryByWordID}
-            />
-          ) : (
-            <>
-              <VocabularyDisplay
-                entry={entry}
-                hidden={hidden}
-                ghostText={ghostText}
-                revealed={phase === 'review'}
-                mastery={mastery}
-                currentSkillKey={phase === 'answer' ? skillKey : null}
+        <main className="quiz-page__main">
+          <div className={cx('quiz__content', isTransitioning && 'quiz__content--hidden', phase === 'summary' && 'quiz__content--summary')}>
+            {phase === 'summary' ? (
+              <QuizSummary
+                results={results}
+                total={rounds.length}
+                rounds={rounds}
+                initialMasteryByWordID={initialMasteryByWordID}
               />
-              <div className="quiz__answer-area">
-                {mode === 'spelling' ? (
-                  <>
-                    <SpellingSlots
-                      tiles={tiles}
-                      slots={spellingSlots}
+            ) : (
+              <>
+                <VocabularyDisplay
+                  entry={entry}
+                  hidden={hidden}
+                  ghostText={ghostText}
+                  revealed={phase === 'review'}
+                  mastery={mastery}
+                  currentSkillKey={phase === 'answer' ? skillKey : null}
+                />
+                <div className="quiz__answer-area">
+                  {mode === 'spelling' ? (
+                    <>
+                      <SpellingSlots
+                        tiles={tiles}
+                        slots={spellingSlots}
+                        correctAnswer={correctAnswer}
+                        revealed={phase === 'review'}
+                        onRemove={handleRemoveTile}
+                      />
+                      <SpellingTiles
+                        tiles={tiles}
+                        usedTileIndices={usedTileIndices}
+                        revealed={phase === 'review'}
+                        onSelect={handlePlaceTile}
+                      />
+                    </>
+                  ) : mode === 'typing' ? (
+                    <ReadingInput
+                      key={questionIndex}
+                      typedAnswer={typedAnswer}
                       correctAnswer={correctAnswer}
                       revealed={phase === 'review'}
-                      onRemove={handleRemoveTile}
+                      onChange={setTypedAnswer}
                     />
-                    <SpellingTiles
-                      tiles={tiles}
-                      usedTileIndices={usedTileIndices}
+                  ) : (
+                    <ChoiceGrid
+                      choices={choices}
+                      selectedIndex={selectedIndex}
+                      onSelect={setSelectedIndex}
+                      correctIndex={correctIndex}
                       revealed={phase === 'review'}
-                      onSelect={handlePlaceTile}
+                      emphasized={hidden === 'word'}
+                      japanese={hidden !== 'definition'}
                     />
-                  </>
-                ) : mode === 'typing' ? (
-                  <ReadingInput
-                    key={questionIndex}
-                    typedAnswer={typedAnswer}
-                    correctAnswer={correctAnswer}
-                    revealed={phase === 'review'}
-                    onChange={setTypedAnswer}
-                  />
-                ) : (
-                  <ChoiceGrid
-                    choices={choices}
-                    selectedIndex={selectedIndex}
-                    onSelect={setSelectedIndex}
-                    correctIndex={correctIndex}
-                    revealed={phase === 'review'}
-                    emphasized={hidden === 'word'}
-                    japanese={hidden !== 'definition'}
-                  />
-                )}
-              </div>
-            </>
-          )}
-        </div>
-      </main>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </main>
 
-      <QuizFooter>
-        <ActionButton label={footerLabel} onClick={footerAction} disabled={footerDisabled} />
-      </QuizFooter>
+        <QuizFooter>
+          <ActionButton label={footerLabel} onClick={footerAction} disabled={footerDisabled} />
+        </QuizFooter>
+      </div>
 
       {isSettingsOpen && <SettingsDialog onClose={() => setIsSettingsOpen(false)} />}
     </div>

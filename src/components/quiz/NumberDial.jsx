@@ -10,7 +10,10 @@ export function NumberDial({ value }) {
   const digits = String(value).padStart(DIGIT_COUNT, '0').slice(-DIGIT_COUNT).split('').map(Number);
 
   return (
-    <span className="number-dial">
+    // The digits themselves render as individually-animated reels (see
+    // DigitReel) that are aria-hidden — this label is the one place the
+    // actual value is exposed to assistive tech.
+    <span className="number-dial" aria-label={String(value)}>
       {digits.map((digit, index) => (
         <DigitReel key={index} digit={digit} place={digits.length - 1 - index} />
       ))}

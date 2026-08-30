@@ -8,8 +8,10 @@
   // uniform sizing matches all choices to the tallest one) so the section's
   // footprint — and its vertical center — stays constant whether choices
   // end up one line or two; shorter, more common rounds just center within
-  // the extra space instead of shrinking the section.
-  min-height: 13.5rem;
+  // the extra space instead of shrinking the section. 2 rows x (2 lines x
+  // 1.75rem font x 1.15 line-height + 2 x 0.65rem padding, see
+  // ChoiceButton.scss) + this gap, plus a bit of slack.
+  min-height: 12rem;
   align-content: center;
 }
 
@@ -17,11 +19,11 @@
   .modern-choice-grid {
     grid-template-columns: minmax(0, 1fr);
     // Single column here means 4 stacked rows instead of 2, so the
-    // worst-case (all 4 choices at 2 lines) reserves proportionally more.
-    // Scaled down from 22.5rem alongside ChoiceButton's own mobile
-    // min-height trim (3.5rem -> 3rem, see ChoiceButton.scss) — this is
+    // worst-case (all 4 choices at 2 lines) reserves proportionally more —
     // one of the biggest single contributors to short phones not having
-    // room for both the word display and the answer area.
-    min-height: 19.25rem;
+    // room for both the word display and the answer area. Same formula as
+    // the desktop min-height above, just x4 rows at the mobile font/padding
+    // (see ChoiceButton.scss) instead of x2.
+    min-height: 17.5rem;
   }
 }

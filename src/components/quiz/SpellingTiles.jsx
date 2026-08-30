@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { cx } from '@/utils/cx';
 import './SpellingTiles.scss';
 
 // Mirrors the fixed layout constants in SpellingTiles.scss / Quiz.scss so
@@ -71,7 +72,7 @@ export function SpellingTiles({ tiles, usedTileIndices, revealed = false, onSele
       <button
         type="button"
         key={tileIndex}
-        className={['modern-spelling-tile', used && 'modern-spelling-tile--used'].filter(Boolean).join(' ')}
+        className={cx('modern-spelling-tile', used && 'modern-spelling-tile--used')}
         onClick={() => onSelect(tileIndex)}
         disabled={used || revealed}
       >

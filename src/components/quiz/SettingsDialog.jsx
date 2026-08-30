@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { IoClose } from 'react-icons/io5';
 import { JP_FONTS, useSettings } from '@/contexts/SettingsContext';
+import { cx } from '@/utils/cx';
 import './SettingsDialog.scss';
 
 // 単語 (tango) — "word/vocabulary", the app's own namesake — doubles as a
@@ -53,7 +54,7 @@ export function SettingsDialog({ onClose }) {
               <button
                 type="button"
                 key={key}
-                className={`settings-dialog__font-option${key === jpFont ? ' settings-dialog__font-option--selected' : ''}`}
+                className={cx('settings-dialog__font-option', key === jpFont && 'settings-dialog__font-option--selected')}
                 onClick={() => setJpFont(key)}
                 aria-pressed={key === jpFont}
               >

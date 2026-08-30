@@ -75,7 +75,11 @@ export function DigitReel({ digit, place = 0 }) {
   const centerOffsetEm = 0.5;
 
   return (
-    <span className="digit-reel">
+    // The strip below renders every intermediate tick digit as real text
+    // purely for the spin animation — aria-hidden here so a screen reader
+    // doesn't read that whole sequence; NumberDial supplies the actual
+    // value as a single accessible label instead.
+    <span className="digit-reel" aria-hidden="true">
       <span className="digit-reel__viewport">
         <span
           ref={stripRef}

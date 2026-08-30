@@ -1,4 +1,5 @@
 import { forwardRef } from 'react';
+import { cx } from '@/utils/cx';
 import './StatCard.scss';
 
 // A small "name tag" card: a light frame with a dark label engraved across
@@ -21,7 +22,7 @@ export const StatCard = forwardRef(function StatCard({ label, value, variant = '
   return (
     <div ref={ref} className="quiz-stat-card">
       <dt className="quiz-stat-card__label">{label}</dt>
-      <dd className={`quiz-stat-card__value${variant !== 'default' ? ` quiz-stat-card__value--${variant}` : ''}`}>
+      <dd className={cx('quiz-stat-card__value', variant !== 'default' && `quiz-stat-card__value--${variant}`)}>
         {value}
       </dd>
     </div>

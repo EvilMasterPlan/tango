@@ -8,7 +8,7 @@ export function QuizHeader({ results, currentIndex, total, onSettingsClick }) {
   return (
     <header className="quiz-header">
       <div className="quiz-header__side">
-        <Link to="/" className="quiz-header__icon-button">
+        <Link to="/" className="quiz-header__icon-button" aria-label="Close">
           <IoClose className="quiz-header__icon" />
         </Link>
       </div>
@@ -18,7 +18,7 @@ export function QuizHeader({ results, currentIndex, total, onSettingsClick }) {
       </div>
 
       <div className="quiz-header__side">
-        <button type="button" className="quiz-header__icon-button" onClick={onSettingsClick}>
+        <button type="button" className="quiz-header__icon-button" onClick={onSettingsClick} aria-label="Settings">
           <IoMdSettings className="quiz-header__icon" />
         </button>
       </div>

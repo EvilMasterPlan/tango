@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { fireCoinConfetti, originForElement } from '@/components/quiz/coinConfetti';
+import { cx } from '@/utils/cx';
 import './SpellingSlots.scss';
 
 // One button per character of the answer. `slots[i]` is either `null`
@@ -29,17 +30,21 @@ export function SpellingSlots({ tiles, slots, correctAnswer, revealed = false, o
         const filled = tileIndex !== null;
         const char = filled ? tiles[tileIndex] : null;
         const variant = revealed ? (char === correctAnswer[slotIndex] ? 'success' : 'fail') : 'default';
+        // Correctness is otherwise color-only (the variant classes below) —
+        // this gives screen readers/colorblind users the same signal.
+        const label = variant === 'success' ? `${char}, correct` : variant === 'fail' ? `${char}, incorrect` : undefined;
         return (
           <button
             type="button"
             key={slotIndex}
-            className={[
+            className={cx(
               'modern-spelling-slot',
               filled && 'modern-spelling-slot--filled',
               variant !== 'default' && `modern-spelling-slot--${variant}`,
-            ].filter(Boolean).join(' ')}
+            )}
             onClick={() => onRemove(slotIndex)}
             disabled={revealed || !filled}
+            aria-label={label}
           >
             {char ?? ''}
           </button>

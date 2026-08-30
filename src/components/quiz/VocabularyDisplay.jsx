@@ -1,7 +1,39 @@
-import { Fragment } from 'react';
+import { Fragment, useLayoutEffect, useRef } from 'react';
 import { getChallengeRating } from '@/utils/challengeRating';
+import { cx } from '@/utils/cx';
+import { shrinkFontToFit } from '@/utils/shrinkFontToFit';
 import { MasteryPentagon } from '@/components/quiz/MasteryPentagon';
 import './VocabularyDisplay.scss';
+
+// Shrinks the word text down to fit on one line, for words too long to fit
+// at the base 4rem — both possible renderings (the plain word line, and the
+// merged furigana view, whose reading rides along for free since it's sized
+// in em relative to this) are shrunk independently, since either can be the
+// one on screen depending on `hidden`/`revealed` (see VocabularyDisplay
+// below). Measures against .vocabulary-display__word-block's own width
+// rather than each prompt's, since that's the stable, not-itself-overflowing
+// ancestor both prompts stretch to fill — same reasoning as ChoiceGrid
+// measuring off its grid container rather than each button.
+function useShrinkWordToFit(wordBlockRef, promptRefs, deps) {
+  useLayoutEffect(() => {
+    const container = wordBlockRef.current;
+    if (!container) return;
+
+    promptRefs.forEach((promptRef) => {
+      const el = promptRef.current;
+      if (!el) return;
+
+      // Forces the text onto one line so scrollWidth reveals its true
+      // natural width instead of whatever width it already wrapped to fit —
+      // restored after, so the CSS word-break fallback still guards extreme
+      // cases beyond the minimum font scale.
+      el.style.whiteSpace = 'nowrap';
+      shrinkFontToFit(el, () => el.scrollWidth <= container.clientWidth + 1);
+      el.style.whiteSpace = '';
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+}
 
 function Blank({ ghostText }) {
   return (
@@ -52,6 +84,11 @@ export function VocabularyDisplay({ entry, hidden, ghostText, revealed = false, 
   const showFurigana = hidden === 'definition' || revealed;
   const challengeRating = getChallengeRating(entry.score);
 
+  const wordBlockRef = useRef(null);
+  const furiganaPromptRef = useRef(null);
+  const wordPromptRef = useRef(null);
+  useShrinkWordToFit(wordBlockRef, [furiganaPromptRef, wordPromptRef], [entry.word, entry.furigana, hidden]);
+
   return (
     <div className="vocabulary-display">
       {/* Same fixed width as the rating column on the right, so the centered
@@ -65,21 +102,31 @@ export function VocabularyDisplay({ entry, hidden, ghostText, revealed = false, 
         {/* Both layouts stay mounted, stacked in the same grid cell, so this
             block's height is always the taller of the two — the reveal
             toggling which one is visible never shifts anything below it. */}
-        <div className="vocabulary-display__word-block">
+        <div className="vocabulary-display__word-block" ref={wordBlockRef}>
           <div
-            className={`vocabulary-display__prompt vocabulary-display__prompt--furigana vocabulary-display__word-slot${showFurigana ? '' : ' vocabulary-display__word-slot--inactive'}`}
+            ref={furiganaPromptRef}
+            className={cx(
+              'vocabulary-display__prompt',
+              'vocabulary-display__prompt--furigana',
+              'vocabulary-display__word-slot',
+              !showFurigana && 'vocabulary-display__word-slot--inactive',
+            )}
             aria-hidden={!showFurigana}
           >
             <FuriganaWord furigana={entry.furigana} />
           </div>
           <div
-            className={`vocabulary-display__word-slot vocabulary-display__word-lines${showFurigana ? ' vocabulary-display__word-slot--inactive' : ''}`}
+            className={cx(
+              'vocabulary-display__word-slot',
+              'vocabulary-display__word-lines',
+              showFurigana && 'vocabulary-display__word-slot--inactive',
+            )}
             aria-hidden={showFurigana}
           >
             <div className="vocabulary-display__prompt vocabulary-display__prompt--reading">
               {hidden === 'reading' ? <Blank ghostText={ghostText} /> : entry.reading}
             </div>
-            <div className="vocabulary-display__prompt vocabulary-display__prompt--word">
+            <div ref={wordPromptRef} className="vocabulary-display__prompt vocabulary-display__prompt--word">
               {hidden === 'word' ? <Blank ghostText={ghostText} /> : entry.word}
             </div>
           </div>

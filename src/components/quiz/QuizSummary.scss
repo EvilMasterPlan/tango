@@ -336,7 +336,7 @@
   // .quiz-summary__current's own 0.5rem flex gap (not just canceling it),
   // so this actually overlaps into the word's own line-height rather than
   // just removing the gap between them.
-  margin-top: -0.65rem;
+  margin-top: -1.0rem;
 }
 
 @media (max-width: 768px) {

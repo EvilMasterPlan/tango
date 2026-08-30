@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import * as wanakana from 'wanakana';
 import { fireCoinConfetti, originForElement } from '@/components/quiz/coinConfetti';
+import { cx } from '@/utils/cx';
 import './ReadingInput.scss';
 
 // A free-text answer field for typing out a reading. Romaji is converted to
@@ -42,6 +43,14 @@ export function ReadingInput({ typedAnswer, correctAnswer, revealed = false, onC
 
   const isCorrect = revealed ? typedAnswer.trim() === correctAnswer : null;
   const variant = isCorrect === true ? 'success' : isCorrect === false ? 'fail' : null;
+  // Correctness is otherwise color-only (the variant classes below) — this
+  // gives screen readers/colorblind users the same signal, since there's no
+  // separate "correct answer" element here the way ChoiceButton has.
+  const inputLabel = variant === 'success'
+    ? `Correct: ${correctAnswer}`
+    : variant === 'fail'
+      ? `Incorrect. Correct answer: ${correctAnswer}`
+      : undefined;
 
   // Coin confetti bursts from the field itself — there's no meaningful
   // "correct spot" for a free-text answer, so the input's own position is
@@ -58,7 +67,7 @@ export function ReadingInput({ typedAnswer, correctAnswer, revealed = false, onC
     // means the shine would paint over the input's own native text — so on
     // success the input's text is made transparent and a second, crisp
     // label above the shine (higher z-index) duplicates it instead.
-    <span ref={wrapRef} className={`modern-reading-input-wrap${variant === 'success' ? ' modern-reading-input-wrap--success' : ''}`}>
+    <span ref={wrapRef} className={cx('modern-reading-input-wrap', variant === 'success' && 'modern-reading-input-wrap--success')}>
       <input
         ref={inputRef}
         type="text"
@@ -70,7 +79,8 @@ export function ReadingInput({ typedAnswer, correctAnswer, revealed = false, onC
         autoFocus
         disabled={revealed}
         placeholder="type the reading…"
-        className={`modern-reading-input${variant ? ` modern-reading-input--${variant}` : ''}`}
+        aria-label={inputLabel}
+        className={cx('modern-reading-input', variant && `modern-reading-input--${variant}`)}
       />
       {variant === 'success' && (
         <span className="modern-reading-input__success-label" aria-hidden="true">

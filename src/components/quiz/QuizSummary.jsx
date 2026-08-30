@@ -6,6 +6,7 @@ import { MasteryPentagon } from '@/components/quiz/MasteryPentagon';
 import { NumberDial } from '@/components/quiz/NumberDial';
 import { StatCard } from '@/components/quiz/StatCard';
 import { FuriganaWord } from '@/components/quiz/VocabularyDisplay';
+import { cx } from '@/utils/cx';
 import './QuizSummary.scss';
 
 // The intro auto-rotation's pacing: starts at ROTATE_START_MS between
@@ -213,16 +214,16 @@ export function QuizSummary({ results, total, rounds, initialMasteryByWordID }) 
             {uniqueRounds.map(({ entry, mastery }, index) => {
               const wordReward = rewardForWordId(entry.id);
               const isCurrent = index === currentIndex;
-              const caretClassName = `quiz-summary__selection-caret${isCurrent ? ' quiz-summary__selection-caret--visible' : ''}`;
-              const rewardClassName = [
+              const caretClassName = cx('quiz-summary__selection-caret', isCurrent && 'quiz-summary__selection-caret--visible');
+              const rewardClassName = cx(
                 'quiz-summary__score-list-reward',
                 wordReward > 0 && 'quiz-summary__score-list-reward--positive',
                 revealedWordIds.has(entry.id) && 'quiz-summary__score-list-reward--revealed',
-              ].filter(Boolean).join(' ');
+              );
               return (
                 <div
                   key={entry.id}
-                  className={`quiz-summary__selection-row${isCurrent ? ' quiz-summary__selection-row--current' : ''}`}
+                  className={cx('quiz-summary__selection-row', isCurrent && 'quiz-summary__selection-row--current')}
                 >
                   <button
                     type="button"
@@ -268,7 +269,7 @@ export function QuizSummary({ results, total, rounds, initialMasteryByWordID }) 
             attention, then fades in once there's an actual "current" word
             worth lingering on. */}
         {current && (
-          <div className={`quiz-summary__current${autoRotating ? '' : ' quiz-summary__current--visible'}`}>
+          <div className={cx('quiz-summary__current', !autoRotating && 'quiz-summary__current--visible')}>
             <FuriganaWord furigana={current.entry.furigana} />
             <div className="quiz-summary__current-definition">{current.entry.definition}</div>
             <MasteryPentagon

@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import { ChoiceButton } from '@/components/quiz/ChoiceButton';
 import { fireCoinConfetti, originForElement } from '@/components/quiz/coinConfetti';
+import { shrinkFontToFit } from '@/utils/shrinkFontToFit';
 import './ChoiceGrid.scss';
 
 const MIN_FONT_SCALE = 0.5;
@@ -25,9 +26,6 @@ function useUniformChoiceSizing(choices, gridRef, labelRefs) {
       button.style.width = '';
       button.style.height = '';
     });
-    labels.forEach((label) => {
-      label.style.fontSize = '';
-    });
 
     const gridStyle = window.getComputedStyle(grid);
     const columnCount = gridStyle.gridTemplateColumns.trim().split(/\s+/).length;
@@ -40,10 +38,6 @@ function useUniformChoiceSizing(choices, gridRef, labelRefs) {
     });
 
     labels.forEach((label) => {
-      const baseSize = parseFloat(window.getComputedStyle(label).fontSize);
-      const minSize = baseSize * MIN_FONT_SCALE;
-      let size = baseSize;
-
       // The line-clamp CSS caps the box's rendered height at MAX_LABEL_LINES,
       // which would make scrollHeight read as already-clamped instead of the
       // text's true wrapped height. Measure with the clamp lifted, then
@@ -52,11 +46,7 @@ function useUniformChoiceSizing(choices, gridRef, labelRefs) {
       label.style.webkitLineClamp = 'unset';
 
       const maxHeight = () => parseFloat(window.getComputedStyle(label).lineHeight) * MAX_LABEL_LINES;
-
-      while (label.scrollHeight > maxHeight() + 1 && size > minSize) {
-        size -= FONT_STEP_PX;
-        label.style.fontSize = `${size}px`;
-      }
+      shrinkFontToFit(label, () => label.scrollHeight <= maxHeight() + 1, { minScale: MIN_FONT_SCALE, stepPx: FONT_STEP_PX });
 
       label.style.display = '';
       label.style.webkitLineClamp = '';
