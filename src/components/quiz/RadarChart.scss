@@ -71,6 +71,31 @@
   stroke-width: 0.5;
 }
 
+// The "before vs. after" reveal's target-shape layer (see RadarChart.jsx's
+// `fromValues`) — solid like __fill, but opacity pulses forever rather than
+// sitting static, so the shape it's drawn over (the hatched __preview layer
+// at the same shape) shows through part of the cycle instead of being
+// permanently covered.
+.radar-chart__final-pulse {
+  fill: #ffffff;
+  stroke: #ffffff;
+  stroke-width: 1;
+  stroke-linejoin: round;
+  animation: radar-chart-pulse 1.5s ease-in-out infinite;
+}
+
+// Smooth full-range oscillation, timed to approximate a sine wave — a
+// single ease-in-out'd 0%/50%/100% keyframe pair is enough for that shape
+// without needing to sample an actual sine curve into more stops.
+@keyframes radar-chart-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
 @media (max-width: 768px) {
   .radar-chart {
     width: 2.5rem;

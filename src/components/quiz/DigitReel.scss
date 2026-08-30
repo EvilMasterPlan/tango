@@ -1,0 +1,85 @@
+// Taller than one digit row (2em vs 1em) so the reel has room to show a
+// sliver of the neighboring rows above/below the resting digit — those
+// slivers are what read as "the wheel" once faded, rather than the digit
+// itself ever looking clipped.
+.digit-reel {
+  position: relative;
+  display: inline-block;
+  width: 0.68em;
+  height: 2em;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+  vertical-align: -0.5em;
+}
+
+.digit-reel__strip {
+  display: block;
+  transition-property: transform;
+}
+
+.digit-reel__digit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1em;
+  line-height: 1;
+}
+
+// Same color as the surface this sits on (the stat card's dark value
+// window), covering the sliver of neighboring rows above/below the resting
+// digit (see DigitReel.jsx's centerOffsetEm — the resting row is centered
+// in the 2em-tall reel, leaving a 0.5em peek on each side) so those
+// neighbors stay fully hidden at rest, only actually fading once the strip
+// is spinning through them. Extends 5px past the reel's own edge (into the
+// area .digit-reel's overflow: hidden already clips away) rather than
+// starting its gradient exactly at 0 — that overhang is what guarantees
+// the solid color's real start covers wherever the actual rendered
+// clipping edge lands, regardless of subpixel rounding there, instead of
+// just assuming the two coincide exactly.
+.digit-reel__fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: calc(0.5em + 5px);
+  pointer-events: none;
+}
+
+.digit-reel__fade--top {
+  top: -5px;
+  background: linear-gradient(to bottom, var(--color-bg-secondary) 0, var(--color-bg-secondary) calc(5px + 0.425em), transparent 100%);
+}
+
+.digit-reel__fade--bottom {
+  bottom: -5px;
+  background: linear-gradient(to top, var(--color-bg-secondary) 0, var(--color-bg-secondary) calc(5px + 0.425em), transparent 100%);
+}
+
+// One more, deliberately blunt layer on top of the fade above: a flat,
+// fully opaque strip (no gradient at all) sitting even further out — from
+// 8px past the reel's own edge in to 4px past it, i.e. touching the
+// fade's own -5px overhang with a 1px overlap so there's no seam between
+// the two. Exists purely so the small handful of pixels right around the
+// edge are unconditionally covered, independent of whether the fade's own
+// gradient math is doing its job there.
+.digit-reel__edge-cover {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-color: var(--color-bg-secondary);
+  pointer-events: none;
+}
+
+.digit-reel__edge-cover--top {
+  top: -8px;
+}
+
+.digit-reel__edge-cover--bottom {
+  bottom: -8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .digit-reel__strip {
+    transition: none;
+  }
+}

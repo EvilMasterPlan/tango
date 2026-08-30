@@ -9,6 +9,7 @@ import { ActionButton } from '@/components/quiz/ActionButton';
 import { QuizHeader } from '@/components/quiz/QuizHeader';
 import { QuizFooter } from '@/components/quiz/QuizFooter';
 import { QuizSummary } from '@/components/quiz/QuizSummary';
+import { SettingsDialog } from '@/components/quiz/SettingsDialog';
 import './Quiz.scss';
 
 // Must match the opacity transition duration in Quiz.scss — the content
@@ -30,6 +31,11 @@ function initSpellingSlots(round) {
 
 export function Quiz() {
   const [rounds, setRounds] = useState(null);
+  // Word id -> mastery, captured once right after a lesson loads, before
+  // any answering mutates `rounds[i].mastery` — lets the summary animate
+  // from "before this quiz" to "after" instead of only ever showing the
+  // final state.
+  const [initialMasteryByWordID, setInitialMasteryByWordID] = useState({});
   const [questionIndex, setQuestionIndex] = useState(0);
   // 'success' | 'fail' per completed question index, for the progress dots
   // and the end-of-set summary.
@@ -50,6 +56,7 @@ export function Quiz() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const transitionTimeoutRef = useRef(null);
   const lastEnterActionRef = useRef(0);
 
@@ -61,6 +68,7 @@ export function Quiz() {
     try {
       const { questions } = await modernQuizApi.generateLesson();
       setRounds(questions);
+      setInitialMasteryByWordID(Object.fromEntries(questions.map((round) => [round.entry.id, round.mastery])));
       setResults([]);
       setQuestionIndex(0);
       setSelectedIndex(null);
@@ -183,7 +191,7 @@ export function Quiz() {
   }
 
   function handleSettingsClick() {
-    // TODO: Implement settings functionality
+    setIsSettingsOpen(true);
   }
 
   // Unlike transitionTo (a fixed cosmetic delay for the purely local
@@ -269,9 +277,16 @@ export function Quiz() {
       />
 
       <main className="quiz-page__main">
-        <div className={`quiz__content${isTransitioning ? ' quiz__content--hidden' : ''}`}>
+        <div
+          className={`quiz__content${isTransitioning ? ' quiz__content--hidden' : ''}${phase === 'summary' ? ' quiz__content--summary' : ''}`}
+        >
           {phase === 'summary' ? (
-            <QuizSummary results={results} total={rounds.length} />
+            <QuizSummary
+              results={results}
+              total={rounds.length}
+              rounds={rounds}
+              initialMasteryByWordID={initialMasteryByWordID}
+            />
           ) : (
             <>
               <VocabularyDisplay
@@ -315,6 +330,7 @@ export function Quiz() {
                     correctIndex={correctIndex}
                     revealed={phase === 'review'}
                     emphasized={hidden === 'word'}
+                    japanese={hidden !== 'definition'}
                   />
                 )}
               </div>
@@ -326,6 +342,8 @@ export function Quiz() {
       <QuizFooter>
         <ActionButton label={footerLabel} onClick={footerAction} disabled={footerDisabled} />
       </QuizFooter>
+
+      {isSettingsOpen && <SettingsDialog onClose={() => setIsSettingsOpen(false)} />}
     </div>
   );
 }

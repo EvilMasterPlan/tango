@@ -7,20 +7,9 @@
   background-color: var(--color-bg-primary);
 }
 
-.radar-debug__sections {
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
-  padding: 2rem;
-}
-
-.radar-debug__section {
-  display: flex;
-  justify-content: center;
-}
-
 .radar-debug__grid {
   display: grid;
   grid-template-columns: repeat(6, auto);
   gap: 2rem;
+  padding: 2rem;
 }

@@ -91,6 +91,7 @@
   padding: 1rem 1.5rem;
   font-size: 1.75rem;
   font-weight: 700;
+  font-family: var(--font-jp);
   text-align: center;
   color: var(--color-text-primary);
   background-color: var(--color-bg-secondary);
@@ -102,6 +103,9 @@
 }
 
 .modern-reading-input::placeholder {
+  // English prompt text — the input itself is set to --font-jp since typed
+  // answers are Japanese, but the placeholder shouldn't inherit that.
+  font-family: var(--font-default);
   color: var(--color-text-disabled);
   font-weight: 500;
 }
@@ -135,6 +139,7 @@
   justify-content: center;
   font-size: 1.75rem;
   font-weight: 700;
+  font-family: var(--font-jp);
   color: var(--color-bg-primary);
   pointer-events: none;
 }

@@ -18,6 +18,8 @@
   height: 4rem;
   font-size: 1.75rem;
   font-weight: 700;
+  // Tiles/slots always hold individual Japanese characters.
+  font-family: var(--font-jp);
   color: var(--color-text-primary);
   background-color: var(--color-bg-secondary);
   border: 3px solid var(--color-border-primary);

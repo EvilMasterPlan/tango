@@ -75,6 +75,13 @@ function radiusForSteps(steps, scale) {
   return FLOOR_RADIUS + steps * step;
 }
 
+// The fill's per-axis radii for one mastery snapshot — shared by the real
+// (`values`/`iteration`/...) and initial (`fromValues`/...) props below,
+// since both need the exact same counts-to-geometry conversion.
+function fillRadii(correctCounts, iteration, scale) {
+  return correctCounts.map((correctCount) => radiusForSteps(axisSteps(correctCount, iteration, scale), scale));
+}
+
 // A small radar/spider chart: one axis per entry in `correctCounts`, each
 // placed along the same floor-to-outer-edge scale as the iteration rings —
 // at the floor if it's at the bottleneck iteration, further out the more
@@ -94,7 +101,44 @@ function radiusForSteps(steps, scale) {
 // iteration still needed, and a brighter outer ring at the actual level-up
 // threshold. Omit either to fall back to a plain extended/not-extended
 // scale with a single plain outer edge.
-export function RadarChart({ values: correctCounts, previewIndex = null, iteration, iterationsForNextLevel }) {
+//
+// `fromValues`/`fromIteration`/`fromIterationsForNextLevel` (optional) are
+// a second, earlier mastery snapshot — when given, three layers are drawn
+// instead of one, bottom to top: a static diagonally-hatched fill at
+// `attemptedValues` (see below), a solid-white fill at the real shape that
+// gently pulses opacity forever (see RadarChart.scss's radar-chart-pulse),
+// and — on top of both, constant, never animated — a solid-white fill at
+// that earlier shape. Correct counts never decrease, so that earlier shape
+// is always <= both of the others on every axis; drawing it last as a
+// fixed floor keeps "mastery already had before this quiz" reading as
+// settled fact, while the hatch/pulse interplay above it stays legible as
+// specifically the progress and mistakes made *during* this quiz — on any
+// axis with a wrong answer along the way, the hatching stays visible past
+// the pulsing shape's edge even at full opacity, since it reaches further
+// out. `animationDelay` offsets when the pulse's cycle starts, so multiple
+// charts animating together (see QuizSummary) don't all flash in lockstep.
+//
+// `attemptedValues` (optional, same shape as `values`) is what the hatch
+// layer above is drawn from — a per-axis ceiling of what `values` would be
+// if every attempt counted toward it, right or wrong, rather than only the
+// correct ones. Falls back to `values` itself (i.e. no visible gap) if
+// omitted while `fromValues` is given.
+//
+// Guide rings/floor/outline are always drawn at the real, current values
+// regardless. Meant for a "before vs. after" reveal, not the live quiz, so
+// omitting these props (as every other caller does) renders exactly as
+// before: one static fill at the real shape, no hatching, no pulse.
+export function RadarChart({
+  values: correctCounts,
+  previewIndex = null,
+  iteration,
+  iterationsForNextLevel,
+  fromValues = null,
+  fromIteration,
+  fromIterationsForNextLevel,
+  attemptedValues = null,
+  animationDelay = 0,
+}) {
   const patternId = useId();
   const count = correctCounts.length;
 
@@ -104,7 +148,15 @@ export function RadarChart({ values: correctCounts, previewIndex = null, iterati
 
   const floor = ringPoints(count, FLOOR_RADIUS);
   const outline = ringPoints(count, RADIUS);
-  const fill = pointsAt(count, (index) => radiusForSteps(axisSteps(correctCounts[index], iteration, scale), scale));
+
+  const finalRadii = fillRadii(correctCounts, iteration, scale);
+  const finalFill = pointsAt(count, (index) => finalRadii[index]);
+
+  const initialRadii = fromValues ? fillRadii(fromValues, fromIteration, ringScale(fromIteration, fromIterationsForNextLevel)) : null;
+  const initialFill = initialRadii ? pointsAt(count, (index) => initialRadii[index]) : null;
+
+  const attemptedRadii = fromValues ? fillRadii(attemptedValues || correctCounts, iteration, scale) : null;
+  const attemptedFill = attemptedRadii ? pointsAt(count, (index) => attemptedRadii[index]) : null;
 
   const previewSteps = previewIndex != null ? axisSteps(correctCounts[previewIndex], iteration, scale) : null;
   const maxSteps = scale ? scale.stepsRemaining : 1;
@@ -120,9 +172,11 @@ export function RadarChart({ values: correctCounts, previewIndex = null, iterati
     ? axisXY(axisAngle(previewIndex, count), radiusForSteps(previewSteps + 1, scale))
     : null;
 
+  const needsHatchPattern = Boolean(preview) || Boolean(fromValues);
+
   return (
     <svg className="radar-chart" viewBox={`0 0 ${SIZE} ${SIZE}`}>
-      {preview && (
+      {needsHatchPattern && (
         <defs>
           <pattern id={patternId} patternUnits="userSpaceOnUse" width="2.2" height="2.2" patternTransform="rotate(45)">
             <line x1="0" y1="0" x2="0" y2="2.2" className="radar-chart__hatch-line" />
@@ -135,7 +189,19 @@ export function RadarChart({ values: correctCounts, previewIndex = null, iterati
       ))}
       <polygon className="radar-chart__outline" points={outline} />
       {preview && <polygon className="radar-chart__preview" points={preview} fill={`url(#${patternId})`} />}
-      <polygon className="radar-chart__fill" points={fill} />
+      {attemptedFill && <polygon className="radar-chart__preview" points={attemptedFill} fill={`url(#${patternId})`} />}
+      <polygon
+        className={fromValues ? 'radar-chart__final-pulse' : 'radar-chart__fill'}
+        points={finalFill}
+        style={fromValues ? { animationDelay: `${animationDelay}ms` } : undefined}
+      />
+      {/* Always the true minimum of every shape here (correct counts never
+          decrease, so initial <= final <= attempted on every axis) — drawn
+          last, constant, and never animated, so the "mastery already had
+          before this quiz" region reads as settled fact rather than getting
+          swept up in the hatch/pulse interplay that's only meaningful for
+          progress and mistakes made *during* this quiz. */}
+      {initialFill && <polygon className="radar-chart__fill" points={initialFill} />}
       {previewMarker && <circle className="radar-chart__preview-marker" cx={previewMarker.x} cy={previewMarker.y} r="1.4" />}
     </svg>
   );

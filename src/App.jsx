@@ -6,6 +6,7 @@ import { LessonContainer } from '@/pages/Lesson/Container';
 import { RadarDebugContainer } from '@/pages/Debug/Radar/Container';
 import AccountRoutes from '@/pages/account/AccountRoutes';
 import { UserProvider } from '@/contexts/UserContext';
+import { SettingsProvider } from '@/contexts/SettingsContext';
 import RequireAuth from '@/components/auth/RequireAuth';
 import { TangoAppShell } from '@/components/layout/TangoAppShell';
 import '@/App.scss';
@@ -13,44 +14,46 @@ import '@/App.scss';
 function App() {
   return (
     <HelmetProvider>
-      <UserProvider>
-        <Router basename="/tango">
-          <div className="app">
-            <Routes>
-              <Route path="/" element={<MarketingContainer />} />
-              <Route
-                path="/home"
-                element={
-                  <RequireAuth enabled>
-                    <TangoAppShell>
-                      <HomeContainer />
-                    </TangoAppShell>
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/lesson"
-                element={
-                  <RequireAuth enabled>
-                    <LessonContainer />
-                  </RequireAuth>
-                }
-              />
-              <Route path="/debug/radar" element={<RadarDebugContainer />} />
-              <Route
-                path="/account/*"
-                element={
-                  <main className="main">
-                    <div className="container">
-                      <AccountRoutes />
-                    </div>
-                  </main>
-                }
-              />
-            </Routes>
-          </div>
-        </Router>
-      </UserProvider>
+      <SettingsProvider>
+        <UserProvider>
+          <Router basename="/tango">
+            <div className="app">
+              <Routes>
+                <Route path="/" element={<MarketingContainer />} />
+                <Route
+                  path="/home"
+                  element={
+                    <RequireAuth enabled>
+                      <TangoAppShell>
+                        <HomeContainer />
+                      </TangoAppShell>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/lesson"
+                  element={
+                    <RequireAuth enabled>
+                      <LessonContainer />
+                    </RequireAuth>
+                  }
+                />
+                <Route path="/debug/radar" element={<RadarDebugContainer />} />
+                <Route
+                  path="/account/*"
+                  element={
+                    <main className="main">
+                      <div className="container">
+                        <AccountRoutes />
+                      </div>
+                    </main>
+                  }
+                />
+              </Routes>
+            </div>
+          </Router>
+        </UserProvider>
+      </SettingsProvider>
     </HelmetProvider>
   );
 }

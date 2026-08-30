@@ -82,7 +82,7 @@ function variantFor(index, { revealed, selectedIndex, correctIndex }) {
   return index === selectedIndex ? 'selected' : 'default';
 }
 
-export function ChoiceGrid({ choices, selectedIndex, onSelect, correctIndex, revealed = false, emphasized = false }) {
+export function ChoiceGrid({ choices, selectedIndex, onSelect, correctIndex, revealed = false, emphasized = false, japanese = false }) {
   const gridRef = useRef(null);
   const labelRefs = useRef([]);
   useUniformChoiceSizing(choices, gridRef, labelRefs);
@@ -108,6 +108,7 @@ export function ChoiceGrid({ choices, selectedIndex, onSelect, correctIndex, rev
           index={index}
           variant={variantFor(index, { revealed, selectedIndex, correctIndex })}
           emphasized={emphasized}
+          japanese={japanese}
           onSelect={onSelect}
           disabled={revealed}
           labelRef={(el) => (labelRefs.current[index] = el)}

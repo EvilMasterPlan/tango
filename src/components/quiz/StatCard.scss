@@ -1,0 +1,86 @@
+// Prefixed `quiz-stat-card` (not the plainer `stat-card`) to avoid
+// colliding with App.scss's unrelated `.stat-card` — the marketing page's
+// Quick Stats section, which has its own `:hover { transform: scale(...) }`
+// that would otherwise apply here too, since CSS classes aren't scoped.
+.quiz-stat-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 5rem;
+  margin: 0;
+  border-radius: 0.75rem;
+  border: 3px solid var(--color-border-primary);
+  // Same 3D foot as the quiz's answer buttons/word cards.
+  box-shadow: 0 4px 0 0 var(--color-border-primary);
+  // The frame fill (A) — lighter than the border stroke around it, so the
+  // dark label text sitting on top of it (below) actually reads.
+  background-color: var(--color-text-secondary);
+  overflow: hidden;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+
+  // Unlike ChoiceButton/SpellingSlots/the word cards, these aren't
+  // clickable — just recolor the frame and foot to the accent on hover,
+  // no lift/press transform and no change to the foot's own size.
+  &:hover {
+    border-color: var(--color-accent-primary);
+    box-shadow: 0 4px 0 0 var(--color-accent-primary);
+  }
+}
+
+.quiz-stat-card__label {
+  margin: 0;
+  // Thicker than both the box-shadow foot below and the thin frame ring
+  // around the value window on its other sides — this top band is the
+  // "header" the label sits on.
+  padding: 0.5rem 0.5rem 0.35rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+  color: var(--color-bg-primary);
+}
+
+.quiz-stat-card__value {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3em;
+  // Insets the dark window on every side but the top (already separated
+  // from the frame by the label's own padding above) — this is what makes
+  // the frame read as encircling the window rather than just sitting above
+  // it.
+  margin: 0 0.4rem 0.4rem;
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.quiz-stat-card__value--success {
+  color: #fde047;
+}
+
+.quiz-stat-card__value--fail {
+  color: var(--color-accent-error);
+}
+
+.quiz-stat-card__value--reward {
+  color: #fde047;
+}
+
+@media (max-width: 768px) {
+  .quiz-stat-card {
+    min-width: 4.25rem;
+  }
+
+  .quiz-stat-card__label {
+    font-size: 0.6rem;
+  }
+
+  .quiz-stat-card__value {
+    font-size: 1.15rem;
+  }
+}

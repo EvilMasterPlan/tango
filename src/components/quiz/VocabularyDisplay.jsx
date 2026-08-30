@@ -26,7 +26,7 @@ function Blank({ ghostText }) {
 // <ruby> per segment instead would copy/paste with a stray newline inserted
 // between segments (Chromium treats each <ruby> as its own text-
 // serialization block), so it has to stay one element.
-function FuriganaWord({ furigana }) {
+export function FuriganaWord({ furigana }) {
   return (
     <ruby className="vocabulary-display__furigana-word">
       {furigana.map((segment, index) => (

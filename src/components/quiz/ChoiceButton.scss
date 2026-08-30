@@ -182,6 +182,12 @@
   font-size: 2rem;
 }
 
+// Word/reading choices — set from the settings dialog's font toggle,
+// definition (English) choices stay in the default font.
+.modern-choice-button--japanese {
+  font-family: var(--font-jp);
+}
+
 .modern-choice-button:disabled {
   cursor: default;
 }
@@ -248,13 +254,18 @@
 }
 
 @media (max-width: 768px) {
+  // Trimmed from 3.5rem/1.35rem/0.85rem — every choice button's worst-case
+  // (2-line) height feeds directly into ChoiceGrid's own mobile min-height
+  // reservation, which is one of the biggest single contributors to short
+  // phones not having room for both the word display and the answer area
+  // (see the comment there).
   .modern-choice-button {
-    min-height: 3.5rem;
-    font-size: 1.35rem;
-    padding: 0.85rem;
+    min-height: 3rem;
+    font-size: 1.2rem;
+    padding: 0.65rem;
   }
 
   .modern-choice-button--emphasized {
-    font-size: 1.55rem;
+    font-size: 1.4rem;
   }
 }

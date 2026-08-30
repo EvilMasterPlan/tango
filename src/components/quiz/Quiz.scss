@@ -60,6 +60,18 @@
   opacity: 0;
 }
 
+// The summary's word-review section wants to fill the space down to the
+// footer (see .quiz-summary__review in QuizSummary.scss) rather than
+// shrink-wrap and sit centered like every other phase's content does —
+// align-self overrides just this item's cross-axis alignment within
+// .quiz-page__main (which centers everything else by default) without
+// touching that behavior for any other phase.
+.quiz__content--summary {
+  align-self: stretch;
+  height: 100%;
+  min-height: 0;
+}
+
 .quiz__answer-area {
   display: flex;
   flex-direction: column;
@@ -83,14 +95,25 @@
 }
 
 @media (max-width: 768px) {
+  // Vertical space is the scarce dimension on short phones (VocabularyDisplay
+  // + the answer area can otherwise not fit between the header and footer,
+  // clipping the word info at the top and pushing choices past the bottom —
+  // see the trimmed gap/min-height below too), so this trims top/bottom more
+  // than the unchanged horizontal padding needs to.
   .quiz-page__main {
-    padding: 0.75rem 0.75rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .quiz__content {
+    gap: 1rem;
   }
 
   .quiz__answer-area {
-    // 22.5rem = ChoiceGrid's own mobile reservation vs. spelling's smaller
-    // 7rem + 1.5rem gap + 7rem — here ChoiceGrid is the taller one.
-    min-height: 22.5rem;
+    gap: 1rem;
+    // 19.25rem = ChoiceGrid's own mobile reservation (see ChoiceGrid.scss)
+    // vs. spelling's smaller 7rem + this gap + 7rem — here ChoiceGrid is
+    // still the taller one.
+    min-height: 19.25rem;
   }
 }
 
