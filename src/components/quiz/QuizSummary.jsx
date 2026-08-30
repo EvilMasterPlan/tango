@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { IoChevronBack, IoChevronForward } from 'react-icons/io5';
 import { CoinIcon } from '@/components/quiz/CoinIcon';
-import { fireRewardConfetti, originForElement } from '@/components/quiz/coinConfetti';
 import { MasteryPentagon } from '@/components/quiz/MasteryPentagon';
 import { NumberDial } from '@/components/quiz/NumberDial';
 import { StatCard } from '@/components/quiz/StatCard';
@@ -28,9 +27,6 @@ const REWARD_BASE = 10;
 const REWARD_PER_CORRECT_ROUND = 3;
 
 export function QuizSummary({ results, total, rounds, initialMasteryByWordID }) {
-  const correct = results.filter((result) => result === 'success').length;
-  const incorrect = results.filter((result) => result === 'fail').length;
-
   // One row per unique word — lesson generation is currently guaranteed
   // not to repeat a word within a set, but may not always be (different
   // skill keys hitting the same word). A Map keyed by entry.id keeps each
@@ -43,17 +39,24 @@ export function QuizSummary({ results, total, rounds, initialMasteryByWordID }) 
   const lastIndex = uniqueRounds.length - 1;
 
   // A word may show up across several rounds (different skill keys) — its
-  // reward is 3 zeni per one of those rounds that was answered correctly,
-  // not just a flat bonus for having gotten *any* of them right.
-  const correctRoundCountByWordId = new Map();
+  // reward is 3 zeni per one of those rounds that was answered correctly
+  // (not just a flat bonus for having gotten *any* of them right), and
+  // likewise its contribution to the animated Correct/Incorrect counters
+  // below is every one of its rounds, not just one per word — summing each
+  // word's counts as the wheel passes it is what lets those counters land
+  // on the same totals as `results` as a whole (correct + incorrect across
+  // every round) by the time the sweep finishes.
+  const wordStatsById = new Map();
   rounds.forEach((round, i) => {
-    if (results[i] !== 'success') return;
     const { id } = round.entry;
-    correctRoundCountByWordId.set(id, (correctRoundCountByWordId.get(id) || 0) + 1);
+    const stats = wordStatsById.get(id) || { correct: 0, incorrect: 0 };
+    if (results[i] === 'success') stats.correct += 1;
+    else if (results[i] === 'fail') stats.incorrect += 1;
+    wordStatsById.set(id, stats);
   });
 
   function rewardForWordId(id) {
-    return (correctRoundCountByWordId.get(id) || 0) * REWARD_PER_CORRECT_ROUND;
+    return (wordStatsById.get(id)?.correct || 0) * REWARD_PER_CORRECT_ROUND;
   }
 
   // Index into uniqueRounds of the word the wheel is currently centered on.
@@ -65,10 +68,19 @@ export function QuizSummary({ results, total, rounds, initialMasteryByWordID }) 
   // deliberately locked out/hidden until then.
   const [autoRotating, setAutoRotating] = useState(true);
   const [reward, setReward] = useState(REWARD_BASE);
+  // Bumped each time a word's bonus is credited — passed to the reward
+  // StatCard as `pulseKey` so it mounts a fresh flash overlay (and thus
+  // replays the animation) on every increase, not just the first. Starts
+  // `null` so no flash renders before any bonus has actually landed.
+  const [rewardPulseKey, setRewardPulseKey] = useState(null);
+  // Correct/Incorrect start at 0 and climb as the wheel sweeps past each
+  // word — same "credited the moment it becomes current" treatment as the
+  // reward above, so the two NumberDials visibly spin up in lockstep with
+  // the wheel rather than the totals just appearing pre-computed.
+  const [animatedCorrect, setAnimatedCorrect] = useState(0);
+  const [animatedIncorrect, setAnimatedIncorrect] = useState(0);
   const wordListRef = useRef(null);
-  // The reward StatCard's DOM node, for centering the confetti burst below.
-  const rewardCardRef = useRef(null);
-  // Which words have already had their bonus credited — a plain ref
+  // Which words have already had their bonus/counts credited — a plain ref
   // (rather than deriving it from reward/currentIndex) since scrolling
   // back over an already-seen word after the intro finishes must not pay
   // out a second time.
@@ -97,13 +109,10 @@ export function QuizSummary({ results, total, rounds, initialMasteryByWordID }) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex, autoRotating]);
 
-  // Credits this word's bonus and reveals its score-list row the moment it
-  // becomes current, both at most once per word — also runs for the
-  // initial index-0 render, so that word's points/row land immediately on
-  // mount rather than waiting for the first rotation. Confetti is
-  // deliberately tied to the same "actually credited new points" branch
-  // (and gated on autoRotating) so it only bursts during the sweep itself,
-  // never from re-visiting an already-scored word afterward.
+  // Credits this word's bonus/counts and reveals its score-list row the
+  // moment it becomes current, all at most once per word — also runs for
+  // the initial index-0 render, so that word's points/row/counts land
+  // immediately on mount rather than waiting for the first rotation.
   useEffect(() => {
     const word = uniqueRounds[currentIndex];
     if (!word) return;
@@ -111,12 +120,16 @@ export function QuizSummary({ results, total, rounds, initialMasteryByWordID }) 
 
     setRevealedWordIds((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
 
-    const wordReward = rewardForWordId(id);
-    if (wordReward > 0 && !rewardedWordIdsRef.current.has(id)) {
+    if (!rewardedWordIdsRef.current.has(id)) {
       rewardedWordIdsRef.current.add(id);
-      setReward((prev) => prev + wordReward);
-      if (autoRotating && rewardCardRef.current) {
-        fireRewardConfetti(originForElement(rewardCardRef.current));
+      const { correct: wordCorrect, incorrect: wordIncorrect } = wordStatsById.get(id) || { correct: 0, incorrect: 0 };
+      if (wordCorrect > 0) setAnimatedCorrect((prev) => prev + wordCorrect);
+      if (wordIncorrect > 0) setAnimatedIncorrect((prev) => prev + wordIncorrect);
+
+      const wordReward = rewardForWordId(id);
+      if (wordReward > 0) {
+        setReward((prev) => prev + wordReward);
+        setRewardPulseKey((prev) => (prev ?? 0) + 1);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -175,10 +188,9 @@ export function QuizSummary({ results, total, rounds, initialMasteryByWordID }) 
       <h2 className="quiz-summary__title">Set Complete!</h2>
       <dl className="quiz-summary__stats">
         <StatCard label="Total" value={total} />
-        <StatCard label="Correct" value={correct} variant="success" />
-        <StatCard label="Incorrect" value={incorrect} variant="fail" />
+        <StatCard label="Correct" value={<NumberDial value={animatedCorrect} hideLeadingZeros />} variant="success" />
+        <StatCard label="Incorrect" value={<NumberDial value={animatedIncorrect} hideLeadingZeros />} variant="fail" />
         <StatCard
-          ref={rewardCardRef}
           label="Reward"
           value={
             <>
@@ -187,6 +199,7 @@ export function QuizSummary({ results, total, rounds, initialMasteryByWordID }) 
             </>
           }
           variant="reward"
+          pulseKey={rewardPulseKey}
         />
       </dl>
 

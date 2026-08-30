@@ -3,6 +3,7 @@
 // Quick Stats section, which has its own `:hover { transform: scale(...) }`
 // that would otherwise apply here too, since CSS classes aren't scoped.
 .quiz-stat-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-width: 5rem;
@@ -26,6 +27,50 @@
   }
 }
 
+// Reward card's "you just earned points" cue — replaces the old confetti
+// burst. A child of .quiz-stat-card__value (not the outer card) so it only
+// covers the dark inset window holding the count/coin, not the whole frame
+// — a plain absolute-positioned child paints after its non-positioned
+// in-flow siblings regardless of DOM order, and clips to the window's own
+// rounded corners via `inherit`. Solid gold at a constant color; the flash
+// itself is entirely opacity —
+// a very quick ramp up to half-strength, then a slower fade back to
+// nothing, so it reads as a swift flare that lingers briefly on the way out.
+.quiz-stat-card__pulse {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  background-color: #fde047;
+  // Base state, not just the animation's 0%/100% keyframes — without an
+  // explicit resting opacity here, the animation's default fill-mode
+  // (none) means the element snaps back to its unanimated default (fully
+  // opaque) the instant the animation ends, leaving a solid gold pane
+  // behind permanently instead of nothing.
+  opacity: 0;
+  animation: quiz-stat-card-pulse 0.4s ease-out;
+}
+
+@keyframes quiz-stat-card-pulse {
+  0% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiz-stat-card__pulse {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 .quiz-stat-card__label {
   margin: 0;
   // Thicker than both the box-shadow foot below and the thin frame ring
@@ -41,6 +86,8 @@
 }
 
 .quiz-stat-card__value {
+  position: relative;
+  overflow: hidden;
   flex: 1;
   display: flex;
   align-items: center;

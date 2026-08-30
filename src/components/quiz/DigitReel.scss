@@ -9,6 +9,16 @@
   height: 2em;
   font-variant-numeric: tabular-nums;
   vertical-align: -0.5em;
+  opacity: 1;
+  transition: opacity var(--transition-fast);
+}
+
+// Insignificant leading zero (see NumberDial) — dimmed rather than hidden,
+// same odometer convention as a car's trip counter, and via opacity on the
+// whole reel (not per-glyph) so it fades as one flat unit regardless of
+// which digit happens to be spinning past underneath at the moment.
+.digit-reel--dimmed {
+  opacity: 0.2;
 }
 
 // Clips the strip to a single row's height — its own element rather than

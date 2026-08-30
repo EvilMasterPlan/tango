@@ -1,4 +1,3 @@
-import { forwardRef } from 'react';
 import { cx } from '@/utils/cx';
 import './StatCard.scss';
 
@@ -16,15 +15,20 @@ import './StatCard.scss';
 // page's Quick Stats section, with its own `:hover { transform: scale(...) }`)
 // that would otherwise bleed into this component since CSS classes aren't
 // scoped to a file.
-// Forwards its ref to the root card element — the reward card uses this so
-// QuizSummary can center confetti bursts on it (see coinConfetti.js).
-export const StatCard = forwardRef(function StatCard({ label, value, variant = 'default' }, ref) {
+//
+// `pulseKey` is optional: when the reward card's value goes up, QuizSummary
+// bumps it, and the `key` below forces React to mount a brand new overlay
+// element each time rather than reusing one whose animation already ran —
+// that's what makes the gold flash replay on every increase instead of
+// only the first.
+export function StatCard({ label, value, variant = 'default', pulseKey }) {
   return (
-    <div ref={ref} className="quiz-stat-card">
+    <div className="quiz-stat-card">
       <dt className="quiz-stat-card__label">{label}</dt>
       <dd className={cx('quiz-stat-card__value', variant !== 'default' && `quiz-stat-card__value--${variant}`)}>
         {value}
+        {pulseKey != null && <span key={pulseKey} className="quiz-stat-card__pulse" aria-hidden="true" />}
       </dd>
     </div>
   );
-});
+}

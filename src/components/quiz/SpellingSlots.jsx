@@ -46,7 +46,7 @@ export function SpellingSlots({ tiles, slots, correctAnswer, revealed = false, o
             disabled={revealed || !filled}
             aria-label={label}
           >
-            {char ?? ''}
+            <span className="modern-spelling-slot__char">{char ?? ''}</span>
           </button>
         );
       })}
