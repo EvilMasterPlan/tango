@@ -40,8 +40,8 @@ export function CoinIcon() {
         <circle cx="16" cy="16" r="12" fill="#ca8a04" />
         <circle cx="16" cy="16" r="10" fill="#fde047" />
         <g mask={`url(#${yellowMaskId})`}>
-          <rect x="-10" y="3" width="52" height="5" fill="#ffffff" opacity="0.5" transform="rotate(-35 16 16)" />
-          <rect x="-10" y="19" width="52" height="1.5" fill="#ffffff" opacity="0.35" transform="rotate(-35 16 16)" />
+          <rect x="-10" y="3" width="52" height="6" fill="#ffffff" opacity="0.8" transform="rotate(-35 16 16)" />
+          <rect x="-10" y="15" width="52" height="2" fill="#ffffff" opacity="0.9" transform="rotate(-35 16 16)" />
         </g>
       </g>
     </svg>
