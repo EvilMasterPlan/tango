@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { modernQuizApi } from '@/utils/api/modernQuiz';
 import { VocabularyDisplay } from '@/components/quiz/VocabularyDisplay';
 import { ChoiceGrid } from '@/components/quiz/ChoiceGrid';
@@ -60,12 +61,47 @@ const MODES = {
 };
 
 export function Quiz() {
+  // ?type= selects the lesson's emphasis — see OvermindAPI's
+  // modernQuiz/lessonPools.js LessonType for the valid values; forwarded
+  // as-is to generateLesson, which defaults server-side if it's missing or
+  // unrecognized.
+  const [searchParams] = useSearchParams();
+  const lessonType = searchParams.get('type');
+
   const [rounds, setRounds] = useState(null);
   // Word id -> mastery, captured once right after a lesson loads, before
   // any answering mutates `rounds[i].mastery` — lets the summary animate
   // from "before this quiz" to "after" instead of only ever showing the
-  // final state.
+  // final state. Frozen for the whole lesson — see masteryByWordID below
+  // for the live equivalent the question view itself reads from.
   const [initialMasteryByWordID, setInitialMasteryByWordID] = useState({});
+  // Word id -> mastery, updated every time a practice attempt is recorded
+  // (see handleAction) — unlike `rounds[i].mastery`, which is frozen at
+  // lesson-load time and only ever refreshed for the exact round index
+  // answered, this reflects the freshest known state for a word regardless
+  // of which round last touched it. Needed because the same word can now
+  // appear in more than one round: without this, a later round's "before
+  // answering" baseline would still be the pre-lesson snapshot, missing an
+  // earlier round's already-recorded progress on the same word, and the
+  // hatch preview would undercount how much the real post-answer fill
+  // (which the backend computes from every attempt so far) is about to jump.
+  const [masteryByWordID, setMasteryByWordID] = useState({});
+  // The current lesson's TANGO_Lessons row ID — null for anonymous
+  // visitors (no server-side lesson to track). Sent back to completeLesson
+  // once the final question is answered — see handleAction.
+  const [lessonID, setLessonID] = useState(null);
+  // completeLesson's { totalScore, scoringBreakdown } response — scoring
+  // itself now happens server-side (see OvermindAPI's modernQuiz/scoring.js)
+  // instead of QuizSummary computing it from `results`/`rounds`. Fetched as
+  // soon as the last question is answered (see handleAction), not when the
+  // summary phase is reached, per lessonScorePromiseRef below.
+  const [lessonScore, setLessonScore] = useState(null);
+  // Holds the in-flight completeLesson() promise from the moment the last
+  // question is answered until Next is clicked — advancing to the summary
+  // phase awaits this rather than firing the request there, so a slow
+  // network doesn't stall the review phase, but the summary still always
+  // has a score to render by the time it mounts.
+  const lessonScorePromiseRef = useRef(null);
   const [questionIndex, setQuestionIndex] = useState(0);
   // 'success' | 'fail' per completed question index, for the progress dots
   // and the end-of-set summary.
@@ -96,9 +132,14 @@ export function Quiz() {
     setIsLoading(true);
     setLoadError(null);
     try {
-      const { questions } = await modernQuizApi.generateLesson();
+      const { questions, lessonID: newLessonID } = await modernQuizApi.generateLesson(lessonType);
       setRounds(questions);
-      setInitialMasteryByWordID(Object.fromEntries(questions.map((round) => [round.entry.id, round.mastery])));
+      const startingMasteryByWordID = Object.fromEntries(questions.map((round) => [round.entry.id, round.mastery]));
+      setInitialMasteryByWordID(startingMasteryByWordID);
+      setMasteryByWordID(startingMasteryByWordID);
+      setLessonID(newLessonID ?? null);
+      setLessonScore(null);
+      lessonScorePromiseRef.current = null;
       setResults([]);
       setQuestionIndex(0);
       setSelectedIndex(null);
@@ -110,14 +151,17 @@ export function Quiz() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [lessonType]);
 
   useEffect(() => {
     loadLesson();
   }, [loadLesson]);
 
   const currentRound = rounds?.[questionIndex];
-  const { entry, hidden, mode, choices, correctIndex, tiles, correctAnswer, skillKey, mastery } = currentRound || {};
+  const { entry, hidden, mode, choices, correctIndex, tiles, correctAnswer, skillKey } = currentRound || {};
+  // The word's mastery as of the start of *this* question — see
+  // masteryByWordID above for why this isn't just currentRound.mastery.
+  const mastery = entry ? masteryByWordID[entry.id] ?? currentRound.mastery : undefined;
   const modeConfig = currentRound ? MODES[mode] : null;
   // The state every mode's isAnswered/isCorrect/ghostText draws from — each
   // mode's functions only read the slice of this that's relevant to it.
@@ -132,11 +176,15 @@ export function Quiz() {
   const ghostText = modeConfig ? modeConfig.ghostText(answerState) : '';
 
   // Fades the current content out, runs `update` once it's invisible, then
-  // lets the (now different) content fade back in.
+  // lets the (now different) content fade back in. `update` may be async
+  // (see the summary-bound branch in handleAction, which awaits the
+  // lesson's score before flipping phase) — awaiting a non-promise return
+  // value is a no-op, so this works the same for the plain synchronous
+  // per-question advance too.
   function transitionTo(update) {
     setIsTransitioning(true);
-    transitionTimeoutRef.current = window.setTimeout(() => {
-      update();
+    transitionTimeoutRef.current = window.setTimeout(async () => {
+      await update();
       setIsTransitioning(false);
     }, TRANSITION_MS);
   }
@@ -182,16 +230,39 @@ export function Quiz() {
           next[questionIndex] = { ...next[questionIndex], mastery: updatedMastery };
           return next;
         });
+        setMasteryByWordID((prev) => ({ ...prev, [entry.id]: updatedMastery }));
       } catch (error) {
         // Fire-and-forget from the user's perspective — a failed practice
         // record shouldn't block moving on through the lesson.
         console.warn('Failed to record practice attempt:', error);
       }
+
+      // Completes the lesson (and fetches its score) the moment its last
+      // question is answered — not gated on ever reaching the summary
+      // phase (Next), since closing the tab right after Check on the final
+      // question should still count as finished. Requested regardless of
+      // lessonID: anonymous visitors get the same scored summary as
+      // logged-in ones, they just have no TANGO_Lessons row for the
+      // backend to mark complete (see quiz.js's completeLesson). The
+      // promise is stashed rather than awaited here so a slow response
+      // doesn't hold up showing the review phase — see transitionTo below,
+      // which is what actually needs the result.
+      if (questionIndex === rounds.length - 1) {
+        const answers = rounds.map((round, i) => ({
+          entryId: round.entry.id,
+          isCorrect: i === questionIndex ? isCorrect : results[i] === 'success',
+        }));
+        lessonScorePromiseRef.current = modernQuizApi.completeLesson(lessonID, answers).catch((error) => {
+          console.warn('Failed to complete lesson:', error);
+          return { totalScore: 0, scoringBreakdown: [] };
+        });
+      }
       return;
     }
 
-    transitionTo(() => {
+    transitionTo(async () => {
       if (questionIndex === rounds.length - 1) {
+        setLessonScore(await lessonScorePromiseRef.current);
         setPhase('summary');
       } else {
         const nextIndex = questionIndex + 1;
@@ -301,10 +372,10 @@ export function Quiz() {
           <div className={cx('quiz__content', isTransitioning && 'quiz__content--hidden', phase === 'summary' && 'quiz__content--summary')}>
             {phase === 'summary' ? (
               <QuizSummary
-                results={results}
                 total={rounds.length}
                 rounds={rounds}
                 initialMasteryByWordID={initialMasteryByWordID}
+                scoring={lessonScore}
               />
             ) : (
               <>

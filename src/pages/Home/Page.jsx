@@ -17,6 +17,14 @@ const TYPE_EMOJI = {
   fire: '🔥',
 };
 
+// Maps each choice room to the lesson type its button starts — see
+// OvermindAPI's modernQuiz/lessonPools.js LessonType for the valid values.
+const TYPE_LESSON_TYPE = {
+  star: 'new_words',
+  gem: 'level_up',
+  fire: 'fix_mistakes',
+};
+
 const DEPTH_MARKS = ['5m', '10m', '20m', '50m'];
 
 function TrackPipe() {
@@ -107,7 +115,7 @@ export function HomePage() {
                 key={'ch-' + i}
                 type="button"
                 className={`home-track__room home-track__room--action home-track__room--${choice.type}`}
-                onClick={() => navigate('/lesson')}
+                onClick={() => navigate(`/lesson?type=${TYPE_LESSON_TYPE[choice.type]}`)}
               >
                 {TYPE_EMOJI[choice.type]}
               </button>

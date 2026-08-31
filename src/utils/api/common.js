@@ -14,7 +14,7 @@ export const makeGetRequest = async (url) => {
 	return response.data;
 };
 
-export const makePostRequest = async (url, body = {}) => {
-	const response = await axios.post(url, body, { withCredentials: true });
+export const makePostRequest = async (url, body = {}, config = {}) => {
+	const response = await axios.post(url, body, { withCredentials: true, ...config });
 	return response.data;
 };

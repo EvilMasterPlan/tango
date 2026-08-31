@@ -22,11 +22,11 @@ const WHEEL_STEP_THRESHOLD = 40;
 // twice and gotten right both times is worth double one gotten right
 // once), credited the moment that word first becomes "current" — during
 // the intro rotation or, once that's done, by scrolling/arrowing to it —
-// rather than shown as a final total outright.
-const REWARD_BASE = 10;
-const REWARD_PER_CORRECT_ROUND = 3;
+// rather than shown as a final total outright. The actual scoring math
+// lives server-side now (see OvermindAPI's modernQuiz/scoring.js) — this
+// component just walks `scoring.scoringBreakdown` and animates it.
 
-export function QuizSummary({ results, total, rounds, initialMasteryByWordID }) {
+export function QuizSummary({ total, rounds, initialMasteryByWordID, scoring = { totalScore: 0, scoringBreakdown: [] } }) {
   // One row per unique word — lesson generation is currently guaranteed
   // not to repeat a word within a set, but may not always be (different
   // skill keys hitting the same word). A Map keyed by entry.id keeps each
@@ -38,25 +38,20 @@ export function QuizSummary({ results, total, rounds, initialMasteryByWordID }) 
   const uniqueRounds = [...new Map(rounds.map((round) => [round.entry.id, round])).values()];
   const lastIndex = uniqueRounds.length - 1;
 
-  // A word may show up across several rounds (different skill keys) — its
-  // reward is 3 zeni per one of those rounds that was answered correctly
-  // (not just a flat bonus for having gotten *any* of them right), and
-  // likewise its contribution to the animated Correct/Incorrect counters
-  // below is every one of its rounds, not just one per word — summing each
-  // word's counts as the wheel passes it is what lets those counters land
-  // on the same totals as `results` as a whole (correct + incorrect across
-  // every round) by the time the sweep finishes.
-  const wordStatsById = new Map();
-  rounds.forEach((round, i) => {
-    const { id } = round.entry;
-    const stats = wordStatsById.get(id) || { correct: 0, incorrect: 0 };
-    if (results[i] === 'success') stats.correct += 1;
-    else if (results[i] === 'fail') stats.incorrect += 1;
-    wordStatsById.set(id, stats);
-  });
+  // scoring.scoringBreakdown is [{ type: 'lesson_complete', ... }, { type:
+  // 'word', wordID, questionsCorrect, questionsIncorrect, points }, ...],
+  // one "word" entry per unique word in the same first-seen order as
+  // `uniqueRounds` (the backend derives both from the same per-round
+  // sequence) — a word may show up across several rounds (different skill
+  // keys), and its points/counts here are the sum across all of them, not
+  // just one per word.
+  const lessonCompleteEntry = scoring.scoringBreakdown.find((entry) => entry.type === 'lesson_complete');
+  const wordScoringById = new Map(
+    scoring.scoringBreakdown.filter((entry) => entry.type === 'word').map((entry) => [entry.wordID, entry]),
+  );
 
   function rewardForWordId(id) {
-    return (wordStatsById.get(id)?.correct || 0) * REWARD_PER_CORRECT_ROUND;
+    return wordScoringById.get(id)?.points || 0;
   }
 
   // Index into uniqueRounds of the word the wheel is currently centered on.
@@ -67,7 +62,7 @@ export function QuizSummary({ results, total, rounds, initialMasteryByWordID }) 
   // below — manual navigation, and the current-word panel itself, are
   // deliberately locked out/hidden until then.
   const [autoRotating, setAutoRotating] = useState(true);
-  const [reward, setReward] = useState(REWARD_BASE);
+  const [reward, setReward] = useState(lessonCompleteEntry?.points || 0);
   // Bumped each time a word's bonus is credited — passed to the reward
   // StatCard as `pulseKey` so it mounts a fresh flash overlay (and thus
   // replays the animation) on every increase, not just the first. Starts
@@ -122,7 +117,9 @@ export function QuizSummary({ results, total, rounds, initialMasteryByWordID }) 
 
     if (!rewardedWordIdsRef.current.has(id)) {
       rewardedWordIdsRef.current.add(id);
-      const { correct: wordCorrect, incorrect: wordIncorrect } = wordStatsById.get(id) || { correct: 0, incorrect: 0 };
+      const wordScore = wordScoringById.get(id);
+      const wordCorrect = wordScore?.questionsCorrect || 0;
+      const wordIncorrect = wordScore?.questionsIncorrect || 0;
       if (wordCorrect > 0) setAnimatedCorrect((prev) => prev + wordCorrect);
       if (wordIncorrect > 0) setAnimatedIncorrect((prev) => prev + wordIncorrect);
 
