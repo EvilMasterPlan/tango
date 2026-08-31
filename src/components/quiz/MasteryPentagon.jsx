@@ -9,12 +9,14 @@ import './MasteryPentagon.scss';
 // returns them (object key order is preserved for string keys). `iteration`,
 // `level`, and `iterationsForNextLevel` are sibling summary fields alongside
 // the per-skill entries, not axes themselves, so they're excluded from the
-// chart axes; `iteration`/`iterationsForNextLevel` still get passed through
-// to RadarChart, which scales both its iteration-progress rings and each
-// axis's own point off of them (an axis further ahead of the bottleneck
-// iteration sits further out, not just "extended" vs "not"). `level` (1-
-// indexed — a fresh word starts at level 1) is shown as its own label
-// underneath instead.
+// chart axes; `iterationsForNextLevel` gets passed through to RadarChart
+// as-is, alongside the current level's floor iteration (see
+// `levelFloorIteration` below, derived from `level`/`iterationsForNextLevel`
+// rather than the raw `iteration` bottleneck) — RadarChart scales both its
+// iteration-progress rings and each axis's own point off of that floor (an
+// axis further ahead of it sits further out, not just "extended" vs "not").
+// `level` (1-indexed — a fresh word starts at level 1) is also shown as its
+// own label underneath.
 //
 // `currentSkillKey` (optional) is the axis for the question currently being
 // asked — RadarChart previews what the shape would become if it's
@@ -30,6 +32,23 @@ import './MasteryPentagon.scss';
 // getting there over the course of one quiz. `animationDelay` staggers
 // that pulse relative to other pentagons animating at the same time.
 const SUMMARY_KEYS = ['iteration', 'level', 'iterationsForNextLevel'];
+
+// RadarChart scales every axis's position off of a floor iteration count —
+// but that floor needs to stay fixed for the word's whole current level, not
+// track `mastery.iteration` (the bottleneck skill's own correct count)
+// directly. `iteration` only equals the level's floor right when the word
+// enters the level; answering a lagging skill correctly raises the
+// bottleneck (and so `iteration`) again before the level actually changes,
+// which would otherwise yank the floor out from under every other axis and
+// collapse them back toward center on the very submit that should grow the
+// shape. The level's floor is derivable without duplicating masteryStore's
+// threshold formula: `iterationsForNextLevel` is the iteration threshold for
+// `level + 1`, and each level N always spans exactly N + 1 iterations, so
+// subtracting `level + 1` recovers the threshold for the current level.
+function levelFloorIteration({ level, iterationsForNextLevel }) {
+  if (level == null || iterationsForNextLevel == null) return undefined;
+  return iterationsForNextLevel - level - 1;
+}
 
 export function MasteryPentagon({ mastery = {}, currentSkillKey, initialMastery, animationDelay }) {
   const skillKeys = Object.keys(mastery).filter((key) => !SUMMARY_KEYS.includes(key));
@@ -60,10 +79,10 @@ export function MasteryPentagon({ mastery = {}, currentSkillKey, initialMastery,
       <RadarChart
         values={correctCounts}
         previewIndex={previewIndex === -1 ? null : previewIndex}
-        iteration={mastery.iteration}
+        iteration={levelFloorIteration(mastery)}
         iterationsForNextLevel={mastery.iterationsForNextLevel}
         fromValues={initialCorrectCounts}
-        fromIteration={initialMastery?.iteration}
+        fromIteration={initialMastery && levelFloorIteration(initialMastery)}
         fromIterationsForNextLevel={initialMastery?.iterationsForNextLevel}
         attemptedValues={attemptedCounts}
         animationDelay={animationDelay}
