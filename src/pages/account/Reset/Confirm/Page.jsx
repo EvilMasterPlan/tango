@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import AccountLayout from '@/pages/account/components/AccountLayout';
+import { TextField } from '@/components/shared/TextField';
+import { Button } from '@/components/shared/Button';
 import { authApi } from '@/utils/api/auth';
 import { isValidPassword } from '@/utils/auth';
 import { useUserContext } from '@/contexts/UserContext';
@@ -52,32 +54,26 @@ function ResetConfirmPage() {
   return (
     <AccountLayout title="Create a new password" subtitle="This updates your account credentials.">
       <form className="account-form" onSubmit={handleSubmit}>
-        <label className="account-label" htmlFor="password">
-          New password
-          <input
-            id="password"
-            className="account-input"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            disabled={isLoading}
-          />
-        </label>
-        <label className="account-label" htmlFor="confirmPassword">
-          Confirm new password
-          <input
-            id="confirmPassword"
-            className="account-input"
-            type="password"
-            value={confirmPassword}
-            onChange={(event) => setConfirmPassword(event.target.value)}
-            disabled={isLoading}
-          />
-        </label>
+        <TextField
+          id="password"
+          label="New password"
+          type="password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          disabled={isLoading}
+        />
+        <TextField
+          id="confirmPassword"
+          label="Confirm new password"
+          type="password"
+          value={confirmPassword}
+          onChange={(event) => setConfirmPassword(event.target.value)}
+          disabled={isLoading}
+        />
         {error ? <p className="account-error">{error}</p> : null}
-        <button className="btn btn-primary" disabled={isLoading} type="submit">
+        <Button type="submit" disabled={isLoading}>
           Save password
-        </button>
+        </Button>
       </form>
     </AccountLayout>
   );

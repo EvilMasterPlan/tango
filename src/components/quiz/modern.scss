@@ -2,26 +2,9 @@
 // something here once it's actually duplicated across components — most
 // styling (like ChoiceButton's 3D press effect) is specific to one
 // component and belongs in that component's own file.
-
-@mixin quiz-button-base {
-  font-family: inherit;
-  border-radius: 0.75rem;
-  cursor: pointer;
-}
-
-// Shared by SpellingSlots and SpellingTiles — both are squares with the same
-// static face (size, border, color, shadow); only their interactive/reveal
-// states differ, which stay in each component's own file.
-@mixin quiz-tile-face {
-  @include quiz-button-base;
-  width: 4rem;
-  height: 4rem;
-  font-size: 1.75rem;
-  font-weight: 700;
-  // Tiles/slots always hold individual Japanese characters.
-  font-family: var(--font-jp);
-  color: var(--color-text-primary);
-  background-color: var(--color-bg-secondary);
-  border: 3px solid var(--color-border-primary);
-  box-shadow: 0 4px 0 0 var(--color-border-primary);
-}
+//
+// The base mixins themselves live in components/shared/mixins.scss (used
+// outside the quiz too, e.g. Button/TextField) — forwarded here so existing
+// `modern.quiz-button-base` / `modern.quiz-tile-face` call sites in this
+// folder don't need to change.
+@forward '../shared/mixins';

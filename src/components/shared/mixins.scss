@@ -1,0 +1,57 @@
+// Pressable-button primitives shared across the app — originally lived only
+// in quiz/modern.scss; pulled out here once auth (Button/TextField) needed
+// the same base too. quiz/modern.scss forwards this so quiz components keep
+// using `modern.quiz-button-base` unchanged.
+
+@mixin quiz-button-base {
+  font-family: inherit;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+// Shared property list for every "3D pressable" surface below — identical
+// everywhere it's used, and safe to apply unconditionally since it only
+// ever adds transition coverage, never changes anything visually on its own.
+@mixin pressable-transition {
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+// The lift-on-hover, push-in-on-press shadow "lip" shared by every
+// clickable pressable surface (ChoiceButton, SpellingTiles' pool tiles,
+// shared/Button). $active-lip defaults to $rest-lip — the common pattern
+// where the lip reverts to its resting color once pressed (e.g.
+// ChoiceButton's grey border) — pass $hover-lip again explicitly for a
+// surface that should stay lit through the press instead (e.g. Button's
+// colored variants). Only owns the shadow/transform triplet —
+// background/border-color changes, which vary per surface, stay in each
+// caller's own hover/active rules.
+@mixin pressable-lip($rest-lip, $hover-lip: $rest-lip, $active-lip: $rest-lip) {
+  box-shadow: 0 4px 0 0 #{$rest-lip};
+
+  &:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 0 #{$hover-lip};
+  }
+
+  &:not(:disabled):active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 0 #{$active-lip};
+  }
+}
+
+// Shared by SpellingSlots and SpellingTiles — both are squares with the same
+// static face (size, border, color, shadow); only their interactive/reveal
+// states differ, which stay in each component's own file.
+@mixin quiz-tile-face {
+  @include quiz-button-base;
+  width: 4rem;
+  height: 4rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  // Tiles/slots always hold individual Japanese characters.
+  font-family: var(--font-jp);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-secondary);
+  border: 3px solid var(--color-border-primary);
+  box-shadow: 0 4px 0 0 var(--color-border-primary);
+}

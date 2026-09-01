@@ -1,0 +1,57 @@
+@use './mixins';
+
+.shared-button {
+  @include mixins.quiz-button-base;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0.75rem 3rem;
+  border-width: 3px;
+  border-style: solid;
+  // Same property list as pressable-transition, plus opacity for the
+  // disabled fade — kept explicit here rather than combined with that
+  // mixin since it'd otherwise need a 5th argument just for this one case.
+  transition: opacity var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.shared-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+// Primary — the quiz's own footer action button look: lip stays lit
+// (accent-hover) through rest, hover, and press alike.
+.shared-button--primary {
+  color: var(--color-bg-primary);
+  background-color: var(--color-accent-primary);
+  border-color: var(--color-accent-primary);
+  @include mixins.pressable-lip(var(--color-accent-primary-hover));
+}
+
+// Secondary — same resting/hover face as ChoiceButton, for a lower-emphasis
+// action alongside a primary one (e.g. "Send new code").
+.shared-button--secondary {
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-secondary);
+  border-color: var(--color-border-primary);
+  @include mixins.pressable-lip(var(--color-border-primary), var(--color-accent-primary));
+}
+
+.shared-button--secondary:not(:disabled):hover {
+  background-color: var(--color-bg-tertiary);
+  border-color: var(--color-accent-primary);
+}
+
+.shared-button--secondary:not(:disabled):active {
+  background-color: rgba(96, 165, 250, 0.15);
+}
+
+@media (max-width: 768px) {
+  .shared-button {
+    font-size: 1rem;
+    padding: 0.65rem 2rem;
+  }
+}

@@ -129,17 +129,17 @@
 // Same gold/black success-fail treatment as ChoiceButton.scss, applied per
 // letter instead of per multiple-choice option.
 .modern-spelling-slot--success {
-  background-color: #fde047;
-  border-color: #fde047;
+  background-color: var(--color-quiz-success);
+  border-color: var(--color-quiz-success);
   color: var(--color-bg-primary);
-  box-shadow: 0 4px 0 0 #a16207;
+  box-shadow: 0 4px 0 0 var(--color-quiz-success-lip);
 }
 
 .modern-spelling-slot--fail {
-  background-color: #000000;
-  border-color: #000000;
-  color: #ffffff;
-  box-shadow: 0 4px 0 0 #000000;
+  background-color: var(--color-quiz-fail);
+  border-color: var(--color-quiz-fail);
+  color: var(--color-quiz-fail-text);
+  box-shadow: 0 4px 0 0 var(--color-quiz-fail);
 }
 
 .modern-spelling-slot--fail::after {

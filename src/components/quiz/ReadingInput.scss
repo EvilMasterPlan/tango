@@ -121,8 +121,8 @@
 // between this input and its crisp text duplicate (.success-label below),
 // so native text would otherwise render underneath the shine and go muddy.
 .modern-reading-input--success {
-  background-color: #fde047;
-  border-color: #fde047;
+  background-color: var(--color-quiz-success);
+  border-color: var(--color-quiz-success);
   color: transparent;
   box-shadow: none;
 }
@@ -145,9 +145,9 @@
 }
 
 .modern-reading-input--fail {
-  background-color: #000000;
-  border-color: #000000;
-  color: #ffffff;
+  background-color: var(--color-quiz-fail);
+  border-color: var(--color-quiz-fail);
+  color: var(--color-quiz-fail-text);
   box-shadow: none;
 }
 

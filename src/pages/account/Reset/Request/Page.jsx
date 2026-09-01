@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import AccountLayout from '@/pages/account/components/AccountLayout';
+import { TextField } from '@/components/shared/TextField';
+import { Button } from '@/components/shared/Button';
 import { authApi } from '@/utils/api/auth';
 import { isValidEmail } from '@/utils/auth';
 
@@ -47,22 +49,19 @@ function ResetRequestPage() {
       footerHref="/account/login"
     >
       <form className="account-form" onSubmit={handleSubmit}>
-        <label className="account-label" htmlFor="email">
-          Email
-          <input
-            id="email"
-            className="account-input"
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            disabled={isLoading}
-          />
-        </label>
+        <TextField
+          id="email"
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          disabled={isLoading}
+        />
         {error ? <p className="account-error">{error}</p> : null}
         {message ? <p className="account-success">{message}</p> : null}
-        <button className="btn btn-primary" disabled={isLoading} type="submit">
+        <Button type="submit" disabled={isLoading}>
           Send reset email
-        </button>
+        </Button>
       </form>
     </AccountLayout>
   );

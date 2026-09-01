@@ -9,7 +9,7 @@
   // the real centering.
   align-items: center;
   width: 100%;
-  border-radius: 1.25rem;
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 

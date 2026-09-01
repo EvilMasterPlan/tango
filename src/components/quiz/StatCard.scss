@@ -1,14 +1,10 @@
-// Prefixed `quiz-stat-card` (not the plainer `stat-card`) to avoid
-// colliding with App.scss's unrelated `.stat-card` — the marketing page's
-// Quick Stats section, which has its own `:hover { transform: scale(...) }`
-// that would otherwise apply here too, since CSS classes aren't scoped.
 .quiz-stat-card {
   position: relative;
   display: flex;
   flex-direction: column;
   min-width: 5rem;
   margin: 0;
-  border-radius: 0.75rem;
+  border-radius: var(--radius-md);
   border: 3px solid var(--color-border-primary);
   // Same 3D foot as the quiz's answer buttons/word cards.
   box-shadow: 0 4px 0 0 var(--color-border-primary);
@@ -42,7 +38,7 @@
   z-index: 1;
   border-radius: inherit;
   pointer-events: none;
-  background-color: #fde047;
+  background-color: var(--color-quiz-success);
   // Base state, not just the animation's 0%/100% keyframes — without an
   // explicit resting opacity here, the animation's default fill-mode
   // (none) means the element snaps back to its unanimated default (fully
@@ -98,7 +94,7 @@
   // the frame read as encircling the window rather than just sitting above
   // it.
   margin: 0 0.4rem 0.4rem;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
   padding: 0.4rem 0.5rem;
   background-color: var(--color-bg-secondary);
   color: var(--color-text-primary);
@@ -107,7 +103,7 @@
 }
 
 .quiz-stat-card__value--success {
-  color: #fde047;
+  color: var(--color-quiz-success);
 }
 
 .quiz-stat-card__value--fail {
@@ -115,7 +111,7 @@
 }
 
 .quiz-stat-card__value--reward {
-  color: #fde047;
+  color: var(--color-quiz-success);
 }
 
 @media (max-width: 768px) {

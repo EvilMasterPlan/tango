@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import AccountLayout from '@/pages/account/components/AccountLayout';
+import { TextField } from '@/components/shared/TextField';
+import { Button } from '@/components/shared/Button';
 import { accountApi } from '@/utils/api/account';
 import { useUserContext } from '@/contexts/UserContext';
 import { isAccountVerified } from '@/utils/auth';
@@ -68,24 +70,21 @@ function VerifyPage() {
   return (
     <AccountLayout title="Verify account" subtitle={subtitle}>
       <form className="account-form" onSubmit={handleVerify}>
-        <label className="account-label" htmlFor="code">
-          Verification code
-          <input
-            id="code"
-            className="account-input"
-            value={code}
-            onChange={(event) => setCode(event.target.value)}
-            disabled={isProcessing}
-          />
-        </label>
+        <TextField
+          id="code"
+          label="Verification code"
+          value={code}
+          onChange={(event) => setCode(event.target.value)}
+          disabled={isProcessing}
+        />
         {error ? <p className="account-error">{error}</p> : null}
         {message ? <p className="account-success">{message}</p> : null}
-        <button className="btn btn-primary" disabled={isProcessing || code.trim().length < 4} type="submit">
+        <Button type="submit" disabled={isProcessing || code.trim().length < 4}>
           Verify
-        </button>
-        <button className="btn btn-secondary" disabled={isProcessing} type="button" onClick={handleSendCode}>
+        </Button>
+        <Button type="button" variant="secondary" disabled={isProcessing} onClick={handleSendCode}>
           Send new code
-        </button>
+        </Button>
       </form>
     </AccountLayout>
   );

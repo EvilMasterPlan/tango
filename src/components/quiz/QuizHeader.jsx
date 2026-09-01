@@ -1,16 +1,16 @@
-import { Link } from 'react-router-dom';
 import { IoClose } from 'react-icons/io5';
 import { IoMdSettings } from 'react-icons/io';
 import { QuizProgress } from '@/components/quiz/QuizProgress';
+import { IconButton } from '@/components/shared/IconButton';
 import './QuizHeader.scss';
 
 export function QuizHeader({ results, currentIndex, total, onSettingsClick }) {
   return (
     <header className="quiz-header">
       <div className="quiz-header__side">
-        <Link to="/" className="quiz-header__icon-button" aria-label="Close">
-          <IoClose className="quiz-header__icon" />
-        </Link>
+        <IconButton to="/" label="Close">
+          <IoClose />
+        </IconButton>
       </div>
 
       <div className="quiz-header__center">
@@ -18,9 +18,9 @@ export function QuizHeader({ results, currentIndex, total, onSettingsClick }) {
       </div>
 
       <div className="quiz-header__side">
-        <button type="button" className="quiz-header__icon-button" onClick={onSettingsClick} aria-label="Settings">
-          <IoMdSettings className="quiz-header__icon" />
-        </button>
+        <IconButton onClick={onSettingsClick} label="Settings">
+          <IoMdSettings />
+        </IconButton>
       </div>
     </header>
   );

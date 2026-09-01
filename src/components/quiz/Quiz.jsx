@@ -6,7 +6,7 @@ import { ChoiceGrid } from '@/components/quiz/ChoiceGrid';
 import { SpellingSlots } from '@/components/quiz/SpellingSlots';
 import { SpellingTiles } from '@/components/quiz/SpellingTiles';
 import { ReadingInput } from '@/components/quiz/ReadingInput';
-import { ActionButton } from '@/components/quiz/ActionButton';
+import { Button } from '@/components/shared/Button';
 import { QuizHeader } from '@/components/quiz/QuizHeader';
 import { QuizFooter } from '@/components/quiz/QuizFooter';
 import { QuizSummary } from '@/components/quiz/QuizSummary';
@@ -345,7 +345,7 @@ export function Quiz() {
     return (
       <div className="quiz-page quiz-page--status">
         <p>Could not load the quiz.</p>
-        <ActionButton label="Retry" onClick={loadLesson} />
+        <Button onClick={loadLesson}>Retry</Button>
       </div>
     );
   }
@@ -430,7 +430,7 @@ export function Quiz() {
         </main>
 
         <QuizFooter>
-          <ActionButton label={footerLabel} onClick={footerAction} disabled={footerDisabled} />
+          <Button onClick={footerAction} disabled={footerDisabled}>{footerLabel}</Button>
         </QuizFooter>
       </div>
 

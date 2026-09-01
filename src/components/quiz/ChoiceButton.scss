@@ -41,8 +41,8 @@
   // Solid bottom "lip" gives the button an extruded, pressable look even
   // at rest; pressing it flattens the lip and nudges the button down into
   // it, so it reads as physically pushed in rather than just recolored.
-  box-shadow: 0 4px 0 0 var(--color-border-primary);
-  transition: background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+  @include modern.pressable-lip(var(--color-border-primary), var(--color-accent-primary));
+  @include modern.pressable-transition;
 }
 
 // :not(:disabled) guards hover/active — browsers still match :hover on a
@@ -51,15 +51,11 @@
 .modern-choice-button:hover:not(:disabled) {
   background-color: var(--color-bg-tertiary);
   border-color: var(--color-accent-primary);
-  transform: translateY(-1px);
-  box-shadow: 0 5px 0 0 var(--color-accent-primary);
 }
 
 .modern-choice-button:active:not(:disabled) {
   // Faint tint of the selected-state blue, previewing what letting go will do.
   background-color: rgba(96, 165, 250, 0.15);
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 0 var(--color-border-primary);
 }
 
 .modern-choice-button--selected,
@@ -72,7 +68,7 @@
   background-color: var(--color-accent-primary);
   border-color: var(--color-accent-primary);
   color: #ffffff;
-  box-shadow: 0 4px 0 0 #93c5fd;
+  box-shadow: 0 4px 0 0 var(--color-accent-primary-hover);
 }
 
 // Chained with the base class for the same reason as the hover rule above:
@@ -83,7 +79,7 @@
 // bodily (face drops 3px via transform, foot stays a full 4px) instead of
 // flattening like every other choice button does when pressed.
 .modern-choice-button.modern-choice-button--selected:active {
-  box-shadow: 0 1px 0 0 #93c5fd;
+  box-shadow: 0 1px 0 0 var(--color-accent-primary-hover);
 }
 
 // Revealed after Check: gold for the correct choice, orange for a wrong
@@ -91,10 +87,10 @@
 // dark text instead of white — since white read poorly on either bright hue.
 .modern-choice-button--success,
 .modern-choice-button--success:hover {
-  background-color: #fde047;
-  border-color: #fde047;
+  background-color: var(--color-quiz-success);
+  border-color: var(--color-quiz-success);
   color: var(--color-bg-primary);
-  box-shadow: 0 4px 0 0 #a16207;
+  box-shadow: 0 4px 0 0 var(--color-quiz-success-lip);
 }
 
 // Diagonal white/transparent sheen for a metallic-gold feel — same z-index
@@ -187,10 +183,10 @@
 
 .modern-choice-button--fail,
 .modern-choice-button--fail:hover {
-  background-color: #000000;
-  border-color: #000000;
-  color: #ffffff;
-  box-shadow: 0 4px 0 0 #000000;
+  background-color: var(--color-quiz-fail);
+  border-color: var(--color-quiz-fail);
+  color: var(--color-quiz-fail-text);
+  box-shadow: 0 4px 0 0 var(--color-quiz-fail);
 }
 
 // Word choices only — subtle kanji differences between options are easy to

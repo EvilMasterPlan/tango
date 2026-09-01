@@ -235,7 +235,7 @@
 }
 
 .quiz-summary__score-list-reward--positive.quiz-summary__score-list-reward--revealed {
-  color: #fde047;
+  color: var(--color-quiz-success);
 }
 
 // Same color as whatever this section sits directly on (the page

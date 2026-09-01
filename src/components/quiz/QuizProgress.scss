@@ -32,14 +32,14 @@ $dot-slot-size: 0.9rem;
 .quiz-progress__dot--success {
   width: 0.75rem;
   height: 0.75rem;
-  background-color: #fde047;
+  background-color: var(--color-quiz-success);
   opacity: 1;
 }
 
 .quiz-progress__dot--fail {
   width: 0.75rem;
   height: 0.75rem;
-  background-color: #000000;
+  background-color: var(--color-quiz-fail);
   opacity: 1;
 }
 
