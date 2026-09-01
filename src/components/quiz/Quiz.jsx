@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { modernQuizApi } from '@/utils/api/modernQuiz';
-import { VocabularyDisplay } from '@/components/quiz/VocabularyDisplay';
-import { ChoiceGrid } from '@/components/quiz/ChoiceGrid';
-import { SpellingSlots } from '@/components/quiz/SpellingSlots';
-import { SpellingTiles } from '@/components/quiz/SpellingTiles';
-import { ReadingInput } from '@/components/quiz/ReadingInput';
+import { VocabularyDisplay } from '@/components/quiz/vocabulary/VocabularyDisplay';
+import { ChoiceGrid } from '@/components/quiz/answering/ChoiceGrid';
+import { SpellingSlots } from '@/components/quiz/answering/SpellingSlots';
+import { SpellingTiles } from '@/components/quiz/answering/SpellingTiles';
+import { ReadingInput } from '@/components/quiz/answering/ReadingInput';
 import { Button } from '@/components/shared/Button';
-import { QuizHeader } from '@/components/quiz/QuizHeader';
-import { QuizFooter } from '@/components/quiz/QuizFooter';
-import { QuizSummary } from '@/components/quiz/QuizSummary';
-import { SettingsDialog } from '@/components/quiz/SettingsDialog';
+import { QuizHeader } from '@/components/quiz/chrome/QuizHeader';
+import { QuizFooter } from '@/components/quiz/chrome/QuizFooter';
+import { QuizSummary } from '@/components/quiz/summary/QuizSummary';
+import { SettingsDialog } from '@/components/quiz/chrome/SettingsDialog';
 import { cx } from '@/utils/cx';
 import './Quiz.scss';
 

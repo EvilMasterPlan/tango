@@ -1,4 +1,4 @@
-import { RadarChart } from '@/components/quiz/RadarChart';
+import { RadarChart } from '@/components/quiz/charts/RadarChart';
 import './MasteryPentagon.scss';
 
 // Converts a word's mastery record into the per-axis correct counts

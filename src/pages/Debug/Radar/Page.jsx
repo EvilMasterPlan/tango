@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { RadarChart } from '@/components/quiz/RadarChart';
+import { RadarChart } from '@/components/quiz/charts/RadarChart';
 import './Page.scss';
 
 // One value per column-pair / row-pair — see buildGrid below. The real app

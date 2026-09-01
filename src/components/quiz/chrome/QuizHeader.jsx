@@ -1,6 +1,6 @@
 import { IoClose } from 'react-icons/io5';
 import { IoMdSettings } from 'react-icons/io';
-import { QuizProgress } from '@/components/quiz/QuizProgress';
+import { QuizProgress } from '@/components/quiz/chrome/QuizProgress';
 import { IconButton } from '@/components/shared/IconButton';
 import './QuizHeader.scss';
 

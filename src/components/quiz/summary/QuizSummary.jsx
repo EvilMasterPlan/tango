@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { IoChevronBack, IoChevronForward } from 'react-icons/io5';
-import { CoinIcon } from '@/components/quiz/CoinIcon';
-import { MasteryPentagon } from '@/components/quiz/MasteryPentagon';
-import { NumberDial } from '@/components/quiz/NumberDial';
-import { StatCard } from '@/components/quiz/StatCard';
-import { FuriganaWord } from '@/components/quiz/VocabularyDisplay';
+import { CoinIcon } from '@/components/quiz/summary/CoinIcon';
+import { MasteryPentagon } from '@/components/quiz/charts/MasteryPentagon';
+import { NumberDial } from '@/components/quiz/summary/NumberDial';
+import { StatCard } from '@/components/quiz/summary/StatCard';
+import { FuriganaWord } from '@/components/quiz/vocabulary/VocabularyDisplay';
 import { cx } from '@/utils/cx';
 import './QuizSummary.scss';
 

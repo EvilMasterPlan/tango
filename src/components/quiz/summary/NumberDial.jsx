@@ -1,4 +1,4 @@
-import { DigitReel } from '@/components/quiz/DigitReel';
+import { DigitReel } from '@/components/quiz/summary/DigitReel';
 import './NumberDial.scss';
 
 // Fixed at 3 digits — comfortably covers the reward counter's realistic

@@ -1,4 +1,4 @@
-@use './modern';
+@use '../modern';
 
 .modern-choice-button {
   @include modern.quiz-button-base;

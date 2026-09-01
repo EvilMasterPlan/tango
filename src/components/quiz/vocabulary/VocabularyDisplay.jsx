@@ -2,7 +2,7 @@ import { Fragment, useLayoutEffect, useRef } from 'react';
 import { getChallengeRating } from '@/utils/challengeRating';
 import { cx } from '@/utils/cx';
 import { shrinkFontToFit } from '@/utils/shrinkFontToFit';
-import { MasteryPentagon } from '@/components/quiz/MasteryPentagon';
+import { MasteryPentagon } from '@/components/quiz/charts/MasteryPentagon';
 import './VocabularyDisplay.scss';
 
 // Shrinks the word text down to fit on one line, for words too long to fit

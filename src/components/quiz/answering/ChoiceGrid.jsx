@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
-import { ChoiceButton } from '@/components/quiz/ChoiceButton';
+import { ChoiceButton } from '@/components/quiz/answering/ChoiceButton';
 import { fireCoinConfetti, originForElement } from '@/components/quiz/coinConfetti';
 import { shrinkFontToFit } from '@/utils/shrinkFontToFit';
 import './ChoiceGrid.scss';
