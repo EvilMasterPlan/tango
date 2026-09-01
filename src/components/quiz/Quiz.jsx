@@ -86,9 +86,10 @@ export function Quiz() {
   // hatch preview would undercount how much the real post-answer fill
   // (which the backend computes from every attempt so far) is about to jump.
   const [masteryByWordID, setMasteryByWordID] = useState({});
-  // The current lesson's TANGO_Lessons row ID — null for anonymous
-  // visitors (no server-side lesson to track). Sent back to completeLesson
-  // once the final question is answered — see handleAction.
+  // The current lesson's TANGO_Lessons row ID — null if the backend failed
+  // to record the lesson start (see OvermindAPI's quiz.js generateLesson).
+  // Sent back to completeLesson once the final question is answered — see
+  // handleAction.
   const [lessonID, setLessonID] = useState(null);
   // completeLesson's { totalScore, scoringBreakdown } response — scoring
   // itself now happens server-side (see OvermindAPI's modernQuiz/scoring.js)
@@ -241,12 +242,11 @@ export function Quiz() {
       // question is answered — not gated on ever reaching the summary
       // phase (Next), since closing the tab right after Check on the final
       // question should still count as finished. Requested regardless of
-      // lessonID: anonymous visitors get the same scored summary as
-      // logged-in ones, they just have no TANGO_Lessons row for the
-      // backend to mark complete (see quiz.js's completeLesson). The
-      // promise is stashed rather than awaited here so a slow response
-      // doesn't hold up showing the review phase — see transitionTo below,
-      // which is what actually needs the result.
+      // lessonID: scoring still runs even if lessonID is null (e.g. the
+      // backend failed to record the lesson start — see quiz.js's
+      // completeLesson). The promise is stashed rather than awaited here so
+      // a slow response doesn't hold up showing the review phase — see
+      // transitionTo below, which is what actually needs the result.
       if (questionIndex === rounds.length - 1) {
         const answers = rounds.map((round, i) => ({
           entryId: round.entry.id,

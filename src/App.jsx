@@ -23,7 +23,7 @@ function App() {
                 <Route
                   path="/home"
                   element={
-                    <RequireAuth enabled>
+                    <RequireAuth>
                       <TangoAppShell>
                         <HomeContainer />
                       </TangoAppShell>
@@ -33,7 +33,7 @@ function App() {
                 <Route
                   path="/lesson"
                   element={
-                    <RequireAuth enabled>
+                    <RequireAuth>
                       <LessonContainer />
                     </RequireAuth>
                   }

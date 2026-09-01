@@ -1,13 +1,9 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useUserContext } from '@/contexts/UserContext';
 
-export default function RequireAuth({ enabled, children }) {
+export default function RequireAuth({ children }) {
   const location = useLocation();
   const { user, isLoading } = useUserContext();
-
-  if (!enabled) {
-    return children;
-  }
 
   if (isLoading) {
     return null;
