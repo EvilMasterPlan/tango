@@ -1,153 +1,268 @@
-.home-track {
-  --home-room-size: clamp(3.75rem, 14vw, 5.25rem);
-  --home-room-gap: 0.5rem;
-  --home-connector-height: calc(var(--home-room-size) * 0.5);
+@use '@/components/shared/mixins';
+
+.home-page {
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+// Wraps the raccoon hub, the dotted connector lines, and the lesson tiles —
+// position:relative so the SVG overlay's absolute box lines up with it, and
+// the sole coordinate frame the line-measuring effect in Page.jsx works in.
+.home-board {
+  // Shared by the raccoon tile and the lesson tiles below — declared here,
+  // their common ancestor, since custom properties inherit down the tree
+  // and .home-raccoon-tile/.home-tile live in separate branches under it.
+  --home-tile-size: 5rem;
 
   position: relative;
-  flex: 1;
-  width: 100%;
-  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 0.5rem 0 1rem;
+  gap: 3rem;
 }
 
-/* Depth meter */
-.home-track__depth {
+// Covers the whole board so line coordinates (measured in board-relative
+// pixels — see Page.jsx) line up directly with no viewBox/scaling needed.
+// z-index 0, with the raccoon tile and lesson tiles both explicitly
+// positioned above it, so the lines paint underneath and appear to run
+// behind the tiles, terminating at (and hidden beneath) their centers.
+.home-lines {
   position: absolute;
-  left: 0.5rem;
-  top: 0;
-  bottom: 0;
-  width: 2.75rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  padding: 1.5rem 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
+  z-index: 0;
+}
+
+// Explicit duration rather than var(--transition-fast) — that token is
+// shared app-wide (buttons, tiles, etc.), and these two are tuned slower
+// than its 0.15s default on their own.
+.home-lines__line {
+  stroke: var(--color-border-secondary);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 1 14;
+  transition: stroke 0.3s ease;
+}
+
+.home-lines__line--active {
+  stroke: #fff;
+}
+
+// The solid "selection" line — from the raccoon tile out to whichever tile
+// is selected, faded in/out rather than drawn/retracted (see Page.jsx).
+// Same speed as .home-lines__line's hover-brighten transition.
+.home-lines__solid {
+  stroke: #fff;
+  stroke-width: 5;
+  stroke-linecap: round;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.home-lines__solid--visible {
+  opacity: 1;
+}
+
+.home-raccoon-row {
+  position: relative;
   z-index: 1;
-
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 1.5rem;
-    bottom: 1.5rem;
-    width: 1px;
-    background: linear-gradient(
-      180deg,
-      transparent 0%,
-      var(--color-border-secondary) 12%,
-      var(--color-border-secondary) 88%,
-      transparent 100%
-    );
-    opacity: 0.5;
-  }
-}
-
-.home-track__depth-mark {
   display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding-left: 0.25rem;
+  justify-content: center;
 }
 
-.home-track__depth-tick {
-  width: 0.4rem;
-  height: 1px;
-  background: var(--color-border-secondary);
-  flex-shrink: 0;
-}
-
-.home-track__depth-label {
-  font-size: 0.625rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  color: var(--color-text-muted);
-  line-height: 1;
-  opacity: 0.75;
-}
-
-/* 3-column grid: rooms and SVG connectors stay aligned */
-.home-track__grid {
-  display: grid;
-  grid-template-columns: repeat(3, var(--home-room-size));
-  column-gap: var(--home-room-gap);
-  row-gap: 0;
-  align-items: center;
-  justify-items: center;
-}
-
-/* SVG connector cells */
-.home-track__connector {
-  display: block;
-  width: var(--home-room-size);
-  height: var(--home-connector-height);
-  overflow: visible;
-
-  line,
-  polyline {
-    stroke: var(--color-border-secondary);
-    stroke-width: 5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    fill: none;
-    vector-effect: non-scaling-stroke;
-  }
-}
-
-/* Room cells */
-.home-track__room {
-  box-sizing: border-box;
-  width: var(--home-room-size);
-  height: var(--home-room-size);
-  aspect-ratio: 1;
-  flex-shrink: 0;
-  margin: 0;
-  padding: 0.25rem;
-  border: 3px solid var(--color-border-secondary);
-  border-radius: 6px;
-  background: var(--color-bg-card);
+// Decorative hub tile — not a button, not selectable. Plain/muted face
+// (no pressable-lip) so it reads as a fixed anchor point rather than
+// another option alongside the lesson tiles below it.
+.home-raccoon-tile {
+  @include mixins.quiz-button-base;
+  cursor: default;
+  user-select: none;
+  width: var(--home-tile-size);
+  height: var(--home-tile-size);
+  font-size: 2.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  background-color: var(--color-bg-secondary);
+  border: 3px solid var(--color-border-secondary);
 }
 
-.home-track__room--current {
-  border-color: var(--color-text-secondary);
-  font-size: clamp(0.45rem, 1.8vw, 0.55rem);
-  white-space: nowrap;
-  color: var(--color-text-primary);
-  letter-spacing: -0.01em;
+.home-tiles-wrap {
+  position: relative;
+  z-index: 1;
 }
 
-.home-track__room--action {
-  font-size: clamp(1.25rem, 5vw, 1.75rem);
-  cursor: pointer;
-  font-family: inherit;
-  transition: transform 0.1s ease, box-shadow var(--transition-normal);
+.home-tiles {
+  display: flex;
+  justify-content: center;
+  gap: 2.5rem;
+}
+
+.home-tile {
+  @include mixins.quiz-button-base;
+  @include mixins.pressable-lip(var(--color-border-primary), var(--color-accent-primary));
+  position: relative;
+  user-select: none;
+  width: var(--home-tile-size);
+  height: var(--home-tile-size);
+  font-size: 2.25rem;
+  background-color: var(--color-bg-secondary);
+  border: 3px solid var(--color-border-primary);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px var(--color-shadow-heavy);
-  }
-
-  &:active {
-    transform: translateY(0);
-    box-shadow: none;
+    background-color: var(--color-bg-tertiary);
+    border-color: var(--color-accent-primary);
   }
 }
 
-.home-track__room--star {
+.home-tile--star {
   border-color: var(--color-accent-warning);
+  box-shadow: 0 4px 0 0 var(--color-accent-warning);
 }
 
-.home-track__room--gem {
+.home-tile--gem {
   border-color: var(--color-accent-primary);
+  box-shadow: 0 4px 0 0 var(--color-accent-primary);
 }
 
-.home-track__room--fire {
+.home-tile--fire {
   border-color: var(--color-accent-error);
+  box-shadow: 0 4px 0 0 var(--color-accent-error);
+}
+
+.home-tile--flashlight {
+  border-color: var(--color-accent-secondary);
+  box-shadow: 0 4px 0 0 var(--color-accent-secondary);
+}
+
+// Selected tile stays pressed-in, matching :active from pressable-lip —
+// visually anchors it to the preview card below. The :hover variant is
+// qualified with `.home-tile` too so its specificity matches the mixin's
+// own `:not(:disabled):hover` rule (class+pseudo+pseudo vs class+class+
+// pseudo) — source order then lets it win, so hovering a selected tile
+// only shifts color, not position.
+.home-tile--selected,
+.home-tile.home-tile--selected:hover {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 0 var(--color-accent-primary);
+}
+
+.home-tile--selected.home-tile--star,
+.home-tile--selected.home-tile--star:hover {
+  box-shadow: 0 1px 0 0 var(--color-accent-warning);
+}
+
+.home-tile--selected.home-tile--gem,
+.home-tile--selected.home-tile--gem:hover {
+  box-shadow: 0 1px 0 0 var(--color-accent-primary);
+}
+
+.home-tile--selected.home-tile--fire,
+.home-tile--selected.home-tile--fire:hover {
+  box-shadow: 0 1px 0 0 var(--color-accent-error);
+}
+
+.home-tile--selected.home-tile--flashlight,
+.home-tile--selected.home-tile--flashlight:hover {
+  box-shadow: 0 1px 0 0 var(--color-accent-secondary);
+}
+
+// Points at whichever tile is selected (its `left` is set inline from a
+// measured tile position — see Page.jsx) while the card itself stays
+// centered under the whole row. Vertically centered on the card's top
+// edge and stacked above it (z-index), so its solid lower half — the two
+// unbordered edges — paints directly over the card's border-top stroke in
+// that span and erases it, while the two bordered upper edges continue
+// that same stroke up into the point. Result reads as one continuous
+// outline rather than an arrow overlapping a straight border.
+.home-preview-arrow {
+  position: absolute;
+  top: calc(100% + 0.75rem);
+  width: 0.875rem;
+  height: 0.875rem;
+  background-color: var(--color-bg-secondary);
+  border-top: 2px solid var(--color-border-primary);
+  border-left: 2px solid var(--color-border-primary);
+  transform: translate(-50%, -50%) rotate(45deg);
+  z-index: 2;
+}
+
+// The lesson preview — a popover-like card rather than a full modal: no
+// backdrop dimming, dismissed by an outside tap/click or Escape (see
+// Page.jsx), not by a close button. Absolutely positioned so it floats over
+// the page instead of shifting the tiles when it appears.
+.home-preview {
+  position: absolute;
+  z-index: 1;
+  top: calc(100% + 0.75rem);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  width: max(16rem, 100%);
+  padding: 1.25rem 1.5rem 1.5rem;
+  background-color: var(--color-bg-secondary);
+  border: 2px solid var(--color-border-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 28px var(--color-shadow-medium);
+  text-align: left;
+  animation: home-preview-in 0.15s ease;
+}
+
+@keyframes home-preview-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.home-preview__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.home-preview__subtitle {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.home-preview .shared-button {
+  margin-top: 0.85rem;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .home-board {
+    --home-tile-size: 3.75rem;
+    gap: 2.25rem;
+  }
+
+  .home-raccoon-tile {
+    font-size: 1.75rem;
+  }
+
+  .home-tiles {
+    gap: 1.5rem;
+  }
+
+  .home-tile {
+    font-size: 1.75rem;
+  }
 }

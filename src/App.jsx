@@ -8,7 +8,6 @@ import AccountRoutes from '@/pages/account/AccountRoutes';
 import { UserProvider } from '@/contexts/UserContext';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import RequireAuth from '@/components/auth/RequireAuth';
-import { TangoAppShell } from '@/components/layout/TangoAppShell';
 import '@/App.scss';
 
 function App() {
@@ -24,9 +23,7 @@ function App() {
                   path="/home"
                   element={
                     <RequireAuth>
-                      <TangoAppShell>
-                        <HomeContainer />
-                      </TangoAppShell>
+                      <HomeContainer />
                     </RequireAuth>
                   }
                 />
