@@ -10,22 +10,24 @@ export const modernQuizApi = {
   getNextLessons: async () => {
     return makePostRequest(getUrl(`${TANGO_API_PREFIX}/modern-quiz/next-lessons`));
   },
-  // lessonType (optional) is forwarded as ?type= — see OvermindAPI's
-  // modernQuiz/lessonPools.js LessonType for the valid values; the backend
-  // defaults to NEW_WORDS for a missing/unrecognized one. choiceId (optional)
-  // is forwarded as ?choice= — the TANGO_LessonChoices row this generation
-  // was picked from, so the backend can record the selection against it.
   // { points } — Score summed across every completed lesson (see
   // OvermindAPI's tango/quiz.js getOverallStats).
   getOverallStats: async () => {
     return makePostRequest(getUrl(`${TANGO_API_PREFIX}/modern-quiz/overall-stats`));
   },
-  generateLesson: async (lessonType, choiceId) => {
-    const params = {};
-    if (lessonType) params.type = lessonType;
-    if (choiceId) params.choice = choiceId;
-    const config = Object.keys(params).length > 0 ? { params } : {};
-    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/modern-quiz/generate-lesson`), {}, config);
+  // Records which tile the user picked on the home page against their
+  // current TANGO_LessonChoices row (see Home Page.jsx's startSelectedLesson,
+  // which awaits this before navigating to /lesson) — generateLesson below
+  // reads the same row back, so no lesson-selecting state needs to travel
+  // through the URL.
+  selectLessonChoice: async (choiceId, selectedType) => {
+    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/modern-quiz/select-lesson-choice`), { choiceId, selectedType });
+  },
+  // Resolves the lesson type from the user's current TANGO_LessonChoices row
+  // (see OvermindAPI's tango/quiz.js generateLesson) — defaults to NEW_WORDS
+  // if nothing's been selected (e.g. a direct /lesson visit).
+  generateLesson: async () => {
+    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/modern-quiz/generate-lesson`), {});
   },
   recordPractice: async (entryId, skillKey, isCorrect) => {
     return makePostRequest(getUrl(`${TANGO_API_PREFIX}/modern-quiz/record-practice`), {

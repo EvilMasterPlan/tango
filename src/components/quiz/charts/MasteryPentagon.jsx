@@ -31,6 +31,17 @@ import './MasteryPentagon.scss';
 // see QuizSummary, showing both the progress made and the mistakes made
 // getting there over the course of one quiz. `animationDelay` staggers
 // that pulse relative to other pentagons animating at the same time.
+//
+// `justLeveledUp` (optional) is for the one review-phase edge case where
+// `mastery` already reflects a level-up earned by the answer just graded —
+// left alone, that renders next level's diagram, almost always still
+// empty, right when the user expects to see the level they just filled.
+// When true, the diagram (and label) shows the level just completed, full,
+// instead — the correct counts already meet that level's threshold on
+// every axis, or the level wouldn't have advanced at all, so the previous
+// level's own floor/threshold recovers a genuinely full polygon rather
+// than an approximation. Not meant for QuizSummary, which always shows the
+// lesson's true final state.
 const SUMMARY_KEYS = ['iteration', 'level', 'iterationsForNextLevel'];
 
 // RadarChart scales every axis's position off of a floor iteration count —
@@ -50,10 +61,20 @@ function levelFloorIteration({ level, iterationsForNextLevel }) {
   return iterationsForNextLevel - level - 1;
 }
 
-export function MasteryPentagon({ mastery = {}, currentSkillKey, initialMastery, animationDelay }) {
+export function MasteryPentagon({ mastery = {}, currentSkillKey, initialMastery, animationDelay, justLeveledUp = false }) {
   const skillKeys = Object.keys(mastery).filter((key) => !SUMMARY_KEYS.includes(key));
   const correctCounts = skillKeys.map((skillKey) => mastery[skillKey].correct);
   const previewIndex = skillKeys.indexOf(currentSkillKey);
+
+  // Swap in the just-completed level's own level/threshold in place of the
+  // already-advanced ones on `mastery` — see `justLeveledUp` above. The
+  // level's threshold is recoverable without a second lookup: it's exactly
+  // the floor `levelFloorIteration` derives for the level `mastery` is
+  // already sitting at (the iteration count that was just reached to enter
+  // it).
+  const displayMastery = justLeveledUp
+    ? { ...mastery, level: (mastery.level ?? 1) - 1, iterationsForNextLevel: levelFloorIteration(mastery) }
+    : mastery;
 
   const initialCorrectCounts = initialMastery
     ? skillKeys.map((skillKey) => initialMastery[skillKey]?.correct || 0)
@@ -79,15 +100,15 @@ export function MasteryPentagon({ mastery = {}, currentSkillKey, initialMastery,
       <RadarChart
         values={correctCounts}
         previewIndex={previewIndex === -1 ? null : previewIndex}
-        iteration={levelFloorIteration(mastery)}
-        iterationsForNextLevel={mastery.iterationsForNextLevel}
+        iteration={levelFloorIteration(displayMastery)}
+        iterationsForNextLevel={displayMastery.iterationsForNextLevel}
         fromValues={initialCorrectCounts}
         fromIteration={initialMastery && levelFloorIteration(initialMastery)}
         fromIterationsForNextLevel={initialMastery?.iterationsForNextLevel}
         attemptedValues={attemptedCounts}
         animationDelay={animationDelay}
       />
-      <span className="mastery-pentagon__level">Level {mastery.level ?? 1}</span>
+      <span className="mastery-pentagon__level">Level {displayMastery.level ?? 1}</span>
     </div>
   );
 }

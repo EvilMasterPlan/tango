@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/shared/Button';
 import { LoadingOverlay } from '@/components/shared/LoadingOverlay';
 import { useNextLessons } from '@/hooks/useNextLessons';
+import { modernQuizApi } from '@/utils/api/modernQuiz';
 import { useOverallStats } from '@/hooks/useOverallStats';
 import { useMinimumLoadingDuration } from '@/hooks/useMinimumLoadingDuration';
 import { cx } from '@/utils/cx';
@@ -62,6 +63,23 @@ function tileKey(rowKey, tileType) {
   return `${rowKey}::${tileType}`;
 }
 
+// Where the "hole" (see .home-hole) ends within the gap between the last
+// history row and the current row below it — 0 would stop it flush with
+// the history row's own bottom edge, 1 flush with the current row's top
+// edge. 0.75 leaves it mostly closed, just short of the current row.
+const HOLE_BOTTOM_GAP_FRACTION = 0.75;
+
+// How far above the current row's top edge the "hole" stops when there's no
+// history row to split the gap with — i.e. a first-time user with only
+// their one current row still gets a shallow dip behind it rather than no
+// hole at all.
+const HOLE_MIN_GAP_ABOVE_CURRENT_PX = 32;
+
+// The visible gap between a tile row and the preview card next to it (see
+// .home-preview's top/bottom) — used to check whether the card actually
+// fits on its default (below) side before flipping above.
+const PREVIEW_GAP_PX = 12;
+
 export function HomePage() {
   const navigate = useNavigate();
   const { current, history, isLoading: isLessonsLoading } = useNextLessons();
@@ -98,19 +116,55 @@ export function HomePage() {
   function isLineActive(line) {
     return line.alwaysActive || hoveredKey === line.key || selectedKey === line.key;
   }
+
+  // True from click until the choice is recorded (or fails) and navigation
+  // fires — guards against a double Enter/click firing two overlapping
+  // selectLessonChoice calls while the first is still in flight.
+  const [isStartingLesson, setIsStartingLesson] = useState(false);
+
+  // Shared by the preview card's "Start Lesson" button and the Enter
+  // shortcut below. Records the picked tile against the user's current
+  // TANGO_LessonChoices row *before* navigating (see modernQuiz.js's
+  // selectLessonChoice) so /lesson itself needs no query params —
+  // generateLesson reads the same row back server-side. currentRow?.id is
+  // absent only for useNextLessons' FALLBACK_CURRENT (no real row to record
+  // against), and a failed record still lets the lesson start — generateLesson
+  // just falls back to its own default type, same as an unrecorded choice
+  // always has.
+  async function startSelectedLesson() {
+    if (!selected || isStartingLesson) return;
+    setIsStartingLesson(true);
+    try {
+      if (currentRow?.id) {
+        await modernQuizApi.selectLessonChoice(currentRow.id, selected.lessonType);
+      }
+    } catch (error) {
+      console.warn('Failed to record lesson choice selection:', error);
+    } finally {
+      setIsStartingLesson(false);
+    }
+    navigate('/lesson');
+  }
   const [arrowX, setArrowX] = useState(null);
+  // Which side of the tile row the preview card renders on — see the
+  // arrow/preview-positioning effect below, which flips this to 'above'
+  // whenever the card doesn't fit below within .home-content.
+  const [previewPlacement, setPreviewPlacement] = useState('below');
   const [lines, setLines] = useState([]);
   const contentRef = useRef(null);
+  const holeRef = useRef(null);
   const boardRef = useRef(null);
   const currentTilesWrapRef = useRef(null);
+  const previewRef = useRef(null);
   const tileRefs = useRef({});
 
   // Tapping/clicking outside a tile or the preview card closes it, same as
-  // Escape. Checked against those two specifically, not "outside boardRef"
-  // — the flex containers' own box covers the gaps between the tile rows,
-  // so a click landing in that dead space is still a DOM descendant of
-  // boardRef even though it looks like background; that previously made a
-  // chunk of the page inert.
+  // Escape; Enter instead confirms, same as clicking "Start Lesson". Outside
+  // checked against those two specifically, not "outside boardRef" — the
+  // flex containers' own box covers the gaps between the tile rows, so a
+  // click landing in that dead space is still a DOM descendant of boardRef
+  // even though it looks like background; that previously made a chunk of
+  // the page inert.
   useEffect(() => {
     if (!selected) return;
 
@@ -119,6 +173,7 @@ export function HomePage() {
     }
     function handleKeyDown(e) {
       if (e.key === 'Escape') setSelected(null);
+      else if (e.key === 'Enter') startSelectedLesson();
     }
     document.addEventListener('pointerdown', handlePointerDown);
     window.addEventListener('keydown', handleKeyDown);
@@ -126,7 +181,7 @@ export function HomePage() {
       document.removeEventListener('pointerdown', handlePointerDown);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [selected]);
+  }, [selected, currentRow]);
 
   // Positions .home-board's bottom edge so the current row's own center —
   // not the whole board's — sits at the right height. Default (little/no
@@ -170,22 +225,81 @@ export function HomePage() {
     return () => window.removeEventListener('resize', position);
   }, [rows]);
 
+  // Sizes the "dug hole" that history rows appear to sit inside (see
+  // .home-hole) — its width tracks the board's own natural width (the
+  // widest row), and its height runs from the top of .home-content down to
+  // HOLE_BOTTOM_GAP_FRACTION of the way through the gap between the last
+  // history row and the current row below it (0.75 — mostly closed, so the
+  // hole reads as ending just shy of the current row rather than stopping
+  // in the middle of open air) (or, with no history yet, to a fixed short
+  // gap above the current row — see HOLE_MIN_GAP_ABOVE_CURRENT_PX). Reads
+  // on-screen rects, so this must run after the board-positioning effect
+  // above has settled the board's `bottom` for this render.
+  useLayoutEffect(() => {
+    function size() {
+      const boardEl = boardRef.current;
+      const contentEl = contentRef.current;
+      const currentEl = currentTilesWrapRef.current;
+      const holeEl = holeRef.current;
+      if (!boardEl || !contentEl || !currentEl || !holeEl) return;
+
+      const contentTop = contentEl.getBoundingClientRect().top;
+      const currentTop = currentEl.getBoundingClientRect().top;
+
+      // The board's children are the lines <svg> (always first), then one
+      // wrap per row in order, current row last — so the second-to-last
+      // child is the most recent history row's wrap, when one exists.
+      const historyEls = Array.from(boardEl.children).slice(1, -1);
+      const lastHistoryEl = historyEls[historyEls.length - 1];
+
+      let holeBottom;
+      if (lastHistoryEl) {
+        const lastHistoryBottom = lastHistoryEl.getBoundingClientRect().bottom;
+        holeBottom = lastHistoryBottom + (currentTop - lastHistoryBottom) * HOLE_BOTTOM_GAP_FRACTION;
+      } else {
+        holeBottom = currentTop - HOLE_MIN_GAP_ABOVE_CURRENT_PX;
+      }
+
+      holeEl.style.setProperty('--home-hole-height', `${Math.max(holeBottom - contentTop, 0)}px`);
+      holeEl.style.setProperty('--home-hole-board-width', `${boardEl.offsetWidth}px`);
+    }
+
+    size();
+    window.addEventListener('resize', size);
+    return () => window.removeEventListener('resize', size);
+  }, [rows]);
+
   // The preview stays centered under the current row (see .home-preview),
   // but the arrow points at whichever tile is actually selected — measured
   // off the DOM since tile position depends on the responsive breakpoint's
   // width/gap, not something worth hand-computing here. Relative to
   // currentTilesWrapRef, not boardRef, since that's the arrow's own
   // positioned ancestor (its `left` is a plain pixel offset within that box).
+  //
+  // Also decides which side of the row the card renders on: below by
+  // default, flipped above whenever it doesn't actually fit below within
+  // .home-content (e.g. the current row sitting near the bottom of the
+  // page). previewRef's height is read regardless of which side it's
+  // currently anchored to, since that's purely a `top`/`bottom` offset —
+  // its intrinsic content height doesn't change with placement.
   useLayoutEffect(() => {
     if (!selected || !currentRow) return;
 
     function measure() {
       const wrapEl = currentTilesWrapRef.current;
       const tileEl = tileRefs.current[tileKey(currentRow.key, selected.type)];
-      if (!wrapEl || !tileEl) return;
+      const previewEl = previewRef.current;
+      const contentEl = contentRef.current;
+      if (!wrapEl || !tileEl || !previewEl || !contentEl) return;
+
       const wrapRect = wrapEl.getBoundingClientRect();
       const tileRect = tileEl.getBoundingClientRect();
       setArrowX(tileRect.left + tileRect.width / 2 - wrapRect.left);
+
+      const contentRect = contentEl.getBoundingClientRect();
+      const neededSpace = previewEl.offsetHeight + PREVIEW_GAP_PX;
+      const fitsBelow = contentRect.bottom - wrapRect.bottom >= neededSpace;
+      setPreviewPlacement(fitsBelow ? 'below' : 'above');
     }
 
     measure();
@@ -277,99 +391,110 @@ export function HomePage() {
         <HomeHeader points={points} />
 
         <div className="home-content" ref={contentRef}>
-          <div className="home-board" ref={boardRef}>
-            {/* Two stacked, stable-order passes rather than one set reordered
-                by active-ness: a fan-out's lines share an identical leading
-                segment (the trunk and the run across to wherever each one's
-                own branch peels off), and SVG has no z-index for siblings —
-                paint order is purely DOM order. Reordering *which* line comes
-                last so the active one paints on top works, but moving DOM
-                nodes around every hover flickers in some browsers. Instead,
-                every line renders twice at the same fixed position in the
-                tree — a permanent grey base, and a permanent white overlay
-                directly on top of it that just fades its own opacity in/out
-                (see .home-lines__line--overlay) — so nothing ever needs to
-                move, only fade. */}
-            <svg className="home-lines" aria-hidden>
-              {lines.map((line) => (
-                <polyline key={line.key} points={line.points.map(([x, y]) => `${x},${y}`).join(' ')} className="home-lines__line" />
-              ))}
-              {lines.map((line) => (
-                <polyline
-                  key={`${line.key}-overlay`}
-                  points={line.points.map(([x, y]) => `${x},${y}`).join(' ')}
-                  className={cx('home-lines__line', 'home-lines__line--overlay', isLineActive(line) && 'home-lines__line--overlay-visible')}
-                />
-              ))}
-            </svg>
+          {/* Clips history rows that overflow above the current one — its
+              own element, not overflow:hidden on .home-content directly, so
+              the fade below (a sibling, not a descendant of this) doesn't
+              get clipped at the same edge. See the fade's own comment for
+              why that split matters. */}
+          <div className="home-clip">
+            <div className="home-hole" ref={holeRef} aria-hidden />
 
-            {rows.map((row) => (
-              <div
-                className={cx('home-tiles-wrap', row.isCurrent && rows.length > 1 && 'home-tiles-wrap--current')}
-                key={row.key}
-                ref={row.isCurrent ? currentTilesWrapRef : null}
-              >
-                <div className="home-tiles">
-                  {row.tiles.map((tile) => {
-                    const isChosen = row.selectedType === tile.lessonType;
+            <div className="home-board" ref={boardRef}>
+              {/* Two stacked, stable-order passes rather than one set reordered
+                  by active-ness: a fan-out's lines share an identical leading
+                  segment (the trunk and the run across to wherever each one's
+                  own branch peels off), and SVG has no z-index for siblings —
+                  paint order is purely DOM order. Reordering *which* line comes
+                  last so the active one paints on top works, but moving DOM
+                  nodes around every hover flickers in some browsers. Instead,
+                  every line renders twice at the same fixed position in the
+                  tree — a permanent grey base, and a permanent white overlay
+                  directly on top of it that just fades its own opacity in/out
+                  (see .home-lines__line--overlay) — so nothing ever needs to
+                  move, only fade. */}
+              <svg className="home-lines" aria-hidden>
+                {lines.map((line) => (
+                  <polyline key={line.key} points={line.points.map(([x, y]) => `${x},${y}`).join(' ')} className="home-lines__line" />
+                ))}
+                {lines.map((line) => (
+                  <polyline
+                    key={`${line.key}-overlay`}
+                    points={line.points.map(([x, y]) => `${x},${y}`).join(' ')}
+                    className={cx('home-lines__line', 'home-lines__line--overlay', isLineActive(line) && 'home-lines__line--overlay-visible')}
+                  />
+                ))}
+              </svg>
 
-                    if (!row.isCurrent) {
+              {rows.map((row) => (
+                <div
+                  className={cx('home-tiles-wrap', row.isCurrent && rows.length > 1 && 'home-tiles-wrap--current')}
+                  key={row.key}
+                  ref={row.isCurrent ? currentTilesWrapRef : null}
+                >
+                  <div className="home-tiles">
+                    {row.tiles.map((tile) => {
+                      const isChosen = row.selectedType === tile.lessonType;
+
+                      if (!row.isCurrent) {
+                        return (
+                          <div
+                            key={tile.type}
+                            ref={(el) => {
+                              tileRefs.current[tileKey(row.key, tile.type)] = el;
+                            }}
+                            className={cx('home-tile', `home-tile--${tile.type}`, 'home-tile--history', isChosen && 'home-tile--chosen')}
+                          >
+                            <span className="home-tile__icon">{tile.icon}</span>
+                          </div>
+                        );
+                      }
+
+                      const key = tileKey(row.key, tile.type);
                       return (
-                        <div
+                        <button
                           key={tile.type}
+                          type="button"
                           ref={(el) => {
-                            tileRefs.current[tileKey(row.key, tile.type)] = el;
+                            tileRefs.current[key] = el;
                           }}
-                          className={cx('home-tile', `home-tile--${tile.type}`, 'home-tile--history', isChosen && 'home-tile--chosen')}
+                          className={cx(
+                            'home-tile',
+                            `home-tile--${tile.type}`,
+                            selected?.type === tile.type && 'home-tile--selected',
+                          )}
+                          aria-pressed={selected?.type === tile.type}
+                          onClick={() => setSelected((prev) => (prev?.type === tile.type ? null : tile))}
+                          onMouseEnter={() => setHoveredKey(key)}
+                          onMouseLeave={() => setHoveredKey((prev) => (prev === key ? null : prev))}
                         >
                           <span className="home-tile__icon">{tile.icon}</span>
-                        </div>
+                        </button>
                       );
-                    }
+                    })}
+                  </div>
 
-                    const key = tileKey(row.key, tile.type);
-                    return (
-                      <button
-                        key={tile.type}
-                        type="button"
-                        ref={(el) => {
-                          tileRefs.current[key] = el;
-                        }}
-                        className={cx(
-                          'home-tile',
-                          `home-tile--${tile.type}`,
-                          selected?.type === tile.type && 'home-tile--selected',
-                        )}
-                        aria-pressed={selected?.type === tile.type}
-                        onClick={() => setSelected((prev) => (prev?.type === tile.type ? null : tile))}
-                        onMouseEnter={() => setHoveredKey(key)}
-                        onMouseLeave={() => setHoveredKey((prev) => (prev === key ? null : prev))}
+                  {row.isCurrent && selected && (
+                    <>
+                      <div
+                        className={cx('home-preview-arrow', `home-preview-arrow--${previewPlacement}`)}
+                        style={{ left: `${arrowX}px` }}
+                        aria-hidden
+                      />
+                      <div
+                        className={cx('home-preview', `home-preview--${previewPlacement}`)}
+                        role="dialog"
+                        aria-label={selected.title}
+                        ref={previewRef}
                       >
-                        <span className="home-tile__icon">{tile.icon}</span>
-                      </button>
-                    );
-                  })}
+                        <h2 className="home-preview__title">{selected.title}</h2>
+                        <p className="home-preview__subtitle">{selected.subtitle}</p>
+                        <Button onClick={startSelectedLesson} disabled={isStartingLesson}>Start Lesson</Button>
+                      </div>
+                    </>
+                  )}
                 </div>
-
-                {row.isCurrent && selected && (
-                  <>
-                    <div className="home-preview-arrow" style={{ left: `${arrowX}px` }} aria-hidden />
-                    <div className="home-preview" role="dialog" aria-label={selected.title}>
-                      <h2 className="home-preview__title">{selected.title}</h2>
-                      <p className="home-preview__subtitle">{selected.subtitle}</p>
-                      <Button
-                        onClick={() => {
-                          const choiceParam = currentRow?.id ? `&choice=${currentRow.id}` : '';
-                          navigate(`/lesson?type=${selected.lessonType}${choiceParam}`);
-                        }}
-                      >
-                        Start Lesson
-                      </Button>
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 

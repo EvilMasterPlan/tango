@@ -8,68 +8,76 @@
   flex-direction: column;
 }
 
-// Everything below the sticky header — the page's content "viewbox", which
-// now runs from the header's bottom edge to the page's bottom edge rather
-// than the whole page height. flex: 1 (not a fixed height) so it always
-// fills exactly what's left under the header, however tall that ends up
-// being.
+// The viewbox below the sticky header.
 .home-content {
-  // How far down .home-content the current ("next recommendation") row's
-  // own center sits, as a fraction of .home-content's height — read by the
-  // board-positioning effect in Page.jsx, which computes an actual pixel
-  // value between these two off of them (see .home-board below). With
-  // little/no history above it, the current row centers at
-  // --home-next-row-initial-position; as history rows accumulate it's
-  // pushed down to keep them all visible, until --home-next-row-max-position,
-  // beyond which it holds there and additional history runs off the top
-  // into the fade/clip instead.
-  --home-next-row-initial-position: 0.4;
+  // Current row's vertical center as a fraction of height — see the
+  // board-positioning effect in Page.jsx.
+  --home-next-row-initial-position: 0.3;
   --home-next-row-max-position: 0.65;
 
   position: relative;
+  // Scopes z-index comparisons to this subtree (needed for .home-hole's
+  // negative z-index below to stay local instead of escaping to the page).
+  isolation: isolate;
   flex: 1;
   min-height: 0;
-  // Rows above the current one can run past the top edge once there's more
-  // than fits (see .home-board below) — clip them rather than growing a
-  // scrollbar; the fade overlay just below handles making that clip read as
-  // intentional instead of an abrupt cutoff.
-  overflow: hidden;
   padding: 1.5rem;
 }
 
-// A soft fade to the page's own background color, near the top edge only —
-// paired with .home-content's overflow: hidden, so history rows that run
-// out of room above the current one appear to dissolve away rather than
-// being hard-clipped. z-index above .home-board (which stays at the default
-// auto stacking level) without needing one on .home-board itself.
+// Clips history rows that overflow above the current one. Its own element
+// rather than overflow: hidden on .home-content directly, so the fade below
+// — a sibling of this, not a descendant — doesn't get clipped at the same
+// edge. .home-board's transform can round that clip edge by a subpixel
+// relative to an untransformed sibling, which otherwise let a sliver of a
+// tile peek through right at the fade's edge (same fix as DigitReel's and
+// QuizSummary's selection-list fades).
+.home-clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+// Fades overflowing history rows into the page background near the top
+// edge. Extends slightly above .home-clip's own clip edge (negative top)
+// rather than starting exactly at it, so it fully covers that edge
+// regardless of subpixel rounding there.
 .home-content::before {
   content: '';
   position: absolute;
-  inset: 0 0 auto 0;
-  height: 8rem;
+  left: 0;
+  right: 0;
+  top: -0.5rem;
+  height: calc(8rem + 0.5rem);
   z-index: 2;
   pointer-events: none;
-  background-image: linear-gradient(to bottom, var(--color-bg-primary) 0%, transparent 100%);
+  background-image: linear-gradient(to bottom, var(--color-bg-primary) 0, var(--color-bg-primary) 0.5rem, transparent 100%);
 }
 
-// Wraps the dotted connector lines and the stacked rows of lesson tiles —
-// position:relative so the SVG overlay's absolute box lines up with it, and
-// the sole coordinate frame the line-measuring effect in Page.jsx works in.
-// Positioned (rather than centered via the parent's flex/normal flow) so
-// the *current* row — its last child, not the stack as a whole — lands at
-// the height Page.jsx's board-positioning effect computes (see
-// --home-next-row-initial-position/--home-next-row-max-position above):
-// anchoring the board's own bottom edge (exactly the current row's bottom
-// edge, since it's the last thing in flow with no trailing margin) via
-// --home-board-bottom pulls the current row's own center, not the whole
-// board's, to that height. Earlier rows stack upward from there, free to
-// run off the top into the fade above once they don't all fit.
-//
-// The fallback (before that effect's first run, or with --home-board-bottom
-// otherwise unset) is the plain CSS equivalent of the initial/no-history
-// case: 50% - half a tile puts the current row dead center.
+// The "dug hole" history rows sit inside — runs from the top of
+// .home-content down into the gap above the current row (sized by the
+// hole-sizing effect in Page.jsx). Rounded on the bottom only, so the top
+// reads as cut off by the fade rather than a lidded container.
+.home-hole {
+  --home-hole-padding-x: 2.5rem;
+
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(var(--home-hole-board-width, 0px) + var(--home-hole-padding-x) * 1.5);
+  height: var(--home-hole-height, 0px);
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  background-color: color-mix(in srgb, var(--color-bg-primary) 100%, black 25%);
+}
+
+// Wraps the connector lines and stacked tile rows. `bottom` is set by
+// Page.jsx's board-positioning effect so the *current* row's center (not
+// the whole board's) lands at the right height; the fallback below is the
+// plain-CSS no-history default (dead center).
 .home-board {
-  --home-tile-size: 5rem;
+  --home-tile-size: 4.5rem;
 
   position: absolute;
   left: 50%;
@@ -78,17 +86,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2.5rem;
+  gap: 1.75rem;
 }
 
-// Covers the whole board so line coordinates (measured in board-relative
-// pixels — see Page.jsx) line up directly with no viewBox/scaling needed.
-// z-index 0, with every row's tiles explicitly positioned above it (see
-// .home-tiles-wrap), so the lines paint underneath and appear to run behind
-// them, terminating at (and hidden beneath) their centers. Tiles must stay
-// fully opaque for that to actually read as "behind" rather than "faintly
-// showing through" — see .home-tile--history's use of `filter` instead of
-// `opacity` to dim without adding transparency.
+// Board-relative pixel coordinates (see Page.jsx) line up with no scaling
+// needed. Sits below the tiles (z-index 1) so lines appear to run behind them.
 .home-lines {
   position: absolute;
   inset: 0;
@@ -98,12 +100,8 @@
   z-index: 0;
 }
 
-// A <polyline> (an elbow: down, across, down — see Page.jsx), not a <line>
-// — fill: none is required for that (an unclosed polyline still gets
-// filled, as if its last point connected back to its first, unless told
-// otherwise), and stroke-linecap/stroke-linejoin round off its two open
-// ends and two corners. Always grey — see .home-lines__line--overlay below
-// for how a line actually goes white.
+// An elbow polyline (down, across, down). Grey base — see the white overlay
+// version below for the "active" state.
 .home-lines__line {
   fill: none;
   stroke: var(--color-border-secondary);
@@ -112,17 +110,9 @@
   stroke-linejoin: round;
 }
 
-// Page.jsx renders every line twice, at the same fixed position in the DOM
-// every time — this grey base, plus a second white copy of the identical
-// path directly on top of it (rather than one line that switches color).
-// Whether a fan-out line is "active" (hovered or selected) only ever
-// toggles this overlay's opacity, so nothing ever needs to reorder for the
-// active one to paint on top of a sibling's overlapping segment (SVG has no
-// z-index for siblings; paint order is DOM order) — reordering *which*
-// line comes last in the DOM to achieve that visibly flickered on hover in
-// some browsers, since the node was actually being moved. A stable set of
-// elements that only fade solves both: paint order never changes, and the
-// transition is smooth.
+// A white copy of each line, stacked on the grey base, that just fades its
+// opacity in/out on hover/select — avoids reordering DOM nodes (which
+// flickered) to bring the active line on top.
 .home-lines__line--overlay {
   stroke: #fff;
   opacity: 0;
@@ -138,14 +128,11 @@
   z-index: 1;
 }
 
-// Extra breathing room between the most recent history row and the current
-// (still-interactive) row below it, on top of .home-board's normal
-// inter-row gap — every other row-to-row gap stays exactly as it was. Only
-// applied when there's a history row to separate from (see the isCurrent &&
-// rows.length > 1 check in Page.jsx) — a first-time user with just their
-// one current row has nothing above it to add distance from.
+// Extra gap above the current row specifically, on top of .home-board's
+// normal row gap — keeps history-to-current spacing fixed independent of
+// the history-to-history gap above.
 .home-tiles-wrap--current {
-  margin-top: 1.5rem;
+  margin-top: 2.5rem;
 }
 
 .home-tiles {
@@ -158,9 +145,6 @@
   @include mixins.quiz-button-base;
   @include mixins.pressable-lip(var(--color-border-primary), var(--color-accent-primary));
   position: relative;
-  // Scopes z-index comparisons among this tile's own children (the icon,
-  // the chosen-tile sheen) to just this tile — see .home-tile--chosen::after
-  // below for why that guarantee matters.
   isolation: isolate;
   display: flex;
   align-items: center;
@@ -179,13 +163,7 @@
   }
 }
 
-// Each type only has to name its own accent color once, as a custom
-// property on the tile element itself — every rule below that needs "this
-// tile's color" (the base border/shadow, the selected/chosen look, restoring
-// color on a chosen-but-history tile) just reads --tile-accent instead of
-// repeating a per-type selector block for each of them. Falls back to the
-// plain border color at the one call site (base border/shadow) where a
-// type-less tile should still render sensibly.
+// Per-type accent color, referenced as --tile-accent everywhere below.
 .home-tile--star {
   --tile-accent: var(--color-accent-warning);
 }
@@ -210,63 +188,24 @@
   box-shadow: 0 4px 0 0 var(--tile-accent);
 }
 
-// Selected tile stays pressed-in, matching :active from pressable-lip —
-// visually anchors it to the preview card below. `--chosen` (a history
-// row's picked tile) deliberately does *not* share this — see
-// .home-tile--history.home-tile--chosen below for why it stays resting
-// instead.
+// Selected tile stays pressed in.
 .home-tile--selected {
   transform: translateY(3px);
   box-shadow: 0 1px 0 0 var(--tile-accent, var(--color-accent-primary));
 }
 
-// Hovering an already-selected tile: stays pressed-in, and the lip switches
-// to plain blue instead of staying the tile's own --tile-accent — matching
-// .home-tile:hover's border-color, which wins on its own (it's a plain,
-// unconditional hover rule with no --tile-accent override reaching it).
-// Without this override, the lip peeking out below the tile kept its
-// original accent color while the border above it turned blue, reading as
-// a stray sliver of the pre-hover color. transform has to be redeclared
-// here too, not just inherited from .home-tile--selected above — the
-// mixin's own `:not(:disabled):hover` rule (1 class + 2 pseudos) ties this
-// selector's specificity (2 classes + 1 pseudo) exactly, and it sets its
-// own translateY(-1px) "lift" for transform; leaving transform out here
-// would let that tied, purely-source-order-later-doesn't-apply-per-property
-// rule win *that one property* and undo the pressed-in look on hover, even
-// though this rule wins the (also tied) box-shadow. Restating both here is
-// what makes this rule win outright rather than splitting per-property.
+// Hover on an already-selected tile: stays pressed, lip goes plain blue to
+// match the base :hover border — both properties redeclared here since the
+// mixin's hover rule ties this selector's specificity.
 .home-tile.home-tile--selected:hover {
   transform: translateY(3px);
   box-shadow: 0 1px 0 0 var(--color-accent-primary);
 }
 
-// A history row's tiles (see Page.jsx) — a fixed record of what was
-// offered/picked, not another set of choices. pointer-events: none rather
-// than a disabled <button> since these render as plain <div>s (there's
-// nothing to disable): it also incidentally suppresses :hover, so
-// .home-tile's hover rule above never fires for them.
-//
-// Unchosen options render hatched, neutral-grey, and dimmed — substantially
-// less visible than a real choice. The grey/hatch is done entirely through
-// background/border/box-shadow rather than `filter: grayscale()`, which
-// would desaturate the tile's emoji content too (a filter applies to the
-// whole element, text included). Opacity, unlike a moment ago, is safe to
-// use for the dimming itself: a connector line only ever terminates at a
-// row's *chosen* tile (see the line-building effect in Page.jsx) — never at
-// an unchosen one — so there's nothing behind an unchosen tile for a
-// translucent background to expose. The chosen tile (.home-tile--chosen)
-// reverts to full opacity, drops the hatching, and gets the exact
-// gold/dark-footer/dark-text treatment SpellingSlots.scss's
-// .modern-spelling-slot--success uses for a correct placed tile — flat
-// --color-quiz-success face (border set to the *same* color as the face,
-// so it visually disappears rather than outlining it), a --color-quiz-
-// success-lip footer, dark text — so "this was the pick" reads with the
-// same gold-means-right association already established elsewhere, plus
-// its own sheen on top (see .home-tile--chosen::after below). Deliberately
-// *not* pressed-in (no translateY, full 4px footer rather than the 1px a
-// pressed tile settles to) — the whole point of the footer here is to be
-// visible as a proper footer, and a pressed-in tile's 1px sliver read as
-// barely there.
+// History row tiles — a fixed record, not interactive (plain divs, so
+// pointer-events: none instead of disabled). Unchosen options render
+// hatched/dimmed; the chosen one gets the gold "correct" treatment plus a
+// sheen (see ::after below).
 .home-tile--history {
   pointer-events: none;
   opacity: 0.25;
@@ -294,23 +233,7 @@
   }
 }
 
-// Two solid white bands (one wide, one thin, sitting close together) on top
-// of the golden background above — baked directly into the gradient's
-// stops instead of animated across (same masked-band idea as
-// ChoiceButton.scss's success flash / SpellingSlots.scss's place flash, but
-// static: no transform, no @keyframes, just two bands sitting still) for a
-// metallic-gold glint. Fully opaque #fff with each pair of stops landing on
-// the *same* percentage (rather than a percent or two apart) for a hard,
-// solid-color edge — no gradient blend at all, not even a tight one.
-//
-// .home-tile__icon sits at z-index: 1 against this pseudo's z-index: 0, so
-// the icon already paints above it — but that comparison only holds inside
-// a shared stacking context, and neither of them creates one of its own.
-// .home-tile now does (via `isolation: isolate`, added specifically for
-// this), scoping the comparison to just this tile rather than leaving it to
-// whatever ancestor happened to establish one — guaranteeing the icon can
-// never end up visually under this sheen regardless of what other tiles or
-// ancestors do.
+// Static gold-glint shine bands on a chosen tile.
 .home-tile--chosen::after {
   content: '';
   position: absolute;
@@ -333,12 +256,6 @@
   );
 }
 
-// The tile's kanji glyph — plain white rather than the tile's own accent
-// color, so it reads clearly against every tile color (and the grey/hatch
-// treatment of an unchosen history tile) alike. Bold and set in the
-// Japanese font stack so it renders with proper kanji stroke weight instead
-// of the app's default font (which handles kanji, but not as intentionally
-// as var(--font-jp) does elsewhere — see e.g. SpellingSlots.scss's tiles).
 .home-tile__icon {
   position: relative;
   z-index: 1;
@@ -347,34 +264,39 @@
   color: #fff;
 }
 
-// Points at whichever tile is selected (its `left` is set inline from a
-// measured tile position — see Page.jsx) while the card itself stays
-// centered under the whole row. Vertically centered on the card's top
-// edge and stacked above it (z-index), so its solid lower half — the two
-// unbordered edges — paints directly over the card's border-top stroke in
-// that span and erases it, while the two bordered upper edges continue
-// that same stroke up into the point. Result reads as one continuous
-// outline rather than an arrow overlapping a straight border.
+// Points at the selected tile (`left` set inline from a measured position —
+// see Page.jsx) while the preview card stays centered under the row. Two
+// placements — below the row (default) or above it, when Page.jsx finds the
+// card doesn't fit below — each with its own edge/border/transform so the
+// diamond's point always faces the tile.
 .home-preview-arrow {
   position: absolute;
-  top: calc(100% + 0.75rem);
   width: 0.875rem;
   height: 0.875rem;
   background-color: var(--color-bg-secondary);
-  border-top: 2px solid var(--color-border-primary);
-  border-left: 2px solid var(--color-border-primary);
-  transform: translate(-50%, -50%) rotate(45deg);
   z-index: 2;
 }
 
-// The lesson preview — a popover-like card rather than a full modal: no
-// backdrop dimming, dismissed by an outside tap/click or Escape (see
-// Page.jsx), not by a close button. Absolutely positioned so it floats over
-// the page instead of shifting the tiles when it appears.
+.home-preview-arrow--below {
+  top: calc(100% + 0.75rem);
+  border-top: 2px solid var(--color-border-primary);
+  border-left: 2px solid var(--color-border-primary);
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.home-preview-arrow--above {
+  bottom: calc(100% + 0.75rem);
+  border-bottom: 2px solid var(--color-border-primary);
+  border-right: 2px solid var(--color-border-primary);
+  transform: translate(-50%, 50%) rotate(45deg);
+}
+
+// Lesson preview popover — dismissed via outside click/Escape, not a close
+// button (see Page.jsx). Placed below the row by default, or above it (see
+// the arrow above) when it wouldn't otherwise fit.
 .home-preview {
   position: absolute;
   z-index: 1;
-  top: calc(100% + 0.75rem);
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -388,13 +310,33 @@
   border-radius: var(--radius-lg);
   box-shadow: 0 12px 28px var(--color-shadow-medium);
   text-align: left;
-  animation: home-preview-in 0.15s ease;
 }
 
-@keyframes home-preview-in {
+.home-preview--below {
+  top: calc(100% + 0.75rem);
+  animation: home-preview-in-below 0.15s ease;
+}
+
+.home-preview--above {
+  bottom: calc(100% + 0.75rem);
+  animation: home-preview-in-above 0.15s ease;
+}
+
+@keyframes home-preview-in-below {
   from {
     opacity: 0;
     transform: translateX(-50%) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes home-preview-in-above {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px);
   }
   to {
     opacity: 1;
@@ -422,9 +364,18 @@
 }
 
 @media (max-width: 768px) {
+  .home-content {
+    --home-next-row-max-position: 0.65;
+  }
+
   .home-board {
     --home-tile-size: 3.75rem;
-    gap: 1.85rem;
+    gap: 1.1rem;
+  }
+
+  // Keeps the same history-to-current total as the smaller board gap here.
+  .home-tiles-wrap--current {
+    margin-top: 2.25rem;
   }
 
   .home-tiles {

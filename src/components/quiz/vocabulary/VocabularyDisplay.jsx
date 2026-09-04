@@ -80,7 +80,7 @@ export function FuriganaWord({ furigana }) {
 // 'reading' once revealed), they're merged into a single furigana display
 // so each reading segment sits directly over its own kanji instead of just
 // floating, centered, over the word as a whole.
-export function VocabularyDisplay({ entry, hidden, ghostText, revealed = false, mastery, currentSkillKey }) {
+export function VocabularyDisplay({ entry, hidden, ghostText, revealed = false, mastery, currentSkillKey, justLeveledUp }) {
   const showFurigana = hidden === 'definition' || revealed;
   const challengeRating = getChallengeRating(entry.score);
 
@@ -95,7 +95,7 @@ export function VocabularyDisplay({ entry, hidden, ghostText, revealed = false, 
           content in the middle stays centered on the card as a whole rather
           than drifting toward the rating's side. */}
       <div className="vocabulary-display__side vocabulary-display__mastery" aria-hidden="true">
-        <MasteryPentagon mastery={mastery} currentSkillKey={currentSkillKey} />
+        <MasteryPentagon mastery={mastery} currentSkillKey={currentSkillKey} justLeveledUp={justLeveledUp} />
       </div>
 
       <div className="vocabulary-display__center">

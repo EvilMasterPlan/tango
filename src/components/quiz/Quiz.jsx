@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { modernQuizApi } from '@/utils/api/modernQuiz';
 import { VocabularyDisplay } from '@/components/quiz/vocabulary/VocabularyDisplay';
 import { ChoiceGrid } from '@/components/quiz/answering/ChoiceGrid';
@@ -20,7 +20,7 @@ import './Quiz.scss';
 // swap happens at the trough of the fade, once the old content is gone.
 const TRANSITION_MS = 500;
 
-// Minimum gap between Enter-triggered actions (Check / Next / Next Lesson).
+// Minimum gap between Enter-triggered actions (Check / Next / Home).
 // Key repeat while Enter is held down fires many keydown events in quick
 // succession — without this, holding it past the first press would blow
 // through several questions' worth of Check-then-Next before the user can
@@ -63,16 +63,12 @@ const MODES = {
 };
 
 export function Quiz() {
-  // ?type= selects the lesson's emphasis — see OvermindAPI's
-  // modernQuiz/lessonPools.js LessonType for the valid values; forwarded
-  // as-is to generateLesson, which defaults server-side if it's missing or
-  // unrecognized. ?choice=, when present, is the TANGO_LessonChoices row
-  // (see useNextLessons) this lesson was picked from — missing when a
-  // lesson's started without going through the home page (e.g. a direct
-  // /lesson?type= link), which generateLesson already tolerates.
-  const [searchParams] = useSearchParams();
-  const lessonType = searchParams.get('type');
-  const choiceId = searchParams.get('choice');
+  // No lesson-selecting params to read here — Home's startSelectedLesson
+  // records the picked tile against the user's current TANGO_LessonChoices
+  // row (see useNextLessons) before ever navigating to /lesson, and
+  // generateLesson resolves that same row server-side, defaulting to
+  // NEW_WORDS if nothing's been selected (e.g. a direct /lesson visit).
+  const navigate = useNavigate();
 
   const [rounds, setRounds] = useState(null);
   // Word id -> mastery, captured once right after a lesson loads, before
@@ -92,6 +88,13 @@ export function Quiz() {
   // hatch preview would undercount how much the real post-answer fill
   // (which the backend computes from every attempt so far) is about to jump.
   const [masteryByWordID, setMasteryByWordID] = useState({});
+  // True from the moment recordPractice's response shows the answer just
+  // graded pushed the word's level up, until the next question starts —
+  // see the justLeveledUp prop plumbed down to MasteryPentagon below. Only
+  // meaningful during 'review' for the exact question that earned it: reset
+  // before every recordPractice call, so it never lingers onto a later
+  // question for the same (or a different) word.
+  const [justLeveledUp, setJustLeveledUp] = useState(false);
   // The current lesson's TANGO_Lessons row ID — null if the backend failed
   // to record the lesson start (see OvermindAPI's quiz.js generateLesson).
   // Sent back to completeLesson once the final question is answered — see
@@ -123,9 +126,7 @@ export function Quiz() {
   // question in the set is done.
   const [phase, setPhase] = useState('answer');
   // True for the brief window between clicking Next and the new question
-  // (or summary) appearing — drives the fade-out/fade-in crossfade. Also
-  // held true across a "Next Lesson" reload, for however long that fetch
-  // actually takes (see handleNextLesson).
+  // (or summary) appearing — drives the fade-out/fade-in crossfade.
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
@@ -139,7 +140,7 @@ export function Quiz() {
     setIsLoading(true);
     setLoadError(null);
     try {
-      const { questions, lessonID: newLessonID } = await modernQuizApi.generateLesson(lessonType, choiceId);
+      const { questions, lessonID: newLessonID } = await modernQuizApi.generateLesson();
       setRounds(questions);
       const startingMasteryByWordID = Object.fromEntries(questions.map((round) => [round.entry.id, round.mastery]));
       setInitialMasteryByWordID(startingMasteryByWordID);
@@ -158,7 +159,7 @@ export function Quiz() {
     } finally {
       setIsLoading(false);
     }
-  }, [lessonType, choiceId]);
+  }, []);
 
   useEffect(() => {
     loadLesson();
@@ -221,8 +222,10 @@ export function Quiz() {
     if (phase === 'answer') {
       if (!isAnswered) return;
       setPhase('review');
+      setJustLeveledUp(false);
 
       const isCorrect = modeConfig.isCorrect(answerState);
+      const priorLevel = mastery?.level ?? 1;
 
       setResults((prev) => {
         const next = [...prev];
@@ -238,6 +241,7 @@ export function Quiz() {
           return next;
         });
         setMasteryByWordID((prev) => ({ ...prev, [entry.id]: updatedMastery }));
+        setJustLeveledUp((updatedMastery.level ?? 1) > priorLevel);
       } catch (error) {
         // Fire-and-forget from the user's perspective — a failed practice
         // record shouldn't block moving on through the lesson.
@@ -285,18 +289,13 @@ export function Quiz() {
     setIsSettingsOpen(true);
   }
 
-  // Unlike transitionTo (a fixed cosmetic delay for the purely local
-  // per-question advance above), this fades out immediately and stays
-  // faded for however long the fresh-lesson fetch actually takes, rather
-  // than guessing a fixed duration for a network call.
-  function handleNextLesson() {
-    setIsTransitioning(true);
-    loadLesson().finally(() => setIsTransitioning(false));
+  function handleBackToHome() {
+    navigate('/home');
   }
 
   // Keyboard shortcuts: 1-4 select a choice (while still answering, choice
   // mode only), Enter triggers whatever the action button currently does
-  // (Check, Next, or — at the end of a lesson — Next Lesson). Disabled
+  // (Check, Next, or — at the end of a lesson — Home). Disabled
   // whenever the settings dialog is open — otherwise these fire on the quiz
   // underneath a modal that's supposed to have captured input.
   useEffect(() => {
@@ -325,7 +324,7 @@ export function Quiz() {
         lastEnterActionRef.current = now;
 
         if (phase === 'summary') {
-          handleNextLesson();
+          handleBackToHome();
         } else {
           handleAction();
         }
@@ -336,9 +335,7 @@ export function Quiz() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentRound, mode, choices, selectedIndex, spellingSlots, typedAnswer, phase, isTransitioning, isSettingsOpen]);
 
-  // Only the very first load (no rounds yet) shows the full-page overlay —
-  // a "Next Lesson" reload keeps the existing chrome and reuses the
-  // crossfade instead (see handleNextLesson).
+  // Only the very first load (no rounds yet) shows the full-page overlay.
   const showLoading = useMinimumLoadingDuration(isLoading && !rounds);
 
   if (loadError && !rounds) {
@@ -350,8 +347,8 @@ export function Quiz() {
     );
   }
 
-  const footerLabel = phase === 'summary' ? 'Next Lesson' : phase === 'review' ? 'Next' : 'Check';
-  const footerAction = phase === 'summary' ? handleNextLesson : handleAction;
+  const footerLabel = phase === 'summary' ? 'Continue' : phase === 'review' ? 'Next' : 'Check';
+  const footerAction = phase === 'summary' ? handleBackToHome : handleAction;
   const footerDisabled = isTransitioning || (phase === 'answer' && !isAnswered);
 
   return (
@@ -390,6 +387,7 @@ export function Quiz() {
                     revealed={phase === 'review'}
                     mastery={mastery}
                     currentSkillKey={phase === 'answer' ? skillKey : null}
+                    justLeveledUp={phase === 'review' && justLeveledUp}
                   />
                   <div className="quiz__answer-area">
                     {mode === 'spelling' ? (
