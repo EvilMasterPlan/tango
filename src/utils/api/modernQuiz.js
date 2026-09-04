@@ -44,4 +44,12 @@ export const modernQuizApi = {
   completeLesson: async (lessonId, answers) => {
     return makePostRequest(getUrl(`${TANGO_API_PREFIX}/modern-quiz/complete-lesson`), { lessonId, answers });
   },
+  // { words: [{ entry, mastery }, ...], hasMore } — every word the user has
+  // ever practiced, one page at a time, ordered by most recent attempt
+  // (`sortOrder` 'newest', the default, or 'oldest' to reverse it — see
+  // OvermindAPI's tango/quiz.js getWordProgress). Same entry/mastery shape
+  // as generateLesson's rounds.
+  getWordProgress: async (offset, limit = 30, sortOrder = 'newest') => {
+    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/modern-quiz/word-progress`), { offset, limit, sortOrder });
+  },
 };

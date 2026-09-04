@@ -3,6 +3,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { MarketingContainer } from '@/pages/Marketing/Container';
 import { HomeContainer } from '@/pages/Home/Container';
 import { LessonContainer } from '@/pages/Lesson/Container';
+import { OverviewContainer } from '@/pages/Overview/Container';
 import { RadarDebugContainer } from '@/pages/Debug/Radar/Container';
 import AccountRoutes from '@/pages/account/AccountRoutes';
 import { UserProvider } from '@/contexts/UserContext';
@@ -32,6 +33,14 @@ function App() {
                   element={
                     <RequireAuth>
                       <LessonContainer />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/overview"
+                  element={
+                    <RequireAuth>
+                      <OverviewContainer />
                     </RequireAuth>
                   }
                 />

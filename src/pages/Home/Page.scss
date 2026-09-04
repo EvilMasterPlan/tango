@@ -143,7 +143,7 @@
 
 .home-tile {
   @include mixins.quiz-button-base;
-  @include mixins.pressable-lip(var(--color-border-primary), var(--color-accent-primary));
+  @include mixins.pressable-lip(var(--color-border-primary), #fff);
   position: relative;
   isolation: isolate;
   display: flex;
@@ -159,31 +159,38 @@
 
   &:hover {
     background-color: var(--color-bg-tertiary);
-    border-color: var(--color-accent-primary);
+    border-color: #fff;
   }
 }
 
 // Per-type accent color, referenced as --tile-accent everywhere below.
-.home-tile--star {
-  --tile-accent: var(--color-accent-warning);
-}
-
-.home-tile--gem {
-  --tile-accent: var(--color-accent-primary);
-}
-
-.home-tile--fire {
-  --tile-accent: var(--color-accent-error);
-}
-
-.home-tile--flashlight {
+.home-tile--new_words {
   --tile-accent: var(--color-accent-secondary);
 }
 
-.home-tile--star,
-.home-tile--gem,
-.home-tile--fire,
-.home-tile--flashlight {
+.home-tile--level_up {
+  --tile-accent: var(--color-accent-primary);
+}
+
+.home-tile--fix_mistakes {
+  --tile-accent: var(--color-accent-error);
+}
+
+.home-tile--kanji_spotlight {
+  --tile-accent: var(--color-accent-warning);
+}
+
+// No spare theme accent var left for a 5th tile type — a literal color
+// rather than var(--color-accent-*) like the others above.
+.home-tile--from_the_top {
+  --tile-accent: #a78bfa;
+}
+
+.home-tile--new_words,
+.home-tile--level_up,
+.home-tile--fix_mistakes,
+.home-tile--kanji_spotlight,
+.home-tile--from_the_top {
   border-color: var(--tile-accent);
   box-shadow: 0 4px 0 0 var(--tile-accent);
 }
@@ -194,12 +201,12 @@
   box-shadow: 0 1px 0 0 var(--tile-accent, var(--color-accent-primary));
 }
 
-// Hover on an already-selected tile: stays pressed, lip goes plain blue to
+// Hover on an already-selected tile: stays pressed, lip goes plain white to
 // match the base :hover border — both properties redeclared here since the
 // mixin's hover rule ties this selector's specificity.
 .home-tile.home-tile--selected:hover {
   transform: translateY(3px);
-  box-shadow: 0 1px 0 0 var(--color-accent-primary);
+  box-shadow: 0 1px 0 0 #fff;
 }
 
 // History row tiles — a fixed record, not interactive (plain divs, so

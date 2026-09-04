@@ -14,35 +14,39 @@ import '@/pages/Home/Page.scss';
 // Display metadata for each backend lesson type (OvermindAPI's
 // tango/modernQuiz/lessonPools.js LessonType) — which of these actually
 // show up, and in what order, comes from useNextLessons per user/load;
-// this is just how to render whichever ones do. `icon` is a single bold
-// kanji rather than an emoji — plain text, so .home-tile__icon can tint it
-// to the tile's own --tile-accent color (see Page.scss), which an emoji
-// glyph (rendered by the system's color emoji font, ignoring CSS `color`)
+// this is just how to render whichever ones do. Keyed by the same lesson
+// type string used for CSS class suffixes (`home-tile--${lessonType}`, see
+// Page.scss) and tile/ref keys below, so there's one name per lesson type
+// rather than a separate display-only alias. `icon` is a single bold kanji
+// rather than an emoji — plain text, so .home-tile__icon can tint it to the
+// tile's own --tile-accent color (see Page.scss), which an emoji glyph
+// (rendered by the system's color emoji font, ignoring CSS `color`)
 // couldn't be.
 const LESSON_METADATA_BY_LESSON_TYPE = {
   new_words: {
-    type: 'star',
     icon: '新',
     title: 'New Words',
     subtitle: "Explore the wild unknown",
   },
   level_up: {
-    type: 'gem',
     icon: '強',
     title: 'Level Up',
     subtitle: 'Focus on mastery',
   },
   fix_mistakes: {
-    type: 'fire',
     icon: '正',
     title: 'Fix Mistakes',
     subtitle: "Get good",
   },
   kanji_spotlight: {
-    type: 'flashlight',
     icon: '字',
     title: 'Kanji Spotlight',
-    subtitle: 'One kanji, many words',
+    subtitle: 'They contain multitudes',
+  },
+  from_the_top: {
+    icon: '頭',
+    title: 'From the Top',
+    subtitle: 'Back to basics',
   },
 };
 
@@ -55,10 +59,10 @@ function buildTiles(options) {
     .filter(Boolean);
 }
 
-// Tile refs/lines are keyed per-row, not just by display type — the same
+// Tile refs/lines are keyed per-row, not just by lesson type — the same
 // lesson type can legitimately show up in more than one row (a history row
-// and the current one, or two history rows), so `type` alone isn't unique
-// once there's more than one row on screen.
+// and the current one, or two history rows), so lessonType alone isn't
+// unique once there's more than one row on screen.
 function tileKey(rowKey, tileType) {
   return `${rowKey}::${tileType}`;
 }
@@ -112,7 +116,7 @@ export function HomePage() {
   // regardless of what else gets hovered afterward, until deselected (see
   // the line's className below, and setSelected's toggle-off on a repeat
   // click / outside click / Escape).
-  const selectedKey = selected && currentRow ? tileKey(currentRow.key, selected.type) : null;
+  const selectedKey = selected && currentRow ? tileKey(currentRow.key, selected.lessonType) : null;
   function isLineActive(line) {
     return line.alwaysActive || hoveredKey === line.key || selectedKey === line.key;
   }
@@ -287,7 +291,7 @@ export function HomePage() {
 
     function measure() {
       const wrapEl = currentTilesWrapRef.current;
-      const tileEl = tileRefs.current[tileKey(currentRow.key, selected.type)];
+      const tileEl = tileRefs.current[tileKey(currentRow.key, selected.lessonType)];
       const previewEl = previewRef.current;
       const contentEl = contentRef.current;
       if (!wrapEl || !tileEl || !previewEl || !contentEl) return;
@@ -344,17 +348,17 @@ export function HomePage() {
 
       rows.forEach((row) => {
         const chosenTile = row.tiles.find((tile) => tile.lessonType === row.selectedType);
-        const chosenEl = chosenTile && tileRefs.current[tileKey(row.key, chosenTile.type)];
+        const chosenEl = chosenTile && tileRefs.current[tileKey(row.key, chosenTile.lessonType)];
 
         if (origin) {
           const targetTiles = row.isCurrent ? row.tiles : chosenTile ? [chosenTile] : [];
           targetTiles.forEach((tile) => {
-            const tileEl = tileRefs.current[tileKey(row.key, tile.type)];
+            const tileEl = tileRefs.current[tileKey(row.key, tile.lessonType)];
             if (!tileEl) return;
             const center = centerOf(tileEl);
             const midY = (origin.y + center.y) / 2;
             nextLines.push({
-              key: tileKey(row.key, tile.type),
+              key: tileKey(row.key, tile.lessonType),
               // A line into a history row is a settled, already-made pick
               // (it can only be its chosen tile — see targetTiles above),
               // not a live option — always lit, not hover/select-driven.
@@ -438,32 +442,32 @@ export function HomePage() {
                       if (!row.isCurrent) {
                         return (
                           <div
-                            key={tile.type}
+                            key={tile.lessonType}
                             ref={(el) => {
-                              tileRefs.current[tileKey(row.key, tile.type)] = el;
+                              tileRefs.current[tileKey(row.key, tile.lessonType)] = el;
                             }}
-                            className={cx('home-tile', `home-tile--${tile.type}`, 'home-tile--history', isChosen && 'home-tile--chosen')}
+                            className={cx('home-tile', `home-tile--${tile.lessonType}`, 'home-tile--history', isChosen && 'home-tile--chosen')}
                           >
                             <span className="home-tile__icon">{tile.icon}</span>
                           </div>
                         );
                       }
 
-                      const key = tileKey(row.key, tile.type);
+                      const key = tileKey(row.key, tile.lessonType);
                       return (
                         <button
-                          key={tile.type}
+                          key={tile.lessonType}
                           type="button"
                           ref={(el) => {
                             tileRefs.current[key] = el;
                           }}
                           className={cx(
                             'home-tile',
-                            `home-tile--${tile.type}`,
-                            selected?.type === tile.type && 'home-tile--selected',
+                            `home-tile--${tile.lessonType}`,
+                            selected?.lessonType === tile.lessonType && 'home-tile--selected',
                           )}
-                          aria-pressed={selected?.type === tile.type}
-                          onClick={() => setSelected((prev) => (prev?.type === tile.type ? null : tile))}
+                          aria-pressed={selected?.lessonType === tile.lessonType}
+                          onClick={() => setSelected((prev) => (prev?.lessonType === tile.lessonType ? null : tile))}
                           onMouseEnter={() => setHoveredKey(key)}
                           onMouseLeave={() => setHoveredKey((prev) => (prev === key ? null : prev))}
                         >

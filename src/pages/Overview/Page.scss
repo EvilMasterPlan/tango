@@ -1,0 +1,144 @@
+.overview-page {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.overview-page__header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background-color: var(--color-bg-primary);
+}
+
+// Extends below the header's own box (top: 100%, header's position: sticky
+// makes it the containing block) — same fade treatment as Home's
+// .home-content::before, so cards scrolling up under the sticky header fade
+// out into the page background instead of being cut off by a hard edge now
+// that the header's border is gone.
+.overview-page__header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 1.5rem;
+  pointer-events: none;
+  background-image: linear-gradient(to bottom, var(--color-bg-primary) 0, transparent 100%);
+}
+
+.overview-page__back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-primary);
+  font-size: 1.25rem;
+}
+
+.overview-page__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.overview-page__sort {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.overview-page__sort-option {
+  padding: 0.4rem 0.9rem;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  background-color: transparent;
+  border: none;
+  border-radius: 0.5rem;
+}
+
+.overview-page__sort-option--active {
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-secondary);
+}
+
+.overview-page__content {
+  padding: 1.5rem;
+}
+
+.overview-page__empty {
+  color: var(--color-text-secondary);
+  text-align: center;
+  padding: 3rem 0;
+}
+
+.overview-page__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3rem 0.5rem;
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+.overview-page__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+// Word + meaning sit right on top of each other — a much tighter gap than
+// the space before the radar chart below them (.overview-page__card's own
+// gap), which reads better as one connected header block.
+.overview-page__word-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+// A bit bigger than the surrounding body text, so the word (and its
+// furigana reading, sized in em off of this) reads clearly at grid scale.
+.overview-page__word-info .vocabulary-display__furigana-word {
+  font-size: 1.35rem;
+}
+
+.overview-page__definition {
+  margin-top: -0.15rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.overview-page__sentinel {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.overview-page__loading-more {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 1024px) {
+  .overview-page__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .overview-page__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .overview-page__grid {
+    grid-template-columns: 1fr;
+  }
+}
