@@ -39,16 +39,22 @@ export function QuizSummary({ total, rounds, initialMasteryByWordID, scoring = {
   const lastIndex = uniqueRounds.length - 1;
 
   // scoring.scoringBreakdown is [{ type: 'lesson_complete', ... }, { type:
-  // 'word', wordID, questionsCorrect, questionsIncorrect, points }, ...],
-  // one "word" entry per unique word in the same first-seen order as
-  // `uniqueRounds` (the backend derives both from the same per-round
-  // sequence) — a word may show up across several rounds (different skill
-  // keys), and its points/counts here are the sum across all of them, not
-  // just one per word.
+  // 'consecutive_bonus', points }, { type: 'word', wordID, questionsCorrect,
+  // questionsIncorrect, points }, ...], one "word" entry per unique word in
+  // the same first-seen order as `uniqueRounds` (the backend derives both
+  // from the same per-round sequence) — a word may show up across several
+  // rounds (different skill keys), and its points/counts here are the sum
+  // across all of them, not just one per word.
   const lessonCompleteEntry = scoring.scoringBreakdown.find((entry) => entry.type === 'lesson_complete');
+  const consecutiveBonusEntry = scoring.scoringBreakdown.find((entry) => entry.type === 'consecutive_bonus');
   const wordScoringById = new Map(
     scoring.scoringBreakdown.filter((entry) => entry.type === 'word').map((entry) => [entry.wordID, entry]),
   );
+  // Neither has a word of its own to be "credited" alongside — both land in
+  // the reward's starting value up front, same as lesson_complete already
+  // did, rather than waiting for a word to become current like the per-word
+  // bonuses below.
+  const initialReward = (lessonCompleteEntry?.points || 0) + (consecutiveBonusEntry?.points || 0);
 
   function rewardForWordId(id) {
     return wordScoringById.get(id)?.points || 0;
@@ -62,7 +68,7 @@ export function QuizSummary({ total, rounds, initialMasteryByWordID, scoring = {
   // below — manual navigation, and the current-word panel itself, are
   // deliberately locked out/hidden until then.
   const [autoRotating, setAutoRotating] = useState(true);
-  const [reward, setReward] = useState(lessonCompleteEntry?.points || 0);
+  const [reward, setReward] = useState(initialReward);
   // Bumped each time a word's bonus is credited — passed to the reward
   // StatCard as `pulseKey` so it mounts a fresh flash overlay (and thus
   // replays the animation) on every increase, not just the first. Starts

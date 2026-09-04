@@ -3,6 +3,7 @@
   height: 100dvh; /* Dynamic viewport height - accounts for mobile browser UI */
   max-height: 100vh;
   max-height: 100dvh;
+  position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -19,9 +20,9 @@
   }
 }
 
-// Bare loading/error state — shown before the first lesson has ever
-// loaded, in place of the header/main/footer layout (a subsequent "Next
-// Lesson" reload keeps that chrome and crossfades instead).
+// Bare error state — shown if the first lesson load fails, in place of the
+// header/main/footer layout (see Quiz.jsx; the loading state itself is
+// LoadingOverlay, not this).
 .quiz-page--status {
   align-items: center;
   justify-content: center;

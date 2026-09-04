@@ -1,0 +1,35 @@
+// Sits on top of whatever page renders it — position: absolute, so the
+// caller needs position: relative (or similar) on its own root. Same
+// background as the page itself and no border, so it just reads as the page
+// not having appeared yet rather than a distinct loading screen.
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-primary);
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.loading-overlay--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-overlay__spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 3px solid var(--color-border-primary);
+  border-top-color: var(--color-accent-primary);
+  border-radius: 50%;
+  animation: loading-overlay-spin 0.7s linear infinite;
+}
+
+@keyframes loading-overlay-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

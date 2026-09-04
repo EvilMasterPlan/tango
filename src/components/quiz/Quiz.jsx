@@ -7,10 +7,12 @@ import { SpellingSlots } from '@/components/quiz/answering/SpellingSlots';
 import { SpellingTiles } from '@/components/quiz/answering/SpellingTiles';
 import { ReadingInput } from '@/components/quiz/answering/ReadingInput';
 import { Button } from '@/components/shared/Button';
+import { LoadingOverlay } from '@/components/shared/LoadingOverlay';
 import { QuizHeader } from '@/components/quiz/chrome/QuizHeader';
 import { QuizFooter } from '@/components/quiz/chrome/QuizFooter';
 import { QuizSummary } from '@/components/quiz/summary/QuizSummary';
 import { SettingsDialog } from '@/components/quiz/chrome/SettingsDialog';
+import { useMinimumLoadingDuration } from '@/hooks/useMinimumLoadingDuration';
 import { cx } from '@/utils/cx';
 import './Quiz.scss';
 
@@ -64,9 +66,13 @@ export function Quiz() {
   // ?type= selects the lesson's emphasis — see OvermindAPI's
   // modernQuiz/lessonPools.js LessonType for the valid values; forwarded
   // as-is to generateLesson, which defaults server-side if it's missing or
-  // unrecognized.
+  // unrecognized. ?choice=, when present, is the TANGO_LessonChoices row
+  // (see useNextLessons) this lesson was picked from — missing when a
+  // lesson's started without going through the home page (e.g. a direct
+  // /lesson?type= link), which generateLesson already tolerates.
   const [searchParams] = useSearchParams();
   const lessonType = searchParams.get('type');
+  const choiceId = searchParams.get('choice');
 
   const [rounds, setRounds] = useState(null);
   // Word id -> mastery, captured once right after a lesson loads, before
@@ -133,7 +139,7 @@ export function Quiz() {
     setIsLoading(true);
     setLoadError(null);
     try {
-      const { questions, lessonID: newLessonID } = await modernQuizApi.generateLesson(lessonType);
+      const { questions, lessonID: newLessonID } = await modernQuizApi.generateLesson(lessonType, choiceId);
       setRounds(questions);
       const startingMasteryByWordID = Object.fromEntries(questions.map((round) => [round.entry.id, round.mastery]));
       setInitialMasteryByWordID(startingMasteryByWordID);
@@ -152,7 +158,7 @@ export function Quiz() {
     } finally {
       setIsLoading(false);
     }
-  }, [lessonType]);
+  }, [lessonType, choiceId]);
 
   useEffect(() => {
     loadLesson();
@@ -330,16 +336,10 @@ export function Quiz() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentRound, mode, choices, selectedIndex, spellingSlots, typedAnswer, phase, isTransitioning, isSettingsOpen]);
 
-  // Only the very first load (no rounds yet) takes over the whole page —
+  // Only the very first load (no rounds yet) shows the full-page overlay —
   // a "Next Lesson" reload keeps the existing chrome and reuses the
   // crossfade instead (see handleNextLesson).
-  if (isLoading && !rounds) {
-    return (
-      <div className="quiz-page quiz-page--status">
-        <p>Loading lesson...</p>
-      </div>
-    );
-  }
+  const showLoading = useMinimumLoadingDuration(isLoading && !rounds);
 
   if (loadError && !rounds) {
     return (
@@ -356,85 +356,92 @@ export function Quiz() {
 
   return (
     <div className="quiz-page">
-      {/* Inert whenever the settings dialog is open — it's portaled outside
-          this subtree (see SettingsDialog), so this doesn't touch it, but it
-          does stop the quiz behind it from being reachable by Tab/click or
-          exposed to assistive tech while the dialog has focus. */}
-      <div className="quiz-page__interactive" inert={isSettingsOpen ? '' : undefined}>
-        <QuizHeader
-          results={results}
-          currentIndex={phase === 'summary' ? -1 : questionIndex}
-          total={rounds.length}
-          onSettingsClick={handleSettingsClick}
-        />
+      {/* Only mounted once a lesson has actually loaded — rounds.length and
+          friends below assume a lesson exists. Before that, the overlay
+          below is the only thing showing. */}
+      {rounds && (
+        // Inert whenever the settings dialog is open — it's portaled outside
+        // this subtree (see SettingsDialog), so this doesn't touch it, but it
+        // does stop the quiz behind it from being reachable by Tab/click or
+        // exposed to assistive tech while the dialog has focus.
+        <div className="quiz-page__interactive" inert={isSettingsOpen ? '' : undefined}>
+          <QuizHeader
+            results={results}
+            currentIndex={phase === 'summary' ? -1 : questionIndex}
+            total={rounds.length}
+            onSettingsClick={handleSettingsClick}
+          />
 
-        <main className="quiz-page__main">
-          <div className={cx('quiz__content', isTransitioning && 'quiz__content--hidden', phase === 'summary' && 'quiz__content--summary')}>
-            {phase === 'summary' ? (
-              <QuizSummary
-                total={rounds.length}
-                rounds={rounds}
-                initialMasteryByWordID={initialMasteryByWordID}
-                scoring={lessonScore}
-              />
-            ) : (
-              <>
-                <VocabularyDisplay
-                  entry={entry}
-                  hidden={hidden}
-                  ghostText={ghostText}
-                  revealed={phase === 'review'}
-                  mastery={mastery}
-                  currentSkillKey={phase === 'answer' ? skillKey : null}
+          <main className="quiz-page__main">
+            <div className={cx('quiz__content', isTransitioning && 'quiz__content--hidden', phase === 'summary' && 'quiz__content--summary')}>
+              {phase === 'summary' ? (
+                <QuizSummary
+                  total={rounds.length}
+                  rounds={rounds}
+                  initialMasteryByWordID={initialMasteryByWordID}
+                  scoring={lessonScore}
                 />
-                <div className="quiz__answer-area">
-                  {mode === 'spelling' ? (
-                    <>
-                      <SpellingSlots
-                        tiles={tiles}
-                        slots={spellingSlots}
+              ) : (
+                <>
+                  <VocabularyDisplay
+                    entry={entry}
+                    hidden={hidden}
+                    ghostText={ghostText}
+                    revealed={phase === 'review'}
+                    mastery={mastery}
+                    currentSkillKey={phase === 'answer' ? skillKey : null}
+                  />
+                  <div className="quiz__answer-area">
+                    {mode === 'spelling' ? (
+                      <>
+                        <SpellingSlots
+                          tiles={tiles}
+                          slots={spellingSlots}
+                          correctAnswer={correctAnswer}
+                          revealed={phase === 'review'}
+                          onRemove={handleRemoveTile}
+                        />
+                        <SpellingTiles
+                          tiles={tiles}
+                          usedTileIndices={usedTileIndices}
+                          revealed={phase === 'review'}
+                          onSelect={handlePlaceTile}
+                        />
+                      </>
+                    ) : mode === 'typing' ? (
+                      <ReadingInput
+                        key={questionIndex}
+                        typedAnswer={typedAnswer}
                         correctAnswer={correctAnswer}
                         revealed={phase === 'review'}
-                        onRemove={handleRemoveTile}
+                        onChange={setTypedAnswer}
                       />
-                      <SpellingTiles
-                        tiles={tiles}
-                        usedTileIndices={usedTileIndices}
+                    ) : (
+                      <ChoiceGrid
+                        choices={choices}
+                        selectedIndex={selectedIndex}
+                        onSelect={setSelectedIndex}
+                        correctIndex={correctIndex}
                         revealed={phase === 'review'}
-                        onSelect={handlePlaceTile}
+                        emphasized={hidden === 'word'}
+                        japanese={hidden !== 'definition'}
                       />
-                    </>
-                  ) : mode === 'typing' ? (
-                    <ReadingInput
-                      key={questionIndex}
-                      typedAnswer={typedAnswer}
-                      correctAnswer={correctAnswer}
-                      revealed={phase === 'review'}
-                      onChange={setTypedAnswer}
-                    />
-                  ) : (
-                    <ChoiceGrid
-                      choices={choices}
-                      selectedIndex={selectedIndex}
-                      onSelect={setSelectedIndex}
-                      correctIndex={correctIndex}
-                      revealed={phase === 'review'}
-                      emphasized={hidden === 'word'}
-                      japanese={hidden !== 'definition'}
-                    />
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        </main>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          </main>
 
-        <QuizFooter>
-          <Button onClick={footerAction} disabled={footerDisabled}>{footerLabel}</Button>
-        </QuizFooter>
-      </div>
+          <QuizFooter>
+            <Button onClick={footerAction} disabled={footerDisabled}>{footerLabel}</Button>
+          </QuizFooter>
+        </div>
+      )}
 
       {isSettingsOpen && <SettingsDialog onClose={() => setIsSettingsOpen(false)} />}
+
+      <LoadingOverlay active={showLoading} />
     </div>
   );
 }
