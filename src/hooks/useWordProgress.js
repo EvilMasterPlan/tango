@@ -4,18 +4,21 @@ import { modernQuizApi } from '@/utils/api/modernQuiz';
 const PAGE_SIZE = 30;
 
 // Infinite-scroll pagination for the /overview word grid. `isLoading` is
-// only true for a sort order's very first page (drives a full-cover
+// only true for a sort's very first page (drives a full-cover
 // LoadingOverlay); later pages toggle `isLoadingMore` instead (drives a
 // small inline indicator at the bottom of the grid).
 //
-// `setSortOrder('newest' | 'oldest')` resets `words`/offset/`hasMore` and
-// re-fetches page one under the new order. A generation counter
-// (`requestIDRef`), bumped on every
-// reset, lets an in-flight request from the order just abandoned recognize
-// itself as stale and discard its result instead of clobbering the new
-// order's (already-reset) state once it resolves.
+// `selectSort('recency' | 'challenge' | 'mastery')` and
+// `setJlptLevel('N5' | ... | null)` each reset `words`/offset/`hasMore` and
+// re-fetch page one under the new sort/filter. A generation counter
+// (`requestIDRef`), bumped on every reset, lets an in-flight request from
+// the sort/filter just abandoned recognize itself as stale and discard its
+// result instead of clobbering the new one's (already-reset) state once it
+// resolves.
 export function useWordProgress() {
-  const [sortOrder, setSortOrder] = useState('newest');
+  const [sortBy, setSortBy] = useState('recency');
+  const [sortDirection, setSortDirection] = useState('desc');
+  const [jlptLevel, setJlptLevel] = useState(null);
   const [words, setWords] = useState([]);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
@@ -25,15 +28,15 @@ export function useWordProgress() {
   const loadingRef = useRef(false);
   const requestIDRef = useRef(0);
 
-  const fetchPage = useCallback(async (order, offset, requestID) => {
+  const fetchPage = useCallback(async (by, direction, level, offset, requestID) => {
     loadingRef.current = true;
     if (offset === 0) setIsLoading(true);
     else setIsLoadingMore(true);
     setError(null);
 
     try {
-      const response = await modernQuizApi.getWordProgress(offset, PAGE_SIZE, order);
-      if (requestID !== requestIDRef.current) return; // a newer sortOrder reset this away — discard.
+      const response = await modernQuizApi.getWordProgress(offset, PAGE_SIZE, by, direction, level);
+      if (requestID !== requestIDRef.current) return; // a newer sort/jlptLevel reset this away — discard.
 
       const page = response.words || [];
       offsetRef.current = offset + PAGE_SIZE;
@@ -54,22 +57,58 @@ export function useWordProgress() {
 
   const loadMore = useCallback(() => {
     if (loadingRef.current || !hasMore) return;
-    fetchPage(sortOrder, offsetRef.current, requestIDRef.current);
-  }, [fetchPage, hasMore, sortOrder]);
+    fetchPage(sortBy, sortDirection, jlptLevel, offsetRef.current, requestIDRef.current);
+  }, [fetchPage, hasMore, sortBy, sortDirection, jlptLevel]);
 
-  // Fires on mount and every sortOrder change — resets local state and
-  // starts a fresh page one under the (possibly new) order. Bumping
-  // requestIDRef first invalidates any still-in-flight request from a
-  // just-abandoned order (see fetchPage's requestID check above).
+  // Toggles jlptLevel off if the same filter is clicked again, applies it
+  // otherwise — filters are off by default and only one can be active.
+  const toggleJlptLevel = useCallback((level) => {
+    setJlptLevel((current) => (current === level ? null : level));
+  }, []);
+
+  // The three sort toggles (Recency/Challenge/Mastery) are mutually
+  // exclusive, unlike the filters — clicking the already-active one flips
+  // its direction (the "click switches to the not-currently-shown state"
+  // toggle philosophy), clicking a different one switches to it without
+  // touching direction, so whichever toggle you land on next reads the
+  // same up/down as whatever was already selected.
+  const selectSort = useCallback(
+    (criterion) => {
+      if (criterion === sortBy) {
+        setSortDirection((current) => (current === 'desc' ? 'asc' : 'desc'));
+      } else {
+        setSortBy(criterion);
+      }
+    },
+    [sortBy]
+  );
+
+  // Fires on mount and every sortBy/sortDirection/jlptLevel change — resets
+  // local state and starts a fresh page one under the (possibly new)
+  // sort/filter. Bumping requestIDRef first invalidates any still-in-flight
+  // request from a just-abandoned sort/filter (see fetchPage's requestID
+  // check above).
   useEffect(() => {
     requestIDRef.current += 1;
     offsetRef.current = 0;
     loadingRef.current = false;
     setWords([]);
     setHasMore(true);
-    fetchPage(sortOrder, 0, requestIDRef.current);
+    fetchPage(sortBy, sortDirection, jlptLevel, 0, requestIDRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortOrder]);
+  }, [sortBy, sortDirection, jlptLevel]);
 
-  return { words, isLoading, isLoadingMore, hasMore, error, sortOrder, setSortOrder, loadMore };
+  return {
+    words,
+    isLoading,
+    isLoadingMore,
+    hasMore,
+    error,
+    sortBy,
+    sortDirection,
+    selectSort,
+    jlptLevel,
+    setJlptLevel: toggleJlptLevel,
+    loadMore,
+  };
 }

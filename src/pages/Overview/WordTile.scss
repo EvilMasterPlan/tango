@@ -1,0 +1,97 @@
+@use '@/components/shared/mixins';
+
+// Same "3D pressable" face as the home page's lesson tiles (thick border +
+// flat drop-shadow "lip"), but static — these tiles aren't clickable, so
+// there's no hover/press treatment, just the resting look.
+.word-tile {
+  @include mixins.quiz-button-base;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  text-align: left;
+  background-color: var(--color-bg-secondary);
+  border: 3px solid var(--color-border-primary);
+  box-shadow: 0 4px 0 0 var(--color-border-primary);
+}
+
+// Border/lip tinted to the word's JLPT level, matching GemChart's own
+// per-level hues (see FACET_HUES/JLPT_GEM_COLORS) — N5 blue through N1 red,
+// defaulting to blue for words with no JLPT level. Kept dull/dark, in the
+// same register as --color-border-primary (#374151, a muted slate), so the
+// tint reads as a hint rather than competing with the card's own content.
+.word-tile[data-jlpt-color='blue'] {
+  border-color: hsl(210, 30%, 33%);
+  box-shadow: 0 4px 0 0 hsl(210, 30%, 33%);
+}
+
+.word-tile[data-jlpt-color='green'] {
+  border-color: hsl(140, 25%, 30%);
+  box-shadow: 0 4px 0 0 hsl(140, 25%, 30%);
+}
+
+.word-tile[data-jlpt-color='yellow'] {
+  border-color: hsl(50, 30%, 35%);
+  box-shadow: 0 4px 0 0 hsl(50, 30%, 35%);
+}
+
+.word-tile[data-jlpt-color='orange'] {
+  border-color: hsl(30, 30%, 35%);
+  box-shadow: 0 4px 0 0 hsl(30, 30%, 35%);
+}
+
+.word-tile[data-jlpt-color='red'] {
+  border-color: hsl(0, 30%, 35%);
+  box-shadow: 0 4px 0 0 hsl(0, 30%, 35%);
+}
+
+.word-tile__info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  // Lets this column actually shrink to the space left over once the fixed-
+  // width gem is laid out, rather than the flex row's default min-width
+  // (its content's natural width) refusing to shrink below that — needed
+  // for useShrinkTileText's fit check against this element's clientWidth to
+  // mean anything.
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+// Wraps FuriganaWord for sizing/clipping purposes — display/overflow/
+// white-space go here, on a plain div, rather than on the <ruby> element
+// itself. Putting them directly on the ruby (as an earlier version of this
+// did) overrides its native display: ruby and breaks the browser's own
+// ruby-annotation layout, which showed up as wildly exaggerated spacing
+// between kanji. font-size set here is inherited down into the ruby (which
+// has none of its own), so useShrinkTileText's inline font-size writes to
+// this wrapper still shrink the word normally. No ellipsis (see
+// .word-tile__definition below) since truncating mid-ruby reads worse than
+// a plain hard clip.
+.word-tile__word {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 1.6rem;
+}
+
+// The reading sits at 0.35em of the word's own font-size by default
+// (VocabularyDisplay.scss) — bumped up here so it grows faster than the
+// word itself as this tile's base size increases.
+.word-tile__word .vocabulary-display__furigana-word > rt {
+  font-size: 0.45em;
+}
+
+.word-tile__definition {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-top: -0.4rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}

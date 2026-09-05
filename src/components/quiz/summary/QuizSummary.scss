@@ -176,12 +176,12 @@
   align-items: center;
   gap: 0.4rem;
 
-  .radar-chart {
+  .gem-chart {
     width: 1.5rem;
     height: 1.5rem;
   }
 
-  .mastery-pentagon__level {
+  .mastery-gem__level {
     display: none;
   }
 }
@@ -273,12 +273,12 @@
   opacity: 0;
   transition: opacity 0.4s ease;
 
-  .radar-chart {
+  .gem-chart {
     width: 5rem;
     height: 5rem;
   }
 
-  .mastery-pentagon__level {
+  .mastery-gem__level {
     font-size: 0.8rem;
   }
 }
@@ -324,7 +324,7 @@
     font-size: 1rem;
   }
 
-  .quiz-summary__score-list-content .radar-chart {
+  .quiz-summary__score-list-content .gem-chart {
     width: 1.25rem;
     height: 1.25rem;
   }
@@ -336,7 +336,7 @@
   .quiz-summary__current {
     font-size: 1.6rem;
 
-    .radar-chart {
+    .gem-chart {
       width: 3.75rem;
       height: 3.75rem;
     }

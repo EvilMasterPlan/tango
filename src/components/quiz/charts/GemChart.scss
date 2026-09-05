@@ -1,0 +1,120 @@
+.gem-chart {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: block;
+}
+
+// Innermost reference pentagon — the word's current level, drawn at the
+// same radius every non-extended axis in __fill already floors at.
+.gem-chart__floor {
+  fill: none;
+  stroke: var(--color-border-primary);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  opacity: 0.35;
+}
+
+// One per iteration still needed before the next level — soft grey guide
+// rings stacked between __floor and __outline. Brighter than __floor so
+// they read as active progress markers, but still clearly dimmer than
+// __outline's level-up threshold.
+.gem-chart__iteration-ring {
+  fill: none;
+  stroke: var(--color-text-muted);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  opacity: 0.3;
+}
+
+// Outer edge — also the last iteration ring, i.e. the level-up threshold —
+// kept brighter than the intermediate __iteration-ring rings via both a
+// lighter stroke color and higher opacity.
+.gem-chart__outline {
+  fill: none;
+  stroke: var(--color-text-muted);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  opacity: 1;
+}
+
+.gem-chart__hatch-line {
+  stroke: var(--color-text-secondary);
+  stroke-width: 1.1;
+}
+
+// The sliver a previewed axis's extra step would add beyond the current
+// shape (see `previewDelta` in GemChart.jsx) — not the whole future shape.
+.gem-chart__preview {
+  stroke: var(--color-text-secondary);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  opacity: 0.8;
+}
+
+// One triangular facet (center to two adjacent axis points) of the
+// current-mastery shape — fill is set per-facet inline (a shade of red,
+// simulating light catching a cut gem's faces). No stroke, so adjacent
+// facets blend into one shape rather than reading as separate tiles.
+.gem-chart__facet {
+  stroke: none;
+}
+
+// A border around just the current-mastery shape (not the preview or
+// attempted/hatched shapes) — drawn on top of the facets so it reads as a
+// crisp edge around that shape specifically.
+.gem-chart__border {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+// The gem's core — a solid pentagon at the floor radius, always drawn on
+// top of the facets/pulse/minimum-shape layers regardless of props. Its
+// fill/stroke are set inline (a random shade from the same family as the
+// facets), so this only carries the shared shape properties.
+.gem-chart__core {
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+// Marks exactly where the previewed axis would land — a small dark-ringed
+// dot so the change is legible even when the hatched preview area itself is
+// too thin a sliver to read at this size (rendered last, on top of __fill).
+.gem-chart__preview-marker {
+  fill: #ffffff;
+  stroke: var(--color-bg-primary);
+  stroke-width: 0.5;
+}
+
+// The "before vs. after" reveal's target-shape layer — a plain solid-white
+// fill (not faceted) whose opacity gently pulses, so the shape it's drawn
+// over (the hatched __preview layer at the same shape) shows through part
+// of the cycle. Kept flat rather than faceted so the reveal itself stays
+// legible as a clean alternation, not a flicker across many facet colors.
+.gem-chart__reveal-pulse {
+  fill: #ffffff;
+  stroke: #ffffff;
+  stroke-width: 1;
+  stroke-linejoin: round;
+  animation: gem-chart-pulse 1.5s ease-in-out infinite;
+}
+
+// Smooth full-range oscillation, timed to approximate a sine wave — a
+// single ease-in-out'd 0%/50%/100% keyframe pair is enough for that shape
+// without needing to sample an actual sine curve into more stops.
+@keyframes gem-chart-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .gem-chart {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+}

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { RadarChart } from '@/components/quiz/charts/RadarChart';
+import { GemChart } from '@/components/quiz/charts/GemChart';
 import './Page.scss';
 
 // One value per column-pair / row-pair — see buildGrid below. The real app
@@ -56,7 +57,7 @@ export function RadarDebugPage() {
       <div className="radar-debug">
         <div className="radar-debug__grid">
           {charts.map((chart) => (
-            <RadarChart
+            <GemChart
               key={chart.id}
               values={chart.correctCounts}
               previewIndex={chart.previewIndex}

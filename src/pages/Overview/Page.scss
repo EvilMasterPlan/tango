@@ -9,8 +9,8 @@
   top: 0;
   z-index: 1;
   display: flex;
-  align-items: center;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.75rem;
   padding: 1.25rem 1.5rem;
   background-color: var(--color-bg-primary);
 }
@@ -25,9 +25,15 @@
   left: 0;
   right: 0;
   top: 100%;
-  height: 1.5rem;
+  height: 2.75rem;
   pointer-events: none;
   background-image: linear-gradient(to bottom, var(--color-bg-primary) 0, transparent 100%);
+}
+
+.overview-page__nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .overview-page__back {
@@ -44,13 +50,34 @@
   font-weight: 700;
 }
 
-.overview-page__sort {
+// Holds every mutually-exclusive view toggle (currently just Recency) —
+// unlike __filters, at most one of these is ever "on", and each is its own
+// single button rather than a pair, so there's no active/inactive pairing
+// to lay out here beyond a shared gap.
+.overview-page__toggles {
   display: flex;
   gap: 0.5rem;
   margin-left: auto;
 }
 
-.overview-page__sort-option {
+// The second header row — filters and toggles sit inline with each other,
+// filters on the left and toggles pushed to the right via __toggles'
+// margin-left: auto above.
+.overview-page__controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+// Always shows its current state, not a fixed label — clicking switches to
+// the other state (see the ToggleButton component). Three of these
+// (Recency/Challenge/Mastery) sit in a mutually-exclusive group, so unlike
+// a lone toggle it also needs its own dim/active look to show which one is
+// presently applied.
+.overview-page__toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
   padding: 0.4rem 0.9rem;
   color: var(--color-text-secondary);
   font-size: 0.85rem;
@@ -60,12 +87,75 @@
   border-radius: 0.5rem;
 }
 
-.overview-page__sort-option--active {
+.overview-page__toggle--active {
   color: var(--color-text-primary);
   background-color: var(--color-bg-secondary);
 }
 
+.overview-page__toggle-arrow {
+  font-size: 0.7rem;
+  color: var(--color-text-secondary);
+}
+
+.overview-page__toggle--active .overview-page__toggle-arrow {
+  color: var(--color-text-primary);
+}
+
+.overview-page__filters {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.overview-page__filter-option {
+  padding: 0.4rem 0.9rem;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  background-color: var(--color-bg-secondary);
+  border: 2px solid transparent;
+  border-radius: 0.5rem;
+}
+
+// Each level's active state tints toward the same hue GemChart uses for
+// that JLPT level (see FACET_HUES/JLPT_GEM_COLORS) — N5 blue through N1 red.
+.overview-page__filter-option--n5.overview-page__filter-option--active {
+  color: hsl(210, 75%, 30%);
+  background-color: hsl(210, 75%, 90%);
+  border-color: hsl(210, 75%, 60%);
+}
+
+.overview-page__filter-option--n4.overview-page__filter-option--active {
+  color: hsl(140, 75%, 25%);
+  background-color: hsl(140, 75%, 90%);
+  border-color: hsl(140, 75%, 55%);
+}
+
+.overview-page__filter-option--n3.overview-page__filter-option--active {
+  color: hsl(50, 75%, 25%);
+  background-color: hsl(50, 75%, 88%);
+  border-color: hsl(50, 75%, 55%);
+}
+
+.overview-page__filter-option--n2.overview-page__filter-option--active {
+  color: hsl(30, 75%, 30%);
+  background-color: hsl(30, 75%, 88%);
+  border-color: hsl(30, 75%, 55%);
+}
+
+.overview-page__filter-option--n1.overview-page__filter-option--active {
+  color: hsl(0, 75%, 35%);
+  background-color: hsl(0, 75%, 90%);
+  border-color: hsl(0, 75%, 60%);
+}
+
 .overview-page__content {
+  position: relative;
+  // Without a floor, this collapses to just its padding while `words` is
+  // empty (the moment a toggle/filter change resets it, right when the
+  // loading overlay below needs somewhere to actually render) — a stable
+  // minimum keeps the overlay's spinner from cramming into a sliver instead
+  // of the results area it's replacing.
+  min-height: 40vh;
   padding: 1.5rem;
 }
 
@@ -78,39 +168,9 @@
 .overview-page__grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 3rem 0.5rem;
+  gap: 1rem;
   max-width: 72rem;
   margin: 0 auto;
-}
-
-.overview-page__card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  text-align: center;
-}
-
-// Word + meaning sit right on top of each other — a much tighter gap than
-// the space before the radar chart below them (.overview-page__card's own
-// gap), which reads better as one connected header block.
-.overview-page__word-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-}
-
-// A bit bigger than the surrounding body text, so the word (and its
-// furigana reading, sized in em off of this) reads clearly at grid scale.
-.overview-page__word-info .vocabulary-display__furigana-word {
-  font-size: 1.35rem;
-}
-
-.overview-page__definition {
-  margin-top: -0.15rem;
-  color: var(--color-text-secondary);
-  font-size: 0.9rem;
 }
 
 .overview-page__sentinel {

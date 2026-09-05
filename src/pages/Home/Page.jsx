@@ -44,6 +44,11 @@ const LESSON_METADATA_BY_LESSON_TYPE = {
     title: 'From the Top',
     subtitle: 'Back to basics',
   },
+  jlpt_n5: {
+    icon: 'N5',
+    title: 'JLPT N5',
+    subtitle: 'Study for the test',
+  },
 };
 
 function buildTiles(options) {

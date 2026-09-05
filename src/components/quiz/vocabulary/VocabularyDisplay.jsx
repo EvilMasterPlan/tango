@@ -2,7 +2,8 @@ import { Fragment, useLayoutEffect, useRef } from 'react';
 import { getChallengeRating } from '@/utils/challengeRating';
 import { cx } from '@/utils/cx';
 import { shrinkFontToFit } from '@/utils/shrinkFontToFit';
-import { MasteryPentagon } from '@/components/quiz/charts/MasteryPentagon';
+import { MasteryGem } from '@/components/quiz/charts/MasteryGem';
+import { jlptGemColor } from '@/utils/jlptGemColor';
 import './VocabularyDisplay.scss';
 
 // Shrinks the word text down to fit on one line, for words too long to fit
@@ -90,7 +91,12 @@ export function VocabularyDisplay({ entry, hidden, ghostText, revealed = false, 
       {/* Same fixed width as the rating column on the right, so the centered
           content in the middle stays centered on the card as a whole. */}
       <div className="vocabulary-display__side vocabulary-display__mastery" aria-hidden="true">
-        <MasteryPentagon mastery={mastery} currentSkillKey={currentSkillKey} justLeveledUp={justLeveledUp} />
+        <MasteryGem
+          mastery={mastery}
+          currentSkillKey={currentSkillKey}
+          justLeveledUp={justLeveledUp}
+          color={jlptGemColor(entry.jlpt)}
+        />
       </div>
 
       <div className="vocabulary-display__center">

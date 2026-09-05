@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { IoChevronBack, IoChevronForward } from 'react-icons/io5';
 import { CoinIcon } from '@/components/quiz/summary/CoinIcon';
-import { MasteryPentagon } from '@/components/quiz/charts/MasteryPentagon';
+import { MasteryGem } from '@/components/quiz/charts/MasteryGem';
+import { jlptGemColor } from '@/utils/jlptGemColor';
 import { NumberDial } from '@/components/quiz/summary/NumberDial';
 import { StatCard } from '@/components/quiz/summary/StatCard';
 import { FuriganaWord } from '@/components/quiz/vocabulary/VocabularyDisplay';
@@ -238,7 +239,7 @@ export function QuizSummary({ total, rounds, initialMasteryByWordID, scoring = {
                   <div className="quiz-summary__score-list-item">
                     <div className="quiz-summary__score-list-content">
                       <span className={rewardClassName}>{wordReward > 0 ? `+${wordReward}` : '--'}</span>
-                      <MasteryPentagon mastery={mastery} />
+                      <MasteryGem mastery={mastery} color={jlptGemColor(entry.jlpt)} />
                       <IoChevronBack className={caretClassName} aria-hidden="true" />
                     </div>
                   </div>
@@ -263,10 +264,11 @@ export function QuizSummary({ total, rounds, initialMasteryByWordID, scoring = {
           <div className={cx('quiz-summary__current', !autoRotating && 'quiz-summary__current--visible')}>
             <FuriganaWord furigana={current.entry.furigana} />
             <div className="quiz-summary__current-definition">{current.entry.definition}</div>
-            <MasteryPentagon
+            <MasteryGem
               key={current.entry.id}
               mastery={current.mastery}
               initialMastery={initialMasteryByWordID[current.entry.id]}
+              color={jlptGemColor(current.entry.jlpt)}
             />
           </div>
         )}

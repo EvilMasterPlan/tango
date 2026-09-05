@@ -175,17 +175,22 @@
   --tile-accent: var(--color-accent-warning);
 }
 
-// No spare theme accent left for a 5th tile type, so this one uses a
-// literal color instead of the shared accent tokens above.
+// No spare theme accent left for a 5th/6th tile type, so these use literal
+// colors instead of the shared accent tokens above.
 .home-tile--from_the_top {
   --tile-accent: #a78bfa;
+}
+
+.home-tile--jlpt_n5 {
+  --tile-accent: #f472b6;
 }
 
 .home-tile--new_words,
 .home-tile--level_up,
 .home-tile--fix_mistakes,
 .home-tile--kanji_spotlight,
-.home-tile--from_the_top {
+.home-tile--from_the_top,
+.home-tile--jlpt_n5 {
   border-color: var(--tile-accent);
   box-shadow: 0 4px 0 0 var(--tile-accent);
 }

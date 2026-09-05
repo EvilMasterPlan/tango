@@ -40,10 +40,19 @@ export const modernQuizApi = {
     return makePostRequest(getUrl(`${TANGO_API_PREFIX}/modern-quiz/complete-lesson`), { lessonId, answers });
   },
   // { words: [{ entry, mastery }, ...], hasMore } — every word the user has
-  // ever practiced, one page at a time, ordered by most recent attempt
-  // (`sortOrder` 'newest', the default, or 'oldest' to reverse it). Same
-  // entry/mastery shape as generateLesson's rounds.
-  getWordProgress: async (offset, limit = 30, sortOrder = 'newest') => {
-    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/modern-quiz/word-progress`), { offset, limit, sortOrder });
+  // ever practiced, one page at a time, ordered by `sortBy` ('recency', the
+  // default, 'challenge', or 'mastery') and `sortDirection` ('desc', the
+  // default — most-recent/highest-score/highest-mastery first — or 'asc' to
+  // reverse it). Same entry/mastery shape as generateLesson's rounds.
+  // `jlptLevel` (optional, e.g. 'N5') restricts the page to words tagged
+  // with that JLPT level.
+  getWordProgress: async (offset, limit = 30, sortBy = 'recency', sortDirection = 'desc', jlptLevel = null) => {
+    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/modern-quiz/word-progress`), {
+      offset,
+      limit,
+      sortBy,
+      sortDirection,
+      jlptLevel,
+    });
   },
 };

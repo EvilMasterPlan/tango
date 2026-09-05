@@ -10,7 +10,7 @@ import { modernQuizApi } from '@/utils/api/modernQuiz';
 // won't get recorded against anything.
 const FALLBACK_CURRENT = {
   id: null,
-  options: ['new_words', 'level_up', 'fix_mistakes', 'kanji_spotlight', 'from_the_top'],
+  options: ['new_words', 'level_up', 'fix_mistakes', 'kanji_spotlight', 'from_the_top', 'jlpt_n5'],
   selectedType: null,
 };
 
