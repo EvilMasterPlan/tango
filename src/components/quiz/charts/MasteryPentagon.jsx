@@ -14,7 +14,7 @@ import './MasteryPentagon.scss';
 // `levelFloorIteration` below, derived from `level`/`iterationsForNextLevel`
 // rather than the raw `iteration` bottleneck) — RadarChart scales both its
 // iteration-progress rings and each axis's own point off of that floor (an
-// axis further ahead of it sits further out, not just "extended" vs "not").
+// axis further ahead of it sits further out).
 // `level` (1-indexed — a fresh word starts at level 1) is also shown as its
 // own label underneath.
 //
@@ -28,9 +28,9 @@ import './MasteryPentagon.scss';
 // a fixed baseline shape, plus a hatched "attempted" shape for how far each
 // axis would reach if every attempt made since then (right or wrong) had
 // been correct, with the real (correct-only) shape pulsing on top of it —
-// see QuizSummary, showing both the progress made and the mistakes made
-// getting there over the course of one quiz. `animationDelay` staggers
-// that pulse relative to other pentagons animating at the same time.
+// showing both the progress made and the mistakes made getting there over
+// the course of one quiz. `animationDelay` staggers that pulse relative to
+// other pentagons animating at the same time.
 //
 // `justLeveledUp` (optional) is for the one review-phase edge case where
 // `mastery` already reflects a level-up earned by the answer just graded —

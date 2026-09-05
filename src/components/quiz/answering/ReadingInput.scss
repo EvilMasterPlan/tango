@@ -96,15 +96,16 @@
   color: var(--color-text-primary);
   background-color: var(--color-bg-secondary);
   border: 3px solid var(--color-border-primary);
-  // Inset shadow, not a raised bottom "lip" like ChoiceButton/SpellingSlot —
-  // this should read as a field to fill in, not a button to press.
+  // Inset shadow, not a raised bottom "lip" — this should read as a field
+  // to fill in, not a button to press.
   box-shadow: inset 0 2px 4px 0 var(--color-shadow-medium);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .modern-reading-input::placeholder {
-  // English prompt text — the input itself is set to --font-jp since typed
-  // answers are Japanese, but the placeholder shouldn't inherit that.
+  // English prompt text — the input itself is set to the Japanese font
+  // since typed answers are Japanese, but the placeholder shouldn't
+  // inherit that.
   font-family: var(--font-default);
   color: var(--color-text-disabled);
   font-weight: 500;
@@ -116,8 +117,8 @@
   box-shadow: inset 0 2px 4px 0 var(--color-shadow-medium), 0 0 0 3px rgba(96, 165, 250, 0.25);
 }
 
-// Same gold/black success-fail treatment as ChoiceButton/SpellingSlots.
-// Text is transparent here, not dark-on-gold — the shine layers above sit
+// Gold/black success-fail treatment. Text is transparent here, not
+// dark-on-gold — the shine layers above sit
 // between this input and its crisp text duplicate (.success-label below),
 // so native text would otherwise render underneath the shine and go muddy.
 .modern-reading-input--success {
@@ -127,9 +128,9 @@
   box-shadow: none;
 }
 
-// Duplicates the answer on a layer above the shine (z-index higher than its
-// ::before/::after) so it stays crisp and dark instead of getting washed out
-// underneath the animated overlay.
+// Duplicates the answer on a layer above the shine (z-index higher than
+// its ::before/::after) so it stays crisp and dark, unaffected by the
+// animated overlay beneath it.
 .modern-reading-input__success-label {
   position: absolute;
   inset: 0;

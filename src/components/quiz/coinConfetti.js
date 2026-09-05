@@ -1,6 +1,6 @@
 import confetti from 'canvas-confetti';
 
-// A simplified version of our own CoinIcon.jsx (a circle with a small
+// A simplified version of the app's coin icon (a circle with a small
 // diamond punched out) as an SVG path — the two subpaths wind in opposite
 // directions (the outer circle clockwise, the inner diamond counter-
 // clockwise) so the default nonzero fill rule renders the diamond as a
@@ -32,9 +32,8 @@ export function fireCoinConfetti(origin) {
 }
 
 // A smaller, quieter burst than fireCoinConfetti above — used for the
-// per-word reward pop-ins during the quiz summary's rotation (see
-// QuizSummary.jsx) rather than the bigger in-quiz correct-answer
-// celebration, so it stays a small accent instead of competing with it.
+// per-word reward pop-ins during the quiz summary's rotation, so it stays
+// a small accent rather than competing with the bigger in-quiz celebration.
 export function fireRewardConfetti(origin) {
   confetti({
     particleCount: 3,

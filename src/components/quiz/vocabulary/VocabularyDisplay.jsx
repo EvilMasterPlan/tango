@@ -9,11 +9,9 @@ import './VocabularyDisplay.scss';
 // at the base 4rem — both possible renderings (the plain word line, and the
 // merged furigana view, whose reading rides along for free since it's sized
 // in em relative to this) are shrunk independently, since either can be the
-// one on screen depending on `hidden`/`revealed` (see VocabularyDisplay
-// below). Measures against .vocabulary-display__word-block's own width
-// rather than each prompt's, since that's the stable, not-itself-overflowing
-// ancestor both prompts stretch to fill — same reasoning as ChoiceGrid
-// measuring off its grid container rather than each button.
+// one on screen depending on `hidden`/`revealed`. Measures against
+// .vocabulary-display__word-block's own width, since that's the stable,
+// not-itself-overflowing ancestor both prompts stretch to fill.
 function useShrinkWordToFit(wordBlockRef, promptRefs, deps) {
   useLayoutEffect(() => {
     const container = wordBlockRef.current;
@@ -24,9 +22,8 @@ function useShrinkWordToFit(wordBlockRef, promptRefs, deps) {
       if (!el) return;
 
       // Forces the text onto one line so scrollWidth reveals its true
-      // natural width instead of whatever width it already wrapped to fit —
-      // restored after, so the CSS word-break fallback still guards extreme
-      // cases beyond the minimum font scale.
+      // natural width — restored after, so the CSS word-break fallback
+      // still guards extreme cases beyond the minimum font scale.
       el.style.whiteSpace = 'nowrap';
       shrinkFontToFit(el, () => el.scrollWidth <= container.clientWidth + 1);
       el.style.whiteSpace = '';
@@ -54,10 +51,10 @@ function Blank({ ghostText }) {
 // grouping algorithm merges consecutive non-<rt> children into one shared
 // base up to the next <rt> it finds, so an omitted <rt> after a middle kana
 // run (e.g. の in 男の人) would silently fuse it with the following kanji
-// run and center that kanji's reading over both. Splitting this into one
-// <ruby> per segment instead would copy/paste with a stray newline inserted
-// between segments (Chromium treats each <ruby> as its own text-
-// serialization block), so it has to stay one element.
+// run and center that kanji's reading over both. This has to stay one
+// element — splitting it into one <ruby> per segment introduces a stray
+// newline between segments in Chromium's copy/paste serialization (which
+// treats each <ruby> as its own text-serialization block).
 export function FuriganaWord({ furigana }) {
   return (
     <ruby className="vocabulary-display__furigana-word">
@@ -78,8 +75,7 @@ export function FuriganaWord({ furigana }) {
 // fine there since there's nothing to align it against yet. Once both are
 // known (hidden === 'definition' from the start, or hidden === 'word'/
 // 'reading' once revealed), they're merged into a single furigana display
-// so each reading segment sits directly over its own kanji instead of just
-// floating, centered, over the word as a whole.
+// so each reading segment sits directly over its own kanji.
 export function VocabularyDisplay({ entry, hidden, ghostText, revealed = false, mastery, currentSkillKey, justLeveledUp }) {
   const showFurigana = hidden === 'definition' || revealed;
   const challengeRating = getChallengeRating(entry.score);
@@ -92,8 +88,7 @@ export function VocabularyDisplay({ entry, hidden, ghostText, revealed = false, 
   return (
     <div className="vocabulary-display">
       {/* Same fixed width as the rating column on the right, so the centered
-          content in the middle stays centered on the card as a whole rather
-          than drifting toward the rating's side. */}
+          content in the middle stays centered on the card as a whole. */}
       <div className="vocabulary-display__side vocabulary-display__mastery" aria-hidden="true">
         <MasteryPentagon mastery={mastery} currentSkillKey={currentSkillKey} justLeveledUp={justLeveledUp} />
       </div>

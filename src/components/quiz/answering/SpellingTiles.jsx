@@ -3,10 +3,8 @@ import { cx } from '@/utils/cx';
 import './SpellingTiles.scss';
 
 // Mirrors the fixed layout constants in SpellingTiles.scss / Quiz.scss so
-// row capacity can be computed as a pure function of viewport width, rather
-// than measured off the live DOM (getComputedStyle + ResizeObserver proved
-// unreliable in practice — overestimated capacity and never triggered
-// balancing at all). If those .scss values change, update these too.
+// row capacity can be computed as a pure function of viewport width. If
+// those .scss values change, update these too.
 const MOBILE_BREAKPOINT = 768; // @media (max-width: 768px) in both files
 const CONTENT_MAX_WIDTH = 500; // .quiz__content max-width, Quiz.scss
 const MOBILE_HORIZONTAL_PADDING = 24; // .quiz-page__main padding: 0.75rem each side, Quiz.scss
@@ -59,8 +57,8 @@ function useViewportWidth() {
 }
 
 // The tile bank: every character in `tiles`, with already-placed ones
-// dimmed and disabled rather than removed — seeing what you placed reads
-// better than a hole where a tile used to be.
+// dimmed and disabled — seeing what you placed reads better than a hole
+// in the bank.
 export function SpellingTiles({ tiles, usedTileIndices, revealed = false, onSelect }) {
   const viewportWidth = useViewportWidth();
   const capacity = tileCapacityForViewport(viewportWidth);

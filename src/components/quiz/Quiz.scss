@@ -20,9 +20,9 @@
   }
 }
 
-// Bare error state — shown if the first lesson load fails, in place of the
-// header/main/footer layout (see Quiz.jsx; the loading state itself is
-// LoadingOverlay, not this).
+// Bare error state, shown if the first lesson load fails, in place of the
+// header/main/footer layout; the loading state itself is a separate
+// overlay.
 .quiz-page--status {
   align-items: center;
   justify-content: center;
@@ -33,8 +33,8 @@
 }
 
 // Wraps header/main/footer only — the settings dialog portals outside this
-// (see Quiz.jsx) — purely so `inert` can pull the quiz out of the
-// interaction/AT tree while the dialog is open. Otherwise transparent: same
+// — purely so `inert` can pull the quiz out of the interaction/AT tree
+// while the dialog is open. Otherwise transparent: same
 // flex column as .quiz-page so header/main/footer lay out exactly as if
 // this wrapper weren't here.
 .quiz-page__interactive {
@@ -44,25 +44,22 @@
   min-height: 0;
 }
 
-// Keeps the word display in about the same vertical position across question
-// types by top-aligning the content column at a fixed padding, rather than
-// centering it — centering a variable-height column (answer areas differ in
-// height question to question) would shift its top edge around exactly as
-// much as it kept the block's own center fixed. Header and footer are
-// pinned by .quiz-page's own fixed viewport height regardless, so there's
-// no longer a need for the content column itself to hold a constant height
-// the way it used to (see the answer-area components, which no longer
-// reserve worst-case space for this reason).
+// Keeps the word display in about the same vertical position across
+// question types by top-aligning the content column at a fixed padding.
+// Centering a variable-height column (answer areas differ in height
+// question to question) would shift its top edge around by however much it
+// kept the block's own center fixed. Header and footer are pinned by
+// .quiz-page's own fixed viewport height regardless.
 .quiz-page__main {
   flex: 1;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   padding: 1.5rem;
-  // A scrollable fallback, not the primary defense — the dvh-based clamp()s
-  // on VocabularyDisplay/ChoiceButton keep content sized to fit the
-  // available height in the first place; this only kicks in for whatever
-  // they don't cover, so short content never gets silently clipped.
+  // A scrollable fallback, not the primary defense — dvh-based clamp()s
+  // elsewhere keep content sized to fit the available height in the first
+  // place; this only kicks in for whatever they don't cover, so short
+  // content never gets silently clipped.
   overflow-y: auto;
   min-height: 0; // allow this flex item to shrink below its content size
 }
@@ -84,11 +81,10 @@
 }
 
 // The summary's word-review section wants to fill the space down to the
-// footer (see .quiz-summary__review in QuizSummary.scss) rather than
-// shrink-wrap and sit top-aligned like every other phase's content does —
-// align-self overrides just this item's cross-axis alignment within
-// .quiz-page__main (which top-aligns everything else by default, see
-// above) without touching that behavior for any other phase.
+// footer, unlike every other phase's content, which shrink-wraps and sits
+// top-aligned. align-self overrides just this item's cross-axis alignment
+// within .quiz-page__main, without touching that behavior for any other
+// phase.
 .quiz__content--summary {
   align-self: stretch;
   height: 100%;
@@ -113,10 +109,9 @@
 }
 
 @media (max-width: 768px) {
-  // Vertical space is still tighter on short phones even though nothing
-  // reserves worst-case height anymore — a bit less padding/gap here just
-  // means the word display sits a little higher and rows sit a little
-  // closer, leaving more of that tighter budget for content itself.
+  // Vertical space is tighter on short phones — a bit less padding/gap
+  // here just means the word display sits a little higher and rows sit a
+  // little closer, leaving more of that tighter budget for content itself.
   .quiz-page__main {
     padding: 0.75rem;
   }
@@ -128,7 +123,7 @@
   .quiz__answer-area {
     // Narrower than desktop's 2.5rem (vertical space is tighter here), but
     // still clearly wider than a plain section gap for the same reason as
-    // desktop — see the comment on the base rule above.
+    // desktop.
     gap: 1.75rem;
   }
 }

@@ -6,7 +6,7 @@ import './ChoiceButton.scss';
 // kanji differences are easy to miss at the normal size.
 // japanese: true when the choice text itself is Japanese (word or reading
 // choices) rather than an English definition — renders in the user's
-// chosen Japanese font (see SettingsContext) instead of the default one.
+// chosen Japanese font instead of the default one.
 // success/fail are otherwise conveyed by color alone (the CSS variant
 // classes above) — this appends a plain-text status so screen readers and
 // colorblind users get the same "correct"/"your answer, incorrect" signal

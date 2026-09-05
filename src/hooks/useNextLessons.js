@@ -5,9 +5,9 @@ import { modernQuizApi } from '@/utils/api/modernQuiz';
 // leaving the home page with no tiles at all — simpler than trying to
 // remember the last successful state, and erring toward showing more
 // options rather than fewer feels like the safer failure mode here. `id` is
-// null since there's no real TANGO_LessonChoices row behind it — generateLesson
-// already tolerates a missing choiceId (see modernQuiz.js), so picking a
-// fallback tile just won't get recorded against anything.
+// null since there's no real row behind it — the lesson-generation endpoint
+// already tolerates a missing choiceId, so picking a fallback tile just
+// won't get recorded against anything.
 const FALLBACK_CURRENT = {
   id: null,
   options: ['new_words', 'level_up', 'fix_mistakes', 'kanji_spotlight', 'from_the_top'],
@@ -15,9 +15,9 @@ const FALLBACK_CURRENT = {
 };
 
 // Fetches the current user's { current, history } choice rows fresh on
-// every mount — see OvermindAPI's tango/quiz.js getNextLessons — rather
-// than caching across visits, since `current` can change between one home
-// page load and the next (e.g. a lesson completed elsewhere).
+// every mount, rather than caching across visits, since `current` can
+// change between one home page load and the next (e.g. a lesson completed
+// elsewhere).
 export function useNextLessons() {
   const [current, setCurrent] = useState(null);
   const [history, setHistory] = useState([]);

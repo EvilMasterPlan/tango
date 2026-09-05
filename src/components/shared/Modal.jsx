@@ -6,10 +6,9 @@ import { cx } from '@/utils/cx';
 import './Modal.scss';
 
 // A centered dialog panel over a dismissible backdrop (Escape, a backdrop
-// click, or the close button all call `onClose`) — the shell SettingsDialog
-// used to own itself. Focuses the close button on mount so keyboard/screen-
-// reader users land somewhere sensible without the caller needing its own
-// ref plumbing.
+// click, or the close button all call `onClose`). Focuses the close button
+// on mount so keyboard/screen-reader users land somewhere sensible without
+// the caller needing its own ref plumbing.
 export function Modal({ title, onClose, children, className }) {
   const closeButtonRef = useRef(null);
   const titleId = useId();

@@ -14,24 +14,22 @@
   overflow: hidden;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 
-  // Unlike ChoiceButton/SpellingSlots/the word cards, these aren't
-  // clickable — just recolor the frame and foot to the accent on hover,
-  // no lift/press transform and no change to the foot's own size.
+  // Not clickable — hover just recolors the frame and foot to the accent,
+  // with no lift/press transform and no change to the foot's own size.
   &:hover {
     border-color: var(--color-accent-primary);
     box-shadow: 0 4px 0 0 var(--color-accent-primary);
   }
 }
 
-// Reward card's "you just earned points" cue — replaces the old confetti
-// burst. A child of .quiz-stat-card__value (not the outer card) so it only
-// covers the dark inset window holding the count/coin, not the whole frame
-// — a plain absolute-positioned child paints after its non-positioned
-// in-flow siblings regardless of DOM order, and clips to the window's own
-// rounded corners via `inherit`. Solid gold at a constant color; the flash
-// itself is entirely opacity —
-// a very quick ramp up to half-strength, then a slower fade back to
-// nothing, so it reads as a swift flare that lingers briefly on the way out.
+// Reward card's "you just earned points" cue. A child of
+// .quiz-stat-card__value so it only covers the dark inset window holding
+// the count/coin, not the whole frame — a plain absolute-positioned child
+// paints after its non-positioned in-flow siblings regardless of DOM
+// order, and clips to the window's own rounded corners via `inherit`.
+// Solid gold at a constant color; the flash itself is entirely opacity — a
+// very quick ramp up to half-strength, then a slower fade back to nothing,
+// so it reads as a swift flare that lingers briefly on the way out.
 .quiz-stat-card__pulse {
   position: absolute;
   inset: 0;
@@ -43,7 +41,7 @@
   // explicit resting opacity here, the animation's default fill-mode
   // (none) means the element snaps back to its unanimated default (fully
   // opaque) the instant the animation ends, leaving a solid gold pane
-  // behind permanently instead of nothing.
+  // behind permanently.
   opacity: 0;
   animation: quiz-stat-card-pulse 0.4s ease-out;
 }
@@ -91,8 +89,7 @@
   gap: 0.3em;
   // Insets the dark window on every side but the top (already separated
   // from the frame by the label's own padding above) — this is what makes
-  // the frame read as encircling the window rather than just sitting above
-  // it.
+  // the frame read as encircling the window.
   margin: 0 0.4rem 0.4rem;
   border-radius: var(--radius-sm);
   padding: 0.4rem 0.5rem;

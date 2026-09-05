@@ -9,8 +9,8 @@ const PAGE_SIZE = 30;
 // small inline indicator at the bottom of the grid).
 //
 // `setSortOrder('newest' | 'oldest')` resets `words`/offset/`hasMore` and
-// re-fetches page one under the new order — see the toggle in
-// Overview/Page.jsx. A generation counter (`requestIDRef`), bumped on every
+// re-fetches page one under the new order. A generation counter
+// (`requestIDRef`), bumped on every
 // reset, lets an in-flight request from the order just abandoned recognize
 // itself as stale and discard its result instead of clobbering the new
 // order's (already-reset) state once it resolves.

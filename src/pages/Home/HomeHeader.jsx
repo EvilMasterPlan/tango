@@ -5,9 +5,8 @@ import './HomeHeader.scss';
 
 // Sticky header for the home page. The "..." button is non-functional for
 // now — it'll become a context menu later. `points` comes from the parent
-// page (see Page.jsx) rather than fetched here, so its loading state can be
-// combined with the rest of the page's — see useOverallStats/LoadingOverlay
-// there.
+// page rather than fetched here, so its loading state can be combined with
+// the rest of the page's.
 export function HomeHeader({ points }) {
   return (
     <header className="home-header">

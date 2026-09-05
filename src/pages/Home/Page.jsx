@@ -11,17 +11,13 @@ import { cx } from '@/utils/cx';
 import { HomeHeader } from '@/pages/Home/HomeHeader';
 import '@/pages/Home/Page.scss';
 
-// Display metadata for each backend lesson type (OvermindAPI's
-// tango/modernQuiz/lessonPools.js LessonType) — which of these actually
+// Display metadata for each backend lesson type — which of these actually
 // show up, and in what order, comes from useNextLessons per user/load;
 // this is just how to render whichever ones do. Keyed by the same lesson
-// type string used for CSS class suffixes (`home-tile--${lessonType}`, see
-// Page.scss) and tile/ref keys below, so there's one name per lesson type
-// rather than a separate display-only alias. `icon` is a single bold kanji
-// rather than an emoji — plain text, so .home-tile__icon can tint it to the
-// tile's own --tile-accent color (see Page.scss), which an emoji glyph
-// (rendered by the system's color emoji font, ignoring CSS `color`)
-// couldn't be.
+// type string used for CSS class suffixes and tile/ref keys below, so
+// there's one name per lesson type. `icon` is a single bold kanji rendered
+// as plain text, so .home-tile__icon can tint it with CSS color to the
+// tile's own accent.
 const LESSON_METADATA_BY_LESSON_TYPE = {
   new_words: {
     icon: '新',
@@ -74,9 +70,8 @@ function tileKey(rowKey, tileType) {
 const HOLE_BOTTOM_GAP_FRACTION = 0.75;
 
 // How far above the current row's top edge the "hole" stops when there's no
-// history row to split the gap with — i.e. a first-time user with only
-// their one current row still gets a shallow dip behind it rather than no
-// hole at all.
+// history row to split the gap with — ensures a first-time user with only
+// their one current row still gets a shallow dip behind it.
 const HOLE_MIN_GAP_ABOVE_CURRENT_PX = 32;
 
 // The visible gap between a tile row and the preview card next to it (see
@@ -91,11 +86,10 @@ export function HomePage() {
   const showLoading = useMinimumLoadingDuration(isLessonsLoading || isStatsLoading);
 
   // Oldest-first: up to 5 completed history rows, then the live current row
-  // last. Every row but the last is guaranteed to have a completed lesson
-  // (see OvermindAPI's lessonChoices.js getOrCreateLessonChoices — a new
-  // row only ever gets created once the previous one's lesson is done), so
-  // only the last row is ever interactive; the rest are a fixed record of
-  // what was offered and picked.
+  // last. Every row but the last is guaranteed to have a completed lesson —
+  // a new row is only ever created once the previous one's lesson is done —
+  // so only the last row is ever interactive; the rest are a fixed record
+  // of what was offered and picked.
   const rows = useMemo(() => {
     const historyRows = [...(history || [])].reverse();
     const ordered = current ? [...historyRows, current] : historyRows;
@@ -128,13 +122,12 @@ export function HomePage() {
 
   // Shared by the preview card's "Start Lesson" button and the Enter
   // shortcut below. Records the picked tile against the user's current
-  // TANGO_LessonChoices row *before* navigating (see modernQuiz.js's
-  // selectLessonChoice) so /lesson itself needs no query params —
-  // generateLesson reads the same row back server-side. currentRow?.id is
-  // absent only for useNextLessons' FALLBACK_CURRENT (no real row to record
-  // against), and a failed record still lets the lesson start — generateLesson
-  // just falls back to its own default type, same as an unrecorded choice
-  // always has.
+  // lesson-choice row before navigating, so /lesson itself needs no query
+  // params — the lesson-generation endpoint reads the same row back
+  // server-side. currentRow?.id is absent only when there's no real row to
+  // record against, and a failed record still lets the lesson start — the
+  // endpoint just falls back to its own default type, same as an
+  // unrecorded choice always has.
   async function startSelectedLesson() {
     if (!selected || isStartingLesson) return;
     setIsStartingLesson(true);
@@ -167,8 +160,7 @@ export function HomePage() {
   // checked against those two specifically, not "outside boardRef" — the
   // flex containers' own box covers the gaps between the tile rows, so a
   // click landing in that dead space is still a DOM descendant of boardRef
-  // even though it looks like background; that previously made a chunk of
-  // the page inert.
+  // even though it looks like background.
   useEffect(() => {
     if (!selected) return;
 
@@ -189,14 +181,12 @@ export function HomePage() {
 
   // Positions .home-board's bottom edge so the current row's own center —
   // not the whole board's — sits at the right height. Default (little/no
-  // history) is dead center of .home-content, controlled by
-  // --home-next-row-initial-position. As history rows accumulate
+  // history) is dead center of .home-content. As history rows accumulate
   // above it, the current row is pushed down just enough to keep them all
-  // visible, up to --home-next-row-max-position — beyond that, it
-  // holds there and additional history simply runs off the top into the
-  // fade/clip instead of pushing the current row any further. Runs before
-  // the arrow/line-measuring effects below since they read the board's
-  // on-screen position, which this effect changes.
+  // visible, up to a configured maximum — beyond that, it holds there and
+  // additional history simply runs off the top into the fade/clip. Runs
+  // before the arrow/line-measuring effects below since they read the
+  // board's on-screen position, which this effect changes.
   //
   // currentEl.offsetTop/offsetHeight describe its position *within* boardEl
   // (its offsetParent, the nearest positioned ancestor) — unaffected by
@@ -229,16 +219,16 @@ export function HomePage() {
     return () => window.removeEventListener('resize', position);
   }, [rows]);
 
-  // Sizes the "dug hole" that history rows appear to sit inside (see
-  // .home-hole) — its width tracks the board's own natural width (the
-  // widest row), and its height runs from the top of .home-content down to
+  // Sizes the "dug hole" that history rows appear to sit inside — its
+  // width tracks the board's own natural width (the widest row), and its
+  // height runs from the top of .home-content down to
   // HOLE_BOTTOM_GAP_FRACTION of the way through the gap between the last
   // history row and the current row below it (0.75 — mostly closed, so the
-  // hole reads as ending just shy of the current row rather than stopping
-  // in the middle of open air) (or, with no history yet, to a fixed short
-  // gap above the current row — see HOLE_MIN_GAP_ABOVE_CURRENT_PX). Reads
-  // on-screen rects, so this must run after the board-positioning effect
-  // above has settled the board's `bottom` for this render.
+  // hole reads as ending just shy of the current row), or, with no history
+  // yet, to a fixed short gap above the current row
+  // (HOLE_MIN_GAP_ABOVE_CURRENT_PX). Reads on-screen rects, so this must
+  // run after the board-positioning effect above has settled the board's
+  // position for this render.
   useLayoutEffect(() => {
     function size() {
       const boardEl = boardRef.current;
@@ -311,27 +301,27 @@ export function HomePage() {
     return () => window.removeEventListener('resize', measure);
   }, [selected, currentRow]);
 
-  // Connector lines run in board-relative pixels, measured off the DOM (same
-  // reasoning as the arrow above). There's no fixed hub anymore (no raccoon
-  // tile) — the topmost row simply has no incoming lines (a first-time
-  // user, with only their one current row, sees no lines at all), and every
-  // row after the first is fed from the *previous* row's chosen tile.
-  // Within a history row, that's the *only* line drawn — its unchosen
-  // options are bygone, not live branches — so only the current (last, still
-  // interactive) row ever fans out to more than one tile.
+  // Connector lines run in board-relative pixels, measured off the DOM
+  // (same reasoning as the arrow above). The topmost row simply has no
+  // incoming lines (a first-time user, with only their one current row,
+  // sees no lines at all), and every row after the first is fed from the
+  // *previous* row's chosen tile. Within a history row, that's the *only*
+  // line drawn — its unchosen options are bygone, not live branches — so
+  // only the current (last, still interactive) row ever fans out to more
+  // than one tile.
   //
-  // Each connector is an elbow, not a straight diagonal: down from the
-  // origin to the midpoint between the two rows, across to the destination
-  // tile's x, then down into it — built as a 4-point polyline rather than a
-  // <line>. For a fan-out (3+ destinations sharing one origin), every one of
-  // those polylines starts at the *exact same* (origin.x, origin.y) and
-  // travels the *exact same* vertical-then-horizontal path up to the point
-  // each one's own branch peels off downward — so their shared portion
-  // draws pixel-for-pixel on top of itself and reads as one merged segment,
-  // with no need to compute/render that shared bus separately.
+  // Each connector is an elbow: down from the origin to the midpoint
+  // between the two rows, across to the destination tile's x, then down
+  // into it — built as a 4-point polyline. For a fan-out (3+ destinations
+  // sharing one origin), every one of those polylines starts at the
+  // *exact same* (origin.x, origin.y) and travels the *exact same*
+  // vertical-then-horizontal path up to the point each one's own branch
+  // peels off downward — so their shared portion draws pixel-for-pixel on
+  // top of itself and reads as one merged segment, with no need to
+  // compute/render that shared bus separately.
   //
   // Re-measures whenever `rows` changes since tiles don't exist yet on
-  // first paint — useNextLessons's fetch hasn't resolved.
+  // first paint, before the initial fetch resolves.
   useLayoutEffect(() => {
     function measure() {
       const boardEl = boardRef.current;
@@ -360,8 +350,8 @@ export function HomePage() {
             nextLines.push({
               key: tileKey(row.key, tile.lessonType),
               // A line into a history row is a settled, already-made pick
-              // (it can only be its chosen tile — see targetTiles above),
-              // not a live option — always lit, not hover/select-driven.
+              // (it can only be its chosen tile), so it's always lit
+              // regardless of hover/selection.
               alwaysActive: !row.isCurrent,
               points: [
                 [origin.x, origin.y],
@@ -395,27 +385,19 @@ export function HomePage() {
         <HomeHeader points={points} />
 
         <div className="home-content" ref={contentRef}>
-          {/* Clips history rows that overflow above the current one — its
-              own element, not overflow:hidden on .home-content directly, so
-              the fade below (a sibling, not a descendant of this) doesn't
-              get clipped at the same edge. See the fade's own comment for
-              why that split matters. */}
+          {/* Clips history rows that overflow above the current one. */}
           <div className="home-clip">
             <div className="home-hole" ref={holeRef} aria-hidden />
 
             <div className="home-board" ref={boardRef}>
-              {/* Two stacked, stable-order passes rather than one set reordered
-                  by active-ness: a fan-out's lines share an identical leading
-                  segment (the trunk and the run across to wherever each one's
-                  own branch peels off), and SVG has no z-index for siblings —
-                  paint order is purely DOM order. Reordering *which* line comes
-                  last so the active one paints on top works, but moving DOM
-                  nodes around every hover flickers in some browsers. Instead,
-                  every line renders twice at the same fixed position in the
+              {/* Two stacked, stable-order passes: a fan-out's lines share an
+                  identical leading segment (the trunk and the run across to
+                  wherever each one's own branch peels off), and SVG has no
+                  z-index for siblings — paint order is purely DOM order.
+                  Every line renders twice at the same fixed position in the
                   tree — a permanent grey base, and a permanent white overlay
-                  directly on top of it that just fades its own opacity in/out
-                  (see .home-lines__line--overlay) — so nothing ever needs to
-                  move, only fade. */}
+                  directly on top of it that just fades its own opacity
+                  in/out — so nothing ever needs to move, only fade. */}
               <svg className="home-lines" aria-hidden>
                 {lines.map((line) => (
                   <polyline key={line.key} points={line.points.map(([x, y]) => `${x},${y}`).join(' ')} className="home-lines__line" />

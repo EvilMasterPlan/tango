@@ -1,7 +1,5 @@
-// Pressable-button primitives shared across the app — originally lived only
-// in quiz/modern.scss; pulled out here once auth (Button/TextField) needed
-// the same base too. quiz/modern.scss forwards this so quiz components keep
-// using `modern.quiz-button-base` unchanged.
+// Pressable-button primitives shared across the app. quiz/modern.scss
+// forwards this so quiz components use `modern.quiz-button-base`.
 
 @mixin quiz-button-base {
   font-family: inherit;
@@ -17,12 +15,10 @@
 }
 
 // The lift-on-hover, push-in-on-press shadow "lip" shared by every
-// clickable pressable surface (ChoiceButton, SpellingTiles' pool tiles,
-// shared/Button). $active-lip defaults to $rest-lip — the common pattern
-// where the lip reverts to its resting color once pressed (e.g.
-// ChoiceButton's grey border) — pass $hover-lip again explicitly for a
-// surface that should stay lit through the press instead (e.g. Button's
-// colored variants). Only owns the shadow/transform triplet —
+// clickable pressable surface. $active-lip defaults to $rest-lip — the
+// common pattern where the lip reverts to its resting color once pressed —
+// pass $hover-lip again explicitly for a surface that should stay lit
+// through the press. Only owns the shadow/transform triplet —
 // background/border-color changes, which vary per surface, stay in each
 // caller's own hover/active rules.
 @mixin pressable-lip($rest-lip, $hover-lip: $rest-lip, $active-lip: $rest-lip) {
@@ -39,9 +35,9 @@
   }
 }
 
-// Shared by SpellingSlots and SpellingTiles — both are squares with the same
-// static face (size, border, color, shadow); only their interactive/reveal
-// states differ, which stay in each component's own file.
+// Shared by the quiz's square tile components — same static face (size,
+// border, color, shadow); only their interactive/reveal states differ,
+// which stay in each component's own file.
 @mixin quiz-tile-face {
   @include quiz-button-base;
   width: 4rem;

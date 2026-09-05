@@ -10,27 +10,24 @@
 
 // The viewbox below the sticky header.
 .home-content {
-  // Current row's vertical center as a fraction of height — see the
-  // board-positioning effect in Page.jsx.
+  // Current row's vertical center as a fraction of height.
   --home-next-row-initial-position: 0.3;
   --home-next-row-max-position: 0.65;
 
   position: relative;
-  // Scopes z-index comparisons to this subtree (needed for .home-hole's
-  // negative z-index below to stay local instead of escaping to the page).
+  // Scopes z-index comparisons to this subtree, keeping .home-hole's
+  // negative z-index below local to it.
   isolation: isolate;
   flex: 1;
   min-height: 0;
   padding: 1.5rem;
 }
 
-// Clips history rows that overflow above the current one. Its own element
-// rather than overflow: hidden on .home-content directly, so the fade below
-// — a sibling of this, not a descendant — doesn't get clipped at the same
-// edge. .home-board's transform can round that clip edge by a subpixel
-// relative to an untransformed sibling, which otherwise let a sliver of a
-// tile peek through right at the fade's edge (same fix as DigitReel's and
-// QuizSummary's selection-list fades).
+// Clips history rows that overflow above the current one, as its own
+// element so the fade below (a sibling, not a descendant) isn't clipped at
+// the same edge. Guards against .home-board's transform rounding that clip
+// edge by a subpixel relative to an untransformed sibling, which could
+// otherwise let a sliver of a tile peek through right at the fade's edge.
 .home-clip {
   position: absolute;
   inset: 0;
@@ -39,8 +36,7 @@
 
 // Fades overflowing history rows into the page background near the top
 // edge. Extends slightly above .home-clip's own clip edge (negative top)
-// rather than starting exactly at it, so it fully covers that edge
-// regardless of subpixel rounding there.
+// so it fully covers that edge regardless of subpixel rounding there.
 .home-content::before {
   content: '';
   position: absolute;
@@ -54,9 +50,8 @@
 }
 
 // The "dug hole" history rows sit inside — runs from the top of
-// .home-content down into the gap above the current row (sized by the
-// hole-sizing effect in Page.jsx). Rounded on the bottom only, so the top
-// reads as cut off by the fade rather than a lidded container.
+// .home-content down into the gap above the current row. Rounded on the
+// bottom only, so the top reads as cut off by the fade.
 .home-hole {
   --home-hole-padding-x: 2.5rem;
 
@@ -72,10 +67,10 @@
   background-color: color-mix(in srgb, var(--color-bg-primary) 100%, black 25%);
 }
 
-// Wraps the connector lines and stacked tile rows. `bottom` is set by
-// Page.jsx's board-positioning effect so the *current* row's center (not
-// the whole board's) lands at the right height; the fallback below is the
-// plain-CSS no-history default (dead center).
+// Wraps the connector lines and stacked tile rows. `bottom` is set at
+// runtime so the *current* row's center (not the whole board's) lands at
+// the right height; the fallback below is the plain-CSS no-history
+// default (dead center).
 .home-board {
   --home-tile-size: 4.5rem;
 
@@ -89,8 +84,8 @@
   gap: 1.75rem;
 }
 
-// Board-relative pixel coordinates (see Page.jsx) line up with no scaling
-// needed. Sits below the tiles (z-index 1) so lines appear to run behind them.
+// Board-relative pixel coordinates line up with no scaling needed. Sits
+// below the tiles (z-index 1) so lines appear to run behind them.
 .home-lines {
   position: absolute;
   inset: 0;
@@ -163,7 +158,7 @@
   }
 }
 
-// Per-type accent color, referenced as --tile-accent everywhere below.
+// Per-type accent color, referenced by the shared rule below.
 .home-tile--new_words {
   --tile-accent: var(--color-accent-secondary);
 }
@@ -180,8 +175,8 @@
   --tile-accent: var(--color-accent-warning);
 }
 
-// No spare theme accent var left for a 5th tile type — a literal color
-// rather than var(--color-accent-*) like the others above.
+// No spare theme accent left for a 5th tile type, so this one uses a
+// literal color instead of the shared accent tokens above.
 .home-tile--from_the_top {
   --tile-accent: #a78bfa;
 }
@@ -209,10 +204,10 @@
   box-shadow: 0 1px 0 0 #fff;
 }
 
-// History row tiles — a fixed record, not interactive (plain divs, so
-// pointer-events: none instead of disabled). Unchosen options render
+// History row tiles — a fixed record, not interactive: plain divs, so
+// pointer-events: none stands in for disabled. Unchosen options render
 // hatched/dimmed; the chosen one gets the gold "correct" treatment plus a
-// sheen (see ::after below).
+// sheen.
 .home-tile--history {
   pointer-events: none;
   opacity: 0.25;
@@ -271,11 +266,11 @@
   color: #fff;
 }
 
-// Points at the selected tile (`left` set inline from a measured position —
-// see Page.jsx) while the preview card stays centered under the row. Two
-// placements — below the row (default) or above it, when Page.jsx finds the
-// card doesn't fit below — each with its own edge/border/transform so the
-// diamond's point always faces the tile.
+// Points at the selected tile (`left` set inline from a measured position)
+// while the preview card stays centered under the row. Two placements —
+// below the row (default) or above it, when the card doesn't fit below —
+// each with its own edge/border/transform so the diamond's point always
+// faces the tile.
 .home-preview-arrow {
   position: absolute;
   width: 0.875rem;
@@ -299,8 +294,8 @@
 }
 
 // Lesson preview popover — dismissed via outside click/Escape, not a close
-// button (see Page.jsx). Placed below the row by default, or above it (see
-// the arrow above) when it wouldn't otherwise fit.
+// button. Placed below the row by default, or above it when it wouldn't
+// otherwise fit.
 .home-preview {
   position: absolute;
   z-index: 1;

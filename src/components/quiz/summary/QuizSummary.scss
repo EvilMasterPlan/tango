@@ -4,11 +4,9 @@
   align-items: center;
   gap: 1.25rem;
   width: 100%;
-  // Stretched to fill .quiz-page__main's full height for this phase (see
-  // .quiz__content--summary in Quiz.scss) — lets .quiz-summary__review
-  // below claim whatever's left after the title/stats rather than shrink-
-  // wrapping to its own content, which is what lets the word list actually
-  // reach down toward the page footer.
+  // Stretched to fill the available height, so .quiz-summary__review below
+  // claims whatever's left after the title/stats — that's what lets the
+  // word list reach down toward the page footer.
   height: 100%;
   min-height: 0;
 }
@@ -24,8 +22,7 @@
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  // Narrower than before now that Reward makes it four columns instead of
-  // three — keeps all four comfortably on one line at most widths.
+  // Keeps all four stat cards comfortably on one line at most widths.
   gap: 1rem;
   margin: 0;
 }
@@ -33,9 +30,8 @@
 // The two layers below (wheel/scoreboard, current-word detail) share this
 // as their positioning context, and — since neither sets an explicit
 // z-index — simply stack back-to-front in the DOM order they're written in
-// below. flex: 1 + min-height: 0 lets it claim whatever height
-// .quiz-summary above has to give (down to the page footer) rather than
-// sizing to its own content.
+// below. flex: 1 and min-height: 0 let it claim whatever height is
+// available, down to the page footer.
 .quiz-summary__review {
   position: relative;
   flex: 1;
@@ -52,30 +48,25 @@
   overflow: hidden;
 }
 
-// Positioned with its own top pinned to the viewport's vertical center
-// (rather than computing that center in JS/px) so centering the current
-// row on any row height, at any viewport height, is just "shift up by
-// however many rows (plus half a row, to reach its middle) come before
-// it" — no measuring the container needed. --current-index is set inline
-// per render in QuizSummary.jsx.
+// Positioned with its own top pinned to the viewport's vertical center, so
+// centering the current row on any row height, at any viewport height, is
+// just "shift up by however many rows (plus half a row, to reach its
+// middle) come before it" — no measuring the container needed. The current
+// row index is set inline per render.
 .quiz-summary__selection-strip {
   position: absolute;
   top: 50%;
   left: 0;
   right: 0;
-  // Comfortably shorter than the intro sweep's flat per-word delay
-  // (ROTATE_DELAY_MS, 220ms in QuizSummary.jsx), so this always finishes
-  // easing in before the next step fires rather than getting cut off
-  // mid-transition.
+  // Comfortably shorter than the intro sweep's flat per-word delay, so this
+  // always finishes easing in before the next step fires.
   transition: transform 0.18s cubic-bezier(0.15, 0.85, 0.3, 1);
   transform: translateY(calc(-1 * (var(--current-index, 0) + 0.5) * var(--word-row-height, 2.75rem)));
 }
 
 // One row per word, spanning the section's full width — the word on the
-// left, the reward/mastery glance on the right (see the rules below).
-// Purely a layout row; "current" is marked entirely by the two carets
-// (see .quiz-summary__selection-caret) rather than anything on the row
-// itself.
+// left, the reward/mastery glance on the right. Purely a layout row;
+// "current" is marked entirely by the two carets.
 .quiz-summary__selection-row {
   height: var(--word-row-height, 2.75rem);
   display: flex;
@@ -83,12 +74,11 @@
   justify-content: space-between;
 }
 
-// A <button> (jumps straight to this word once clickable, see
-// QuizSummary.jsx) reset back down to a plain left-aligned, transparent
-// wrapper — height: 100% so the whole row's height is clickable, not just
-// the label's own line height. flex-basis mirrors .quiz-summary__score-
-// list-item's own below, so the row's middle (where Layer 2's current-word
-// panel shows) sits centered on the row rather than lopsided.
+// A <button> (clicking jumps straight to this word) reset back down to a
+// plain left-aligned, transparent wrapper — height: 100% so the whole row's
+// height is clickable. flex-basis mirrors .quiz-summary__score-list-item's
+// own below, keeping the row's middle (where Layer 2's current-word panel
+// shows) centered on the row.
 .quiz-summary__word-list-item {
   flex: 0 0 32%;
   min-width: 0;
@@ -102,8 +92,8 @@
   background: none;
   cursor: pointer;
 
-  // Disabled during the intro sweep (see QuizSummary.jsx) — every word is
-  // visible-but-inert until then, cursor included.
+  // Disabled during the intro sweep — every word is visible-but-inert
+  // until then, cursor included.
   &:disabled {
     cursor: default;
   }
@@ -125,26 +115,21 @@
   color: var(--color-text-secondary);
 }
 
-// The current word's own label still marks itself the same way it always
-// has.
 .quiz-summary__selection-row--current .quiz-summary__word-list-label {
   color: var(--color-text-primary);
   font-weight: 700;
 }
 
 .quiz-summary__selection-row--current .quiz-summary__word-list-item:hover:not(:disabled) .quiz-summary__word-list-label {
-  // Stays fully bright on hover too — unlike the plain hover rule above,
-  // dimming to --color-text-secondary here would read as this word losing
-  // its "current" status rather than just being hovered.
+  // Stays fully bright on hover too, so hovering the current word never
+  // reads as it losing its current status.
   color: var(--color-text-primary);
 }
 
-// The two carets pinned to each row's outer edge (see QuizSummary.jsx).
-// Reserves its layout space at every row (opacity, not display/mount), not
-// just the current one, so nothing shifts when it appears. No transition
-// of its own on the base rule — only --visible below carries one, which is
-// what makes appearing fade in smoothly but disappearing (the class being
-// removed, falling back to this rule) snap instantly, per the brief.
+// The two carets pinned to each row's outer edge. Reserves layout space at
+// every row via opacity (not display/mount), so nothing shifts when it
+// appears. Only the visible modifier below carries a transition, so
+// appearing fades in smoothly while disappearing snaps instantly.
 .quiz-summary__selection-caret {
   flex-shrink: 0;
   width: 1rem;
@@ -155,16 +140,14 @@
 
 .quiz-summary__selection-caret--visible {
   opacity: 1;
-  // drop-shadow (not box-shadow, which would just glow the icon's square
-  // bounding box) for a subtle halo that follows the chevron's actual
-  // shape — scales in "for free" alongside the opacity fade below, since a
-  // shadow cast by a still-fading-in (mostly transparent) icon is itself
-  // proportionally faint.
+  // drop-shadow gives a subtle halo that follows the chevron's actual
+  // shape, scaling in for free alongside the opacity fade below since a
+  // still-fading-in (mostly transparent) icon casts a proportionally faint
+  // shadow.
   filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.75));
   // Short enough to clearly register within the intro sweep's flat
-  // per-word delay (ROTATE_DELAY_MS in QuizSummary.jsx) — a longer,
-  // gentler fade would barely have begun before the row moves on and snaps
-  // it back to invisible.
+  // per-word delay — a longer, gentler fade would barely have begun before
+  // the row moves on and snaps it back to invisible.
   transition: opacity 0.08s linear;
 }
 
@@ -175,12 +158,9 @@
 }
 
 // Right-aligned mirror of the word column: the reward earned on this word,
-// then (right at the outer edge) a small static mastery diagram — no
-// preview/pulse/hatching, just the settled shape, since this is a
-// scoreboard glance rather than the detailed "before vs. after" the
-// current-word panel shows. Same flex-basis as .quiz-summary__word-list-
-// item, see above; purely a layout slot, same reasoning as
-// .quiz-summary__selection-row.
+// then (right at the outer edge) a small static mastery diagram — just the
+// settled shape, since this is a scoreboard glance. Same flex-basis as
+// .quiz-summary__word-list-item; purely a layout slot.
 .quiz-summary__score-list-item {
   flex: 0 0 32%;
   min-width: 0;
@@ -206,10 +186,9 @@
   }
 }
 
-// Hidden until this word's row has been the current one at least once (see
-// revealedWordIds in QuizSummary.jsx) — reserves its layout space the
-// whole time via opacity rather than display, so revealing it never
-// shifts the radar diagram next to it.
+// Hidden until this word's row has been the current one at least once —
+// reserves its layout space the whole time via opacity, so revealing it
+// never shifts the radar diagram next to it.
 .quiz-summary__score-list-reward {
   min-width: 2rem;
   text-align: right;
@@ -224,11 +203,11 @@
   opacity: 1;
 }
 
-// A reward (vs. the plain grey "--") reveals as a flash rather than a
-// plain fade: it pops in near-instantly already at a bright white, then
-// that white eases into the resting gold over a much longer beat — the
-// quick opacity transition is what makes it read as a "flash," the slow
-// color settle is what makes the flash feel like it's cooling into place.
+// A reward reveals as a flash: it pops in near-instantly already at a
+// bright white, then that white eases into the resting gold over a much
+// longer beat — the quick opacity transition is what makes it read as a
+// "flash," the slow color settle is what makes it feel like it's cooling
+// into place.
 .quiz-summary__score-list-reward--positive {
   color: #ffffff;
   transition: opacity 0.15s ease, color 0.6s ease-out 0.05s;
@@ -238,15 +217,12 @@
   color: var(--color-quiz-success);
 }
 
-// Same color as whatever this section sits directly on (the page
-// background, not a card face — see .quiz-page in Quiz.scss) fading to
-// transparent, so the strip reads as scrolling past the viewport's edges
-// rather than being visibly clipped. Siblings of .quiz-summary__selection-
-// list, not children (see QuizSummary.jsx) — living outside that element's
-// own overflow: hidden means the 0.5rem overhang below genuinely paints
-// past the list's clip edge instead of being clipped away right alongside
-// it, which is what covers the hairline seam a transformed child (the
-// strip) can leave at that edge (same technique as DigitReel's own fade).
+// Matches the color of whatever this section sits directly on, fading to
+// transparent, so the strip reads as scrolling past the viewport's edges.
+// Siblings of .quiz-summary__selection-list — living outside that
+// element's own overflow: hidden lets the 0.5rem overhang below genuinely
+// paint past the list's clip edge, covering the hairline seam a
+// transformed child can leave at that edge.
 .quiz-summary__selection-fade {
   position: absolute;
   left: 0;
@@ -272,24 +248,15 @@
 }
 
 // Layer 2: the current word's full detail — reading, word, meaning, and a
-// larger mastery diagram, the same content WordReviewModal used to show in
-// a popup, now overlaid on top of Layer 1's selection list (absolutely,
-// covering the whole section — see .quiz-summary__review above) instead of
-// sitting in a flex column next to it. pointer-events: none throughout
-// (not just while hidden) lets clicks/wheel input pass straight through to
-// the selection list underneath, since nothing in here needs to be
-// directly interactive. Kept mounted (and taking up this layout space)
-// throughout the intro sweep rather than conditionally rendered — see
-// --visible below — since racing it through every word alongside the list
-// would just be visual noise; it only earns its keep once there's an
-// actual "current" word worth lingering on.
-// max-width + margin: 0 auto centers this on the section as a whole (not
-// just within whatever's left after the side lists, the way a plain flex
-// column would) while keeping clear of the word/score columns on either
-// side. A single centered block, not split top/bottom — now that the
-// carets sit at each row's outer edge (see QuizSummary.jsx) rather than
-// flanking the middle, there's nothing in the vertical middle that needs a
-// gap left for it.
+// larger mastery diagram — absolutely positioned over Layer 1's selection
+// list. pointer-events: none throughout lets clicks/wheel input pass
+// straight through to the selection list underneath, since nothing in here
+// needs to be directly interactive. Kept mounted (and taking up this
+// layout space) throughout the intro sweep, since racing it through every
+// word alongside the list would just be visual noise; it only earns its
+// keep once there's an actual "current" word worth lingering on.
+// max-width + margin: 0 auto centers this on the section as a whole while
+// keeping clear of the word/score columns on either side.
 .quiz-summary__current {
   position: absolute;
   inset: 0;
@@ -331,20 +298,18 @@
 .quiz-summary__current-definition {
   font-size: 0.85rem;
   color: var(--color-text-secondary);
-  // Crammed right up against the word — these two read as one unit, the
-  // real separation is below, before the pentagon. More negative than
-  // .quiz-summary__current's own 0.5rem flex gap (not just canceling it),
-  // so this actually overlaps into the word's own line-height rather than
-  // just removing the gap between them.
+  // Crammed right up against the word so the two read as one unit — the
+  // real separation is below, before the pentagon. The margin is large
+  // enough to overlap into the word's own line-height, beyond just closing
+  // the flex gap between them.
   margin-top: -1.0rem;
 }
 
 @media (max-width: 768px) {
   // Total is the least essential of the four at a glance (Correct +
   // Incorrect already add up to it) — dropping it leaves the remaining
-  // three room to sit comfortably on one line instead of wrapping.
-  // :first-child rather than a dedicated prop/class since Total is always
-  // the first of the four StatCards in QuizSummary.jsx.
+  // three room to sit comfortably on one line. Total is always the first
+  // of the four stat cards, so :first-child targets it directly.
   .quiz-summary__stats > .quiz-stat-card:first-child {
     display: none;
   }

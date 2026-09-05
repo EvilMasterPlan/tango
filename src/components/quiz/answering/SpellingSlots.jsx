@@ -7,15 +7,15 @@ import './SpellingSlots.scss';
 // (empty, unclickable) or a tile index into `tiles` — indexing by tile
 // rather than by character so removing a slot frees exactly the tile that
 // filled it, even when the answer repeats a kana. Clicking a filled slot
-// clears it; Quiz.jsx handles shifting the remaining tiles left. Once
+// clears it; the parent handles shifting the remaining tiles left. Once
 // `revealed`, each slot compares its placed character against
 // `correctAnswer` at that position.
 export function SpellingSlots({ tiles, slots, correctAnswer, revealed = false, onRemove }) {
   const containerRef = useRef(null);
 
   // Coin confetti bursts from the slots row as a whole when every letter's
-  // correct — unlike ChoiceGrid, there's no single "the right answer" button
-  // to center it on, so which exact spot it bursts from matters much less.
+  // correct — there's no single "the right answer" button to center it on
+  // here, so which exact spot it bursts from matters much less.
   useEffect(() => {
     if (!revealed || !containerRef.current) return;
     const isFullyCorrect = slots.every((tileIndex, i) => tileIndex !== null && tiles[tileIndex] === correctAnswer[i]);

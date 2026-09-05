@@ -2,11 +2,8 @@
   display: flex;
   flex-direction: row;
   // center (not stretch) so the mastery pentagon and challenge rating sit
-  // vertically centered against the word/reading/definition block instead
-  // of both being pinned near the top of it — see the two .vocabulary-
-  // display__side rules below, which used to compensate for that with a
-  // manual padding-top nudge that's no longer needed now that this does
-  // the real centering.
+  // vertically centered against the word/reading/definition block, rather
+  // than pinned near the top of it.
   align-items: center;
   width: 100%;
   border-radius: var(--radius-lg);
@@ -24,8 +21,8 @@
 // Fixed-width so the challenge rating never grows/shrinks with its digits
 // (it's always exactly 3), and its blank mirror on the left keeps the
 // center content visually centered on the card as a whole. Wide enough to
-// fit the mastery pentagon (2.75rem, MasteryPentagon.scss) without the
-// parent's overflow: hidden clipping it.
+// fit the mastery pentagon without the parent's overflow: hidden clipping
+// it.
 .vocabulary-display__side {
   flex: 0 0 3rem;
 }
@@ -93,16 +90,13 @@
   flex-direction: column;
 }
 
-// The clamp()s below (reused, with a narrower ceiling, on --word/--furigana
-// too) are a dvh-based safety net against short *viewports*, not just small
-// *screens* — a resized/short desktop browser window is just as capable of
-// clipping this content as a phone is. Coefficients are tuned so the
-// preferred (dvh) value only overtakes the max on viewports shorter than
-// ~700px tall, comfortably below any normal desktop window, so ordinary
-// desktop use still renders at exactly the old flat sizes; it's only once a
-// viewport gets genuinely short that this starts shrinking, floored so it
-// never becomes illegible. See the mobile override below for the
-// additional, narrower cap that also accounts for limited *width*.
+// The clamp()s below (reused, with a narrower ceiling, on the word/furigana
+// prompts too) are a dvh-based safety net against short viewports — a
+// resized/short desktop browser window is just as capable of clipping this
+// content as a phone is. Coefficients are tuned so the dvh value only
+// overtakes the max on viewports shorter than ~700px tall, comfortably
+// below any normal desktop window; only once a viewport gets genuinely
+// short does this start shrinking, floored so it never becomes illegible.
 .vocabulary-display__prompt--reading {
   font-size: clamp(0.9rem, 3.5dvh, 1.5rem);
   font-weight: 500;
@@ -132,10 +126,9 @@
   line-height: 1.3;
 }
 
-// Base class for the FuriganaWord component itself — also reused undecorated
-// (outside any .vocabulary-display__prompt wrapper) by QuizSummary's
-// current-word panel, so the font is set here rather than only on the
-// --furigana prompt above.
+// Base class for the FuriganaWord component itself — also reused
+// undecorated elsewhere (outside any .vocabulary-display__prompt wrapper),
+// so the font is set here directly.
 .vocabulary-display__furigana-word {
   font-family: var(--font-jp);
 }
@@ -149,8 +142,7 @@
   // A touch of breathing room below the reading, before the kanji it
   // annotates — em-relative to this element's own (already-shrunk) font
   // size, so the gap scales down naturally alongside it wherever this is
-  // reused smaller (e.g. QuizSummary's current-word panel) rather than
-  // needing a separate override there.
+  // reused smaller.
   margin-bottom: 0.08em;
   // Excluded from selection so dragging across the word to copy it doesn't
   // also pull in the furigana reading above each kanji run.
@@ -170,9 +162,9 @@
 }
 
 .vocabulary-display__blank-box {
-  // The ghost span behind this (sized to the real word) stays in --font-jp
-  // for accurate spacing, but the "?" itself is UI chrome, not Japanese
-  // text, so it stays in the default font regardless.
+  // The ghost span behind this (sized to the real word) stays in the
+  // Japanese font for accurate spacing, but the "?" itself is UI chrome,
+  // not Japanese text, so it stays in the default font regardless.
   font-family: var(--font-default);
   position: absolute;
   inset: 0;
@@ -188,12 +180,9 @@
 
 @media (max-width: 768px) {
   // Narrows the ceiling of the always-on dvh clamp() above (4rem/1.5rem)
-  // down to something that also fits comfortably at *phone width*, on top
-  // of the various other mobile spacing/sizing trims elsewhere
-  // (ChoiceButton, ChoiceGrid, this component's own padding). Still the
-  // same dvh-driven shape underneath — this just lowers where it saturates
-  // — so a short phone keeps shrinking further from this lower ceiling
-  // exactly as before.
+  // down to something that also fits comfortably at phone width, on top of
+  // various other mobile spacing/sizing trims elsewhere. Still the same
+  // dvh-driven shape underneath — this just lowers where it saturates.
   .vocabulary-display__prompt--reading,
   .vocabulary-display__prompt--definition {
     font-size: clamp(0.9rem, 2.7dvh, 1.25rem);

@@ -55,7 +55,7 @@ function ringScale(iteration, iterationsForNextLevel) {
 // one per iteration remaining until the next level — e.g. iteration 2 of 5
 // needed produces radii for iterations 3, 4, and 5. The last radius always
 // equals RADIUS exactly (that's the actual level-up threshold, drawn
-// brighter than the others — see RadarChart.scss).
+// brighter than the others).
 function iterationRingRadii(scale) {
   if (!scale) return [];
   return Array.from({ length: scale.stepsRemaining }, (_, index) => FLOOR_RADIUS + (index + 1) * scale.step);
@@ -64,7 +64,7 @@ function iterationRingRadii(scale) {
 // How many ring-steps ahead of the bottleneck a single axis's own correct
 // count is, capped at the number of steps left until the next level — an
 // axis already answered correctly more times than the bottleneck axis sits
-// further out (up to the outer edge), not just "extended" vs "not".
+// further out, up to the outer edge.
 function axisSteps(correctCount, iteration, scale) {
   if (!scale) return correctCount > 0 ? 1 : 0;
   return Math.min(Math.max(correctCount - iteration, 0), scale.stepsRemaining);
@@ -106,17 +106,17 @@ function fillRadii(correctCounts, iteration, scale) {
 // a second, earlier mastery snapshot — when given, three layers are drawn
 // instead of one, bottom to top: a static diagonally-hatched fill at
 // `attemptedValues` (see below), a solid-white fill at the real shape that
-// gently pulses opacity forever (see RadarChart.scss's radar-chart-pulse),
-// and — on top of both, constant, never animated — a solid-white fill at
-// that earlier shape. Correct counts never decrease, so that earlier shape
-// is always <= both of the others on every axis; drawing it last as a
-// fixed floor keeps "mastery already had before this quiz" reading as
-// settled fact, while the hatch/pulse interplay above it stays legible as
-// specifically the progress and mistakes made *during* this quiz — on any
-// axis with a wrong answer along the way, the hatching stays visible past
-// the pulsing shape's edge even at full opacity, since it reaches further
-// out. `animationDelay` offsets when the pulse's cycle starts, so multiple
-// charts animating together (see QuizSummary) don't all flash in lockstep.
+// gently pulses opacity forever, and — on top of both, constant, never
+// animated — a solid-white fill at that earlier shape. Correct counts
+// never decrease, so that earlier shape is always <= both of the others on
+// every axis; drawing it last as a fixed floor keeps "mastery already had
+// before this quiz" reading as settled fact, while the hatch/pulse
+// interplay above it stays legible as specifically the progress and
+// mistakes made *during* this quiz — on any axis with a wrong answer along
+// the way, the hatching stays visible past the pulsing shape's edge even
+// at full opacity, since it reaches further out. `animationDelay` offsets
+// when the pulse's cycle starts, so multiple charts animating together
+// don't all flash in lockstep.
 //
 // `attemptedValues` (optional, same shape as `values`) is what the hatch
 // layer above is drawn from — a per-axis ceiling of what `values` would be
@@ -126,8 +126,8 @@ function fillRadii(correctCounts, iteration, scale) {
 //
 // Guide rings/floor/outline are always drawn at the real, current values
 // regardless. Meant for a "before vs. after" reveal, not the live quiz, so
-// omitting these props (as every other caller does) renders exactly as
-// before: one static fill at the real shape, no hatching, no pulse.
+// omitting these props (as every other caller does) renders just one
+// static fill at the real shape, with no hatching or pulse.
 export function RadarChart({
   values: correctCounts,
   previewIndex = null,
@@ -198,9 +198,9 @@ export function RadarChart({
       {/* Always the true minimum of every shape here (correct counts never
           decrease, so initial <= final <= attempted on every axis) — drawn
           last, constant, and never animated, so the "mastery already had
-          before this quiz" region reads as settled fact rather than getting
-          swept up in the hatch/pulse interplay that's only meaningful for
-          progress and mistakes made *during* this quiz. */}
+          before this quiz" region reads as settled fact, separate from the
+          hatch/pulse interplay that's only meaningful for progress and
+          mistakes made *during* this quiz. */}
       {initialFill && <polygon className="radar-chart__fill" points={initialFill} />}
       {previewMarker && <circle className="radar-chart__preview-marker" cx={previewMarker.x} cy={previewMarker.y} r="1.4" />}
     </svg>

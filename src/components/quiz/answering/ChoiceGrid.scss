@@ -1,11 +1,9 @@
 .modern-choice-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  // Still 1fr rather than auto — with no min-height reservation to fill
-  // this just keeps the two rows even with each other (uniform sizing
-  // already matches every button to the tallest one, so they're the same
-  // height regardless), not any longer about padding out to a target
-  // section height.
+  // Keeps the two rows even with each other; uniform sizing already
+  // matches every button to the tallest one, so they're the same height
+  // regardless.
   grid-auto-rows: 1fr;
   // Row gap wider than column gap — two choices side by side already read
   // as distinct via the column itself, but stacked rows (the common case:

@@ -3,14 +3,12 @@ import { cx } from '@/utils/cx';
 import './DigitReel.scss';
 
 // Duration scales with how far a reel actually has to spin (see
-// durationForDistance below) rather than every move taking the same flat
-// time regardless of distance — a lone +1 settles quickly at a calm speed,
+// durationForDistance below) — a lone +1 settles quickly at a calm speed,
 // while a big jump (or several wrapped revolutions) spins faster per-tick
-// to still land inside its cap, reading as a slot-machine blur instead of
-// a slow crawl. The three arrays below keep each place's old relative
-// character (ones quickest/busiest, each place further left a beat slower)
-// at any given distance, so a multi-digit landing still cascades
-// right-to-left the way it always has.
+// to still land inside its cap, reading as a slot-machine blur. The three
+// arrays below keep each place's relative character (ones quickest/busiest,
+// each place further left a beat slower) at any given distance, so a
+// multi-digit landing cascades right-to-left.
 //
 // Baseline duration for a bare 1-tick move, before scaling by distance —
 // keeps a small nudge from feeling instantaneous even though its raw
@@ -21,7 +19,7 @@ const BASE_DURATION_MS_BY_PLACE = [140, 180, 220];
 const MS_PER_TICK_BY_PLACE = [35, 45, 55];
 // Hard ceiling per place — without this, a huge distance (several wrapped
 // revolutions) would spin for a comically long time. Capping duration
-// instead makes a big jump spin faster to still land within it.
+// makes a big jump spin faster to still land within it.
 const MAX_DURATION_MS_BY_PLACE = [650, 800, 950];
 
 function durationForDistance(place, distance) {
@@ -39,31 +37,28 @@ const EASE = 'cubic-bezier(0.15, 0.85, 0.3, 1)';
 // a new digit reads as the strip spinning up to it rather than a plain
 // crossfade. `place` is distance from the ones column (0 = ones, 1 = tens,
 // ...) and only affects timing/flourish, never the digit shown. `dimmed`
-// (an insignificant leading zero — see NumberDial) fades this reel's
-// opacity down via CSS rather than anything here, so it transitions
-// smoothly alongside the spin instead of snapping.
+// (an insignificant leading zero) fades this reel's opacity down via CSS,
+// so it transitions smoothly alongside the spin.
 export function DigitReel({ digit, place = 0, dimmed = false }) {
   // Total forward ticks spun since the last reset — deliberately never
   // decreases, even when the new digit is numerically "before" the current
-  // one (e.g. 9 -> 2 spins 9 -> 0 -> 1 -> 2 rather than jumping backward
-  // three rows), so the wheel always turns the same direction a real one
-  // would. `instant` marks a ticks update that should apply with no
-  // transition — used below to snap this back down to a small equivalent
-  // value once a spin finishes, rather than animate toward it. `durationMs`
-  // is recomputed alongside `ticks` every time a new digit lands (see
-  // durationForDistance above), so a bigger jump gets more time than a
-  // small one.
+  // one (e.g. 9 -> 2 spins 9 -> 0 -> 1 -> 2), so the wheel always turns the
+  // same direction a real one would. `instant` marks a ticks update that
+  // should apply with no transition — used below to snap this back down to
+  // a small equivalent value once a spin finishes. `durationMs` is
+  // recomputed alongside `ticks` every time a new digit lands, so a bigger
+  // jump gets more time than a small one.
   //
   // Retargeting mid-spin (a new `digit` arriving before the previous
   // transition finished) needs no special handling beyond this: `ticks`
   // only ever gets snapped down to its 0-9 equivalent once transitionend
-  // actually fires below, which a change that interrupts the transition
-  // prevents from firing at all — so `prev` here is always the last
-  // *commanded* target, in-flight or not, and the forward distance to the
-  // next digit is computed from that. Handing the browser a new transform
-  // target and duration before the old one arrives is exactly what makes a
-  // CSS transition smoothly redirect from wherever it's currently
-  // interpolated to, rather than jumping.
+  // actually fires below, which an interrupting change prevents from
+  // firing at all — so `prev` here is always the last *commanded* target,
+  // in-flight or not, and the forward distance to the next digit is
+  // computed from that. Handing the browser a new transform target and
+  // duration before the old one arrives is exactly what makes a CSS
+  // transition smoothly redirect from wherever it's currently interpolated
+  // to.
   const [{ ticks, instant, durationMs }, setState] = useState(() => ({ ticks: digit, instant: true, durationMs: 0 }));
   const mounted = useRef(false);
   const stripRef = useRef(null);
@@ -79,9 +74,8 @@ export function DigitReel({ digit, place = 0, dimmed = false }) {
       const current = prev % 10;
       // The tape only ever moves forward the exact distance to the new
       // digit (wrapping through 9 -> 0 when the target is numerically
-      // "before" — see the ticks comment above), never further — no bonus
-      // revolution tacked on. A lone +1 should read as a single small tick,
-      // not a spin, and this is what makes that true.
+      // "before"), never further — no bonus revolution tacked on. A lone
+      // +1 reads as a single small tick, not a spin.
       const distance = (digit - current + 10) % 10;
       return { ticks: prev + distance, instant: false, durationMs: durationForDistance(place, distance) };
     });
@@ -99,7 +93,7 @@ export function DigitReel({ digit, place = 0, dimmed = false }) {
     // place accumulates far more ticks than tens/hundreds) are prone to
     // landing a hair off from each other from floating-point/subpixel
     // rounding — keeping every reel's resting transform small keeps them
-    // landing in exact agreement instead.
+    // landing in exact agreement.
     function handleTransitionEnd(e) {
       if (e.target !== strip || e.propertyName !== 'transform') return;
       setState(({ ticks: prev }) => ({ ticks: prev % 10, instant: true }));
@@ -109,9 +103,9 @@ export function DigitReel({ digit, place = 0, dimmed = false }) {
   }, [instant]);
 
   const strip = Array.from({ length: ticks + 1 }, (_, i) => i % 10);
-  // Centers the resting row inside the taller viewport below (see
-  // DigitReel.scss) — the neighboring rows peeking in above/below it are
-  // what the top/bottom fade masks away.
+  // Centers the resting row inside the taller viewport below — the
+  // neighboring rows peeking in above/below it are what the top/bottom
+  // fade masks away.
   const centerOffsetEm = 0.5;
 
   return (
@@ -135,10 +129,9 @@ export function DigitReel({ digit, place = 0, dimmed = false }) {
           ))}
         </span>
       </span>
-      {/* Siblings of .digit-reel__viewport above, not children of it — see
-          DigitReel.scss for why that's what lets these fades' own overhang
-          actually cover the clip edge instead of being clipped identically
-          alongside the spinning strip. */}
+      {/* Siblings of .digit-reel__viewport above, not children of it, so
+          these fades' own overhang can cover the clip edge rather than
+          being clipped identically alongside the spinning strip. */}
       <span className="digit-reel__fade digit-reel__fade--top" aria-hidden="true" />
       <span className="digit-reel__fade digit-reel__fade--bottom" aria-hidden="true" />
     </span>

@@ -36,7 +36,7 @@ function initSpellingSlots(round) {
 // Per-question-mode behavior, keyed by round.mode — the one place that
 // knows how to tell each mode's answer is complete (isAnswered), grade it
 // (isCorrect), and size its blank (ghostText). Adding a new mode only means
-// adding an entry here instead of extending three separate branches.
+// adding an entry here, not extending three separate branches.
 const MODES = {
   spelling: {
     isAnswered: ({ spellingSlots }) => spellingSlots.every((slot) => slot !== null),
@@ -44,8 +44,7 @@ const MODES = {
       spellingSlots.map((tileIndex) => tiles[tileIndex]).join('') === correctAnswer,
     // The spelling and typing blanks are sized to the answer itself — the
     // slot row (spelling) or lack of choices (typing) already reveals the
-    // exact character count, so there's nothing left to hide by doing
-    // otherwise.
+    // exact character count.
     ghostText: ({ correctAnswer }) => correctAnswer,
   },
   typing: {
@@ -63,19 +62,19 @@ const MODES = {
 };
 
 export function Quiz() {
-  // No lesson-selecting params to read here — Home's startSelectedLesson
-  // records the picked tile against the user's current TANGO_LessonChoices
-  // row (see useNextLessons) before ever navigating to /lesson, and
-  // generateLesson resolves that same row server-side, defaulting to
-  // NEW_WORDS if nothing's been selected (e.g. a direct /lesson visit).
+  // No lesson-selecting params to read here — the picked tile is recorded
+  // against the user's current lesson-choice row before ever navigating to
+  // /lesson, and the lesson-generation endpoint resolves that same row
+  // server-side, defaulting to NEW_WORDS if nothing's been selected (e.g.
+  // a direct /lesson visit).
   const navigate = useNavigate();
 
   const [rounds, setRounds] = useState(null);
   // Word id -> mastery, captured once right after a lesson loads, before
   // any answering mutates `rounds[i].mastery` — lets the summary animate
-  // from "before this quiz" to "after" instead of only ever showing the
-  // final state. Frozen for the whole lesson — see masteryByWordID below
-  // for the live equivalent the question view itself reads from.
+  // from "before this quiz" to "after." Frozen for the whole lesson — see
+  // masteryByWordID below for the live equivalent the question view itself
+  // reads from.
   const [initialMasteryByWordID, setInitialMasteryByWordID] = useState({});
   // Word id -> mastery, updated every time a practice attempt is recorded
   // (see handleAction) — unlike `rounds[i].mastery`, which is frozen at
@@ -95,16 +94,14 @@ export function Quiz() {
   // before every recordPractice call, so it never lingers onto a later
   // question for the same (or a different) word.
   const [justLeveledUp, setJustLeveledUp] = useState(false);
-  // The current lesson's TANGO_Lessons row ID — null if the backend failed
-  // to record the lesson start (see OvermindAPI's quiz.js generateLesson).
-  // Sent back to completeLesson once the final question is answered — see
-  // handleAction.
+  // The current lesson's ID — null if the backend failed to record the
+  // lesson start. Sent back to completeLesson once the final question is
+  // answered — see handleAction.
   const [lessonID, setLessonID] = useState(null);
   // completeLesson's { totalScore, scoringBreakdown } response — scoring
-  // itself now happens server-side (see OvermindAPI's modernQuiz/scoring.js)
-  // instead of QuizSummary computing it from `results`/`rounds`. Fetched as
-  // soon as the last question is answered (see handleAction), not when the
-  // summary phase is reached, per lessonScorePromiseRef below.
+  // happens server-side. Fetched as soon as the last question is answered
+  // (see handleAction), not when the summary phase is reached, per
+  // lessonScorePromiseRef below.
   const [lessonScore, setLessonScore] = useState(null);
   // Holds the in-flight completeLesson() promise from the moment the last
   // question is answered until Next is clicked — advancing to the summary
@@ -119,7 +116,7 @@ export function Quiz() {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [spellingSlots, setSpellingSlots] = useState([]);
   // Read-only mirror of ReadingInput's live (wanakana-converted) value —
-  // never written back into the input, see ReadingInput.jsx.
+  // never written back into the input.
   const [typedAnswer, setTypedAnswer] = useState('');
   // 'answer': picking a choice; 'review': Check was pressed, showing
   // success/fail colors and waiting for Next to advance; 'summary': every
@@ -253,10 +250,10 @@ export function Quiz() {
       // phase (Next), since closing the tab right after Check on the final
       // question should still count as finished. Requested regardless of
       // lessonID: scoring still runs even if lessonID is null (e.g. the
-      // backend failed to record the lesson start — see quiz.js's
-      // completeLesson). The promise is stashed rather than awaited here so
-      // a slow response doesn't hold up showing the review phase — see
-      // transitionTo below, which is what actually needs the result.
+      // backend failed to record the lesson start). The promise is stashed
+      // rather than awaited here so a slow response doesn't hold up
+      // showing the review phase — see transitionTo below, which is what
+      // actually needs the result.
       if (questionIndex === rounds.length - 1) {
         const answers = rounds.map((round, i) => ({
           entryId: round.entry.id,
@@ -358,9 +355,9 @@ export function Quiz() {
           below is the only thing showing. */}
       {rounds && (
         // Inert whenever the settings dialog is open — it's portaled outside
-        // this subtree (see SettingsDialog), so this doesn't touch it, but it
-        // does stop the quiz behind it from being reachable by Tab/click or
-        // exposed to assistive tech while the dialog has focus.
+        // this subtree, so this doesn't touch it, but it does stop the quiz
+        // behind it from being reachable by Tab/click or exposed to
+        // assistive tech while the dialog has focus.
         <div className="quiz-page__interactive" inert={isSettingsOpen ? '' : undefined}>
           <QuizHeader
             results={results}

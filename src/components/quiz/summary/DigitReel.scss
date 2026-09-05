@@ -1,7 +1,7 @@
 // Taller than one digit row (2em vs 1em) so the reel has room to show a
 // sliver of the neighboring rows above/below the resting digit — those
-// slivers are what read as "the wheel" once faded, rather than the digit
-// itself ever looking clipped.
+// slivers are what read as "the wheel" once faded, keeping the digit
+// itself from ever looking clipped.
 .digit-reel {
   position: relative;
   display: inline-block;
@@ -13,25 +13,24 @@
   transition: opacity var(--transition-fast);
 }
 
-// Insignificant leading zero (see NumberDial) — dimmed rather than hidden,
-// same odometer convention as a car's trip counter, and via opacity on the
+// Insignificant leading zero — dimmed rather than hidden, same odometer
+// convention as a car's trip counter, and via opacity on the
 // whole reel (not per-glyph) so it fades as one flat unit regardless of
 // which digit happens to be spinning past underneath at the moment.
 .digit-reel--dimmed {
   opacity: 0.2;
 }
 
-// Clips the strip to a single row's height — its own element rather than
-// overflow: hidden directly on .digit-reel, so the fades below can live as
-// .digit-reel's children instead of this element's. .digit-reel__strip's
-// transform forces its own compositing layer, which can round its clip
-// edge by a subpixel relative to an untransformed sibling clipped by that
-// same overflow: hidden box — a fade living inside this box would get
-// clipped along with it, at the same rounded edge, making its own overhang
-// pointless. Landing the fades outside this box (siblings of it, not
-// children) instead means their overhang genuinely paints past wherever
-// this box's clip edge actually lands (same fix as QuizSummary's analogous
-// selection-list fades).
+// Clips the strip to a single row's height, as its own element so the
+// fades below can live as .digit-reel's children rather than this
+// element's. .digit-reel__strip's transform forces its own compositing
+// layer, which can round its clip edge by a subpixel relative to an
+// untransformed sibling clipped by that same overflow: hidden box — a fade
+// living inside this box would get clipped along with it, at the same
+// rounded edge, making its own overhang pointless. Landing the fades
+// outside this box, as siblings rather than children, means their
+// overhang genuinely paints past wherever this box's clip edge actually
+// lands.
 .digit-reel__viewport {
   position: relative;
   display: block;
@@ -55,14 +54,12 @@
 
 // Same color as the surface this sits on (the stat card's dark value
 // window), covering the sliver of neighboring rows above/below the resting
-// digit (see DigitReel.jsx's centerOffsetEm — the resting row is centered
-// in the 2em-tall reel, leaving a 0.5em peek on each side) so those
-// neighbors stay fully hidden at rest, only actually fading once the strip
-// is spinning through them. Extends 5px past .digit-reel__viewport's own
-// edge rather than starting its gradient exactly at 0 — that overhang is
-// what guarantees the solid color's real start covers wherever the actual
-// rendered clipping edge lands, regardless of subpixel rounding there,
-// instead of just assuming the two coincide exactly.
+// digit (the resting row is centered in the 2em-tall reel, leaving a
+// 0.5em peek on each side) so those neighbors stay fully hidden at rest,
+// only actually fading once the strip is spinning through them. Extends
+// 5px past .digit-reel__viewport's own edge, so the solid color's real
+// start covers wherever the actual rendered clipping edge lands,
+// regardless of subpixel rounding there.
 .digit-reel__fade {
   position: absolute;
   left: 0;

@@ -11,8 +11,8 @@
   color: var(--color-text-disabled);
   opacity: 0.75;
   text-align: center;
-  // Wraps rather than staying on one line — the surrounding column is only
-  // 3rem wide (VocabularyDisplay.scss) and the ancestor card clips
-  // overflow, so a two-line wrap is safer than risking clipped text.
+  // Allows wrapping to two lines — the surrounding column is only 3rem
+  // wide and the ancestor card clips overflow, so wrapping keeps the text
+  // from being clipped.
   line-height: 1.1;
 }

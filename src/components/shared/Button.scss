@@ -11,9 +11,9 @@
   padding: 0.75rem 3rem;
   border-width: 3px;
   border-style: solid;
-  // Same property list as pressable-transition, plus opacity for the
-  // disabled fade — kept explicit here rather than combined with that
-  // mixin since it'd otherwise need a 5th argument just for this one case.
+  // Same property list as the pressable-transition mixin, plus opacity for
+  // the disabled fade — kept explicit here since combining them would need
+  // a 5th mixin argument just for this one case.
   transition: opacity var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
 }
 
@@ -31,8 +31,8 @@
   @include mixins.pressable-lip(var(--color-accent-primary-hover));
 }
 
-// Secondary — same resting/hover face as ChoiceButton, for a lower-emphasis
-// action alongside a primary one (e.g. "Send new code").
+// Secondary — a plain resting/hover face for a lower-emphasis action
+// alongside a primary one (e.g. "Send new code").
 .shared-button--secondary {
   color: var(--color-text-primary);
   background-color: var(--color-bg-secondary);

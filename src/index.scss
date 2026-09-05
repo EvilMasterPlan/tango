@@ -15,8 +15,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-// Remove global scroll prevention - let individual pages handle their own scrolling
-
 #root {
   min-height: 100vh;
   display: flex;
@@ -64,17 +62,6 @@ body {
 .btn-primary:hover {
   background-color: var(--color-accent-primary-hover);
   border-color: var(--color-accent-primary-hover);
-}
-
-.btn-secondary {
-  background-color: var(--color-bg-secondary);
-  border-color: var(--color-border-primary);
-  color: var(--color-text-muted);
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background-color: var(--color-bg-tertiary);
-  border-color: var(--color-border-secondary);
 }
 
 .btn:disabled {

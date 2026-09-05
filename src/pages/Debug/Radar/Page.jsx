@@ -4,8 +4,8 @@ import { RadarChart } from '@/components/quiz/charts/RadarChart';
 import './Page.scss';
 
 // One value per column-pair / row-pair — see buildGrid below. The real app
-// (MasteryPentagon) always uses exactly 5 fixed skill keys; the extra axis
-// counts here are purely to eyeball RadarChart with non-pentagon input.
+// always uses exactly 5 fixed skill keys; the extra axis counts here are
+// purely to eyeball RadarChart with non-pentagon input.
 const AXIS_COUNTS = [5, 6, 7];
 const SECTION_STEPS = [2, 3, 4];
 const ITERATION = 0;

@@ -8,8 +8,7 @@ import { FuriganaWord } from '@/components/quiz/vocabulary/VocabularyDisplay';
 import { cx } from '@/utils/cx';
 import './QuizSummary.scss';
 
-// The intro auto-rotation's pacing: a flat delay between words, a bit
-// brisker than the old ramp's own starting speed (300ms).
+// The intro auto-rotation's pacing: a flat delay between words.
 const ROTATE_DELAY_MS = 220;
 
 // How much accumulated wheel movement counts as "one notch" once manual
@@ -21,10 +20,9 @@ const WHEEL_STEP_THRESHOLD = 40;
 // finishing, plus a bonus per *correct* round on a word (so a word tested
 // twice and gotten right both times is worth double one gotten right
 // once), credited the moment that word first becomes "current" — during
-// the intro rotation or, once that's done, by scrolling/arrowing to it —
-// rather than shown as a final total outright. The actual scoring math
-// lives server-side now (see OvermindAPI's modernQuiz/scoring.js) — this
-// component just walks `scoring.scoringBreakdown` and animates it.
+// the intro rotation or, once that's done, by scrolling/arrowing to it.
+// The scoring math lives server-side; this component just walks
+// `scoring.scoringBreakdown` and animates it.
 
 export function QuizSummary({ total, rounds, initialMasteryByWordID, scoring = { totalScore: 0, scoringBreakdown: [] } }) {
   // One row per unique word — lesson generation is currently guaranteed
@@ -51,9 +49,8 @@ export function QuizSummary({ total, rounds, initialMasteryByWordID, scoring = {
     scoring.scoringBreakdown.filter((entry) => entry.type === 'word').map((entry) => [entry.wordID, entry]),
   );
   // Neither has a word of its own to be "credited" alongside — both land in
-  // the reward's starting value up front, same as lesson_complete already
-  // did, rather than waiting for a word to become current like the per-word
-  // bonuses below.
+  // the reward's starting value up front, unlike the per-word bonuses
+  // below, which wait for a word to become current.
   const initialReward = (lessonCompleteEntry?.points || 0) + (consecutiveBonusEntry?.points || 0);
 
   function rewardForWordId(id) {
@@ -71,13 +68,13 @@ export function QuizSummary({ total, rounds, initialMasteryByWordID, scoring = {
   const [reward, setReward] = useState(initialReward);
   // Bumped each time a word's bonus is credited — passed to the reward
   // StatCard as `pulseKey` so it mounts a fresh flash overlay (and thus
-  // replays the animation) on every increase, not just the first. Starts
-  // `null` so no flash renders before any bonus has actually landed.
+  // replays the animation) on every increase. Starts `null` so no flash
+  // renders before any bonus has actually landed.
   const [rewardPulseKey, setRewardPulseKey] = useState(null);
   // Correct/Incorrect start at 0 and climb as the wheel sweeps past each
   // word — same "credited the moment it becomes current" treatment as the
   // reward above, so the two NumberDials visibly spin up in lockstep with
-  // the wheel rather than the totals just appearing pre-computed.
+  // the wheel.
   const [animatedCorrect, setAnimatedCorrect] = useState(0);
   const [animatedIncorrect, setAnimatedIncorrect] = useState(0);
   const wordListRef = useRef(null);
@@ -113,7 +110,7 @@ export function QuizSummary({ total, rounds, initialMasteryByWordID, scoring = {
   // Credits this word's bonus/counts and reveals its score-list row the
   // moment it becomes current, all at most once per word — also runs for
   // the initial index-0 render, so that word's points/row/counts land
-  // immediately on mount rather than waiting for the first rotation.
+  // immediately on mount, not waiting for the first rotation.
   useEffect(() => {
     const word = uniqueRounds[currentIndex];
     if (!word) return;
@@ -140,11 +137,10 @@ export function QuizSummary({ total, rounds, initialMasteryByWordID, scoring = {
 
   // Mouse wheel / trackpad scrolling over the word list, once the intro
   // sweep is done — accumulates raw deltaY and only steps once it crosses
-  // WHEEL_STEP_THRESHOLD, so a scroll gesture snaps one word at a time
-  // instead of following the cursor continuously. A native (non-React)
-  // listener registered non-passive, since wheel is passive by default and
-  // preventDefault (blocking the page from scrolling instead) would
-  // otherwise be silently ignored.
+  // WHEEL_STEP_THRESHOLD, so a scroll gesture snaps one word at a time. A
+  // native (non-React) listener registered non-passive, since wheel is
+  // passive by default and preventDefault (which blocks the page from
+  // scrolling) would otherwise be silently ignored.
   useEffect(() => {
     if (autoRotating) return;
     const el = wordListRef.current;
@@ -210,13 +206,10 @@ export function QuizSummary({ total, rounds, initialMasteryByWordID, scoring = {
         {/* Layer 1 (background): one unified strip of selection rows, each
             spanning the section's full width — the word on the left, the
             reward + tiny mastery diagram on the right. The current row
-            marks itself with a caret pinned to each row's own outer edge
-            (pointing in, toward the word/diagram next to it) rather than
-            any kind of highlight — outer edge rather than flanking the
-            middle gap so each caret's position stays fixed regardless of
-            how wide the word/reward next to it happens to be, instead of
-            hopping around from row to row. See the carets' own fade-in/
-            instant-out transition in QuizSummary.scss. */}
+            marks itself with a caret pinned to each row's own outer edge,
+            pointing in toward the word/diagram next to it. Anchoring to
+            the outer edge keeps each caret's position fixed regardless of
+            how wide the word/reward next to it happens to be. */}
         <div className="quiz-summary__selection-list" ref={wordListRef}>
           <div className="quiz-summary__selection-strip" style={{ '--current-index': currentIndex }}>
             {uniqueRounds.map(({ entry, mastery }, index) => {
@@ -254,28 +247,18 @@ export function QuizSummary({ total, rounds, initialMasteryByWordID, scoring = {
             })}
           </div>
         </div>
-        {/* Siblings of the clipped list above, not children of it: the list's
-            own overflow: hidden clips its transformed strip and these fades
-            to slightly different device pixels (a transform forces its own
-            compositing layer, which can round its clip edge by a subpixel
-            relative to an untransformed sibling), leaving a hairline seam
-            where a row peeks through right at the edge. Living outside that
-            clip means the fades' own overhang (see below) actually paints
-            over the seam instead of being clipped away identically to it. */}
+        {/* Siblings of the clipped list above, not children of it, so their
+            overhang paints past the list's own clip edge rather than being
+            clipped away along with it. */}
         <span className="quiz-summary__selection-fade quiz-summary__selection-fade--top" aria-hidden="true" />
         <span className="quiz-summary__selection-fade quiz-summary__selection-fade--bottom" aria-hidden="true" />
 
         {/* Layer 2 (foreground): the current word's full detail, absolutely
             overlaid on top of Layer 1 and centered on the section as a
-            whole (see QuizSummary.scss) rather than confined to a middle
-            flex column. Now that the carets above sit at each row's outer
-            edge rather than flanking the middle, there's nothing in the
-            vertical middle worth leaving a gap for, so this is one plain
-            centered block again instead of a top/bottom split. Hidden
-            (opacity, not unmounted) until the intro sweep finishes, so it
-            doesn't compete with the list racing through every word for
-            attention, then fades in once there's an actual "current" word
-            worth lingering on. */}
+            whole. Hidden (opacity, not unmounted) until the intro sweep
+            finishes, so it doesn't compete with the list racing through
+            every word for attention, then fades in once there's an actual
+            "current" word worth lingering on. */}
         {current && (
           <div className={cx('quiz-summary__current', !autoRotating && 'quiz-summary__current--visible')}>
             <FuriganaWord furigana={current.entry.furigana} />

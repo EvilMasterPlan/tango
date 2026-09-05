@@ -16,10 +16,9 @@
 }
 
 // Extends below the header's own box (top: 100%, header's position: sticky
-// makes it the containing block) — same fade treatment as Home's
-// .home-content::before, so cards scrolling up under the sticky header fade
-// out into the page background instead of being cut off by a hard edge now
-// that the header's border is gone.
+// makes it the containing block), so cards scrolling up under the sticky
+// header fade out into the page background rather than being cut off by a
+// hard edge.
 .overview-page__header::after {
   content: '';
   position: absolute;

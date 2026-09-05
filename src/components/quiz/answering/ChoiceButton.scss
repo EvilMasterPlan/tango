@@ -16,21 +16,15 @@
   // The actual floor governing rendered height in the common (1-line) case
   // — ChoiceGrid's uniform-sizing measures natural content height (line-
   // height + padding) and takes whichever of that or this is taller, so
-  // this is the lever that matters, not padding (which barely nudges the
-  // natural figure past this floor, and — since the button centers its
-  // label via flex regardless — doesn't create visible space on its own).
+  // this is the lever that matters for how tall the button renders.
   min-height: 5rem;
-  // dvh-clamped the same way as VocabularyDisplay's word/reading text — a
-  // safety net against short *viewports* (a resized desktop window, not
-  // just a phone), separate from and layered underneath the per-choice
-  // shrinking ChoiceGrid does for *long* choice text (see
-  // useUniformChoiceSizing): that JS reads this clamp()'s already-resolved
-  // px value as its own starting point (via getComputedStyle, after
-  // resetting any inline size from a prior render) and only shrinks
-  // further from there if a choice still wraps past 2 lines at that size.
-  // Coefficient tuned so the preferred (dvh) value only overtakes the max
-  // below ~700px of viewport height, comfortably under any normal desktop
-  // window, so ordinary use still renders at exactly the old flat 1.75rem.
+  // dvh-clamped as a safety net against short viewports (a resized desktop
+  // window, not just a phone) — separate from the per-choice shrinking
+  // ChoiceGrid does for long choice text, which reads this clamp()'s
+  // already-resolved px value as its own starting point and only shrinks
+  // further if a choice still wraps past 2 lines at that size. Coefficient
+  // tuned so the dvh value only overtakes the max below ~700px of viewport
+  // height, comfortably under any normal desktop window.
   font-size: clamp(0.9rem, 4dvh, 1.75rem);
   font-weight: 700;
   color: var(--color-text-primary);
@@ -40,7 +34,7 @@
   word-break: break-word;
   // Solid bottom "lip" gives the button an extruded, pressable look even
   // at rest; pressing it flattens the lip and nudges the button down into
-  // it, so it reads as physically pushed in rather than just recolored.
+  // it for a genuinely pushed-in feel.
   @include modern.pressable-lip(var(--color-border-primary), var(--color-accent-primary));
   @include modern.pressable-transition;
 }
@@ -59,11 +53,11 @@
 }
 
 .modern-choice-button--selected,
-// Chained with the base class (not just `--selected:hover` alone) to match
-// the generic `:hover:not(:disabled)` rule's specificity — that rule counts
-// as 3 selector-components (class + :hover + the :disabled inside :not()),
-// so a plain 2-component `--selected:hover` would actually lose to it and
-// show the grey hover face on a selected button instead of staying blue.
+// Chained with the base class to match the generic `:hover:not(:disabled)`
+// rule's specificity — that rule counts as 3 selector-components (class +
+// :hover + the :disabled inside :not()), so this needs the same 3 to keep
+// a selected button's hover state blue rather than losing to the grey
+// hover rule above.
 .modern-choice-button.modern-choice-button--selected:hover {
   background-color: var(--color-accent-primary);
   border-color: var(--color-accent-primary);
@@ -72,19 +66,16 @@
 }
 
 // Chained with the base class for the same reason as the hover rule above:
-// a real mouse press has :hover and :active both true at once, so without
-// this the 3-component hover-chained rule's 4px box-shadow would win over
-// a plain 2-component `--selected:active`, and the lip would never shrink
-// to 1px on press — leaving the whole button looking like it shifts down
-// bodily (face drops 3px via transform, foot stays a full 4px) instead of
-// flattening like every other choice button does when pressed.
+// a real mouse press has :hover and :active both true at once, so this
+// needs the matching specificity to keep the lip shrinking to 1px on
+// press, flattening the same way every other choice button does.
 .modern-choice-button.modern-choice-button--selected:active {
   box-shadow: 0 1px 0 0 var(--color-accent-primary-hover);
 }
 
 // Revealed after Check: gold for the correct choice, orange for a wrong
-// pick. Both flip the usual pattern — bright face with a darker lip, and
-// dark text instead of white — since white read poorly on either bright hue.
+// pick. Both use dark text on a bright face with a darker lip, since white
+// reads poorly on either bright hue.
 .modern-choice-button--success,
 .modern-choice-button--success:hover {
   background-color: var(--color-quiz-success);
@@ -136,14 +127,12 @@
 }
 
 // A second, faster pass: a single crisp hard-edged white band (the
-// `::after` slot is free here — the fail-hatch rule below explicitly
-// excludes success buttons) sliding cleanly across and off the far side,
-// so none of it remains in the final state. Moves on the X axis only (the
-// diagonal angle comes from the gradient itself, not from moving
-// diagonally too) so it reads as one clean pass over the whole face
-// instead of a diagonal drift that only grazes part of it. No opacity
-// fade like the soft gold sheen below — it just gets clipped by the
-// button's own `overflow: hidden` as it exits, keeping it crisp.
+// `::after` slot is free here since the fail-hatch rule below excludes
+// success buttons) sliding cleanly across and off the far side, so none of
+// it remains in the final state. Moves on the X axis only, with the
+// diagonal angle coming from the gradient itself, so it reads as one
+// clean pass over the whole face. It gets clipped crisply by the button's
+// own `overflow: hidden` as it exits.
 .modern-choice-button--success::after {
   content: '';
   position: absolute;
@@ -241,7 +230,7 @@
 // Transparent-black stripes are invisible against the fail state's black
 // face, so it gets transparent-white stripes instead for contrast. Chained
 // with the base class + :disabled (3 components, matching the rule above)
-// so this reliably wins on source order rather than relying on a tie.
+// so this reliably wins on specificity.
 .modern-choice-button.modern-choice-button--fail:disabled::after {
   background-image: repeating-linear-gradient(
     45deg,
@@ -271,8 +260,7 @@
 @media (max-width: 768px) {
   // Narrows the ceiling of the always-on dvh clamp()s above down to
   // something that also fits comfortably at phone width — still the same
-  // dvh-driven shape underneath, just saturating at a lower value, so a
-  // short phone keeps shrinking further from here exactly as before.
+  // dvh-driven shape underneath, just saturating at a lower value.
   .modern-choice-button {
     // Comfortably above the 2.75rem (44px) touch-target minimum already —
     // this is the same "actual floor" lever as the desktop rule above, just

@@ -42,8 +42,8 @@
   stroke-width: 1.1;
 }
 
-// Rendered behind __fill (see RadarChart.jsx's SVG element order), so it
-// only peeks out where it extends past the real (smaller) filled shape.
+// Rendered behind __fill, so it only peeks out where it extends past the
+// real (smaller) filled shape.
 .radar-chart__preview {
   stroke: var(--color-text-secondary);
   stroke-width: 1;
@@ -71,11 +71,10 @@
   stroke-width: 0.5;
 }
 
-// The "before vs. after" reveal's target-shape layer (see RadarChart.jsx's
-// `fromValues`) — solid like __fill, but opacity pulses forever rather than
-// sitting static, so the shape it's drawn over (the hatched __preview layer
-// at the same shape) shows through part of the cycle instead of being
-// permanently covered.
+// The "before vs. after" reveal's target-shape layer — solid like __fill,
+// but with opacity pulsing continuously, so the shape it's drawn over (the
+// hatched __preview layer at the same shape) shows through part of the
+// cycle.
 .radar-chart__final-pulse {
   fill: #ffffff;
   stroke: #ffffff;

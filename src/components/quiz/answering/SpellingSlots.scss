@@ -25,18 +25,17 @@
 }
 
 // Filled: back to the mixin's normal face color — the glassy sheen below is
-// what signals "placed" now, so the background no longer needs its own
-// color change to carry that signal.
+// what signals "placed," so the background doesn't need its own color
+// change too.
 .modern-spelling-slot--filled {
   background-color: var(--color-bg-secondary);
 }
 
 // Glassy sheen: a soft diagonal fade, layered above the face but below the
-// character glyph (the glyph is a separate z-index: 1 span — see
-// .modern-spelling-slot__char below — since this pseudo's own negative
-// z-index would otherwise still land above in-flow text per CSS2.1 painting
-// order). Fades in on placement rather than popping in with the rest of the
-// --filled state.
+// character glyph (the glyph is a separate z-index: 1 span, since this
+// pseudo's own negative z-index would otherwise still land above in-flow
+// text per CSS2.1 painting order). Fades in gradually on placement, on its
+// own timing separate from the rest of the --filled state.
 .modern-spelling-slot::before {
   content: '';
   position: absolute;
@@ -53,11 +52,10 @@
 }
 
 // A hard-edged white band pans across the face once, the instant a tile
-// lands — same masked-pane trick as the success flash in ChoiceButton.scss
-// (oversized 200% pane so it has real room to travel, clipped by this
-// element's own overflow: hidden). Eases in (slow to fast) rather than
-// linear, and finishes quickly — this is a per-placement "landed" cue, not
-// the bigger end-of-question celebration that flash is used for.
+// lands (oversized 200% pane so it has real room to travel, clipped by
+// this element's own overflow: hidden). Eases in slow to fast, and
+// finishes quickly, reading as a per-placement "landed" cue rather than a
+// bigger celebration.
 .modern-spelling-slot--filled:not(.modern-spelling-slot--success):not(.modern-spelling-slot--fail)::after {
   content: '';
   position: absolute;
@@ -103,13 +101,12 @@
 }
 
 // Placed tiles get their own border/footer color scheme (blue, not the
-// mixin's neutral border) to read as "removable" rather than just "filled" —
-// darker accent blue at rest, lightening further on hover/press. Hover only
-// swaps the color, keeping the same 4px footer depth and no lift — changing
-// the box-shadow's offset (as the pool tile's hover does) would grow the
-// footer and read as the tile shifting position, not just recoloring.
-// Press is the one state allowed to move: it flattens the footer and nudges
-// the tile down into it, same as every other button in this file.
+// mixin's neutral border) to read as "removable" — darker accent blue at
+// rest, lightening further on hover/press. Hover only swaps the color,
+// keeping the same 4px footer depth and no lift, so the tile reads as
+// recoloring rather than shifting position. Press is the one state
+// allowed to move: it flattens the footer and nudges the tile down into
+// it, same as every other button in this file.
 .modern-spelling-slot--filled:not(.modern-spelling-slot--success):not(.modern-spelling-slot--fail) {
   border-color: var(--color-accent-primary);
   box-shadow: 0 4px 0 0 var(--color-accent-primary);
@@ -126,8 +123,8 @@
   box-shadow: 0 1px 0 0 var(--color-accent-primary-hover);
 }
 
-// Same gold/black success-fail treatment as ChoiceButton.scss, applied per
-// letter instead of per multiple-choice option.
+// Gold for a correct letter, black for a wrong one — the same success/fail
+// treatment applied per letter.
 .modern-spelling-slot--success {
   background-color: var(--color-quiz-success);
   border-color: var(--color-quiz-success);

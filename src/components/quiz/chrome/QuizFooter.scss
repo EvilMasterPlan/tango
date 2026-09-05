@@ -14,10 +14,9 @@
 
 @media (max-width: 768px) {
   .quiz-footer {
-    // Symmetric top/bottom (unlike the old 0.75rem/2rem split) so the
-    // button actually sits centered in the footer rather than pushed up
-    // toward the top — 1.5rem still leaves comfortable clearance above
-    // mobile browser UI (home indicator / gesture bar) without needing to
+    // Symmetric top/bottom so the button actually sits centered in the
+    // footer — 1.5rem still leaves comfortable clearance above mobile
+    // browser UI (home indicator / gesture bar) without needing to
     // sacrifice centering to get it.
     padding: 1.5rem 1rem;
   }

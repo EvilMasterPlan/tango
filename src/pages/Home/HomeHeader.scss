@@ -1,7 +1,7 @@
 // Same background as .home-page, no border or shadow — it's meant to read
-// as a permanent cap on the page rather than a distinct bar, simply
-// covering whatever content scrolls/sits beneath it. Sits above
-// .home-content's own top-fade (z-index 2) and the board (z-index 0/1).
+// as a permanent cap on the page, simply covering whatever content
+// scrolls/sits beneath it. Sits above .home-content's own top-fade
+// (z-index 2) and the board (z-index 0/1).
 .home-header {
   display: flex;
   align-items: center;

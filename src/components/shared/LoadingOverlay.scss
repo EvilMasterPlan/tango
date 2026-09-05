@@ -1,7 +1,7 @@
 // Sits on top of whatever page renders it — position: absolute, so the
 // caller needs position: relative (or similar) on its own root. Same
-// background as the page itself and no border, so it just reads as the page
-// not having appeared yet rather than a distinct loading screen.
+// background as the page itself and no border, so it reads as the page
+// simply not having appeared yet.
 .loading-overlay {
   position: absolute;
   inset: 0;

@@ -9,9 +9,9 @@
   width: 100%;
 }
 
-// Applied (alongside the base class above) once JS has computed an explicit,
-// balanced row-by-row split — see SpellingTiles.jsx. Each row is its own
-// flex container so line breaks are exact rather than wherever flex-wrap's
+// Applied (alongside the base class above) once JS has computed an
+// explicit, balanced row-by-row split. Each row is its own flex container
+// so line breaks land exactly where computed, not wherever flex-wrap's
 // natural fill-to-capacity would put them.
 .modern-spelling-tiles--balanced {
   flex-wrap: nowrap;
