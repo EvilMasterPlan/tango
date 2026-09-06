@@ -6,6 +6,7 @@ import { ChoiceGrid } from '@/components/quiz/answering/ChoiceGrid';
 import { SpellingSlots } from '@/components/quiz/answering/SpellingSlots';
 import { SpellingTiles } from '@/components/quiz/answering/SpellingTiles';
 import { ReadingInput } from '@/components/quiz/answering/ReadingInput';
+import { WordWheel } from '@/components/quiz/answering/WordWheel';
 import { Button } from '@/components/shared/Button';
 import { LoadingOverlay } from '@/components/shared/LoadingOverlay';
 import { QuizHeader } from '@/components/quiz/chrome/QuizHeader';
@@ -33,6 +34,14 @@ function initSpellingSlots(round) {
   return round?.mode === 'spelling' ? Array(round.correctAnswer.length).fill(null) : [];
 }
 
+// wheelSelections[i] is null (a fixed, non-wheel position) or a random
+// starting index into round.positions[i].options — "starts in a randomized
+// position," per the ask. Empty for non-wheel rounds.
+function initWheelSelections(round) {
+  if (round?.mode !== 'wheel') return [];
+  return round.positions.map((position) => (position ? Math.floor(Math.random() * position.options.length) : null));
+}
+
 // Per-question-mode behavior, keyed by round.mode — the one place that
 // knows how to tell each mode's answer is complete (isAnswered), grade it
 // (isCorrect), and size its blank (ghostText). Adding a new mode only means
@@ -58,6 +67,17 @@ const MODES = {
     // Sized to the longest choice, not the correct one, so the blank's
     // width never gives away which option is right.
     ghostText: ({ choices }) => choices.reduce((longest, choice) => (choice.length > longest.length ? choice : longest), ''),
+  },
+  wheel: {
+    // A wheel's reels always show *some* character — there's no empty
+    // state to wait for, so it's answerable (if not necessarily correct)
+    // the moment the question loads.
+    isAnswered: () => true,
+    isCorrect: ({ wheelSelections, positions, correctAnswer }) =>
+      positions.every((position, i) => !position || position.options[wheelSelections[i]] === correctAnswer[i]),
+    // Same reasoning as spelling/typing above — the wheel already reveals
+    // the character count.
+    ghostText: ({ correctAnswer }) => correctAnswer,
   },
 };
 
@@ -125,6 +145,9 @@ export function Quiz() {
   // Read-only mirror of ReadingInput's live (wanakana-converted) value —
   // never written back into the input.
   const [typedAnswer, setTypedAnswer] = useState('');
+  // wheelSelections[i] is the index into positions[i].options currently
+  // showing, or null for a fixed (non-wheel) position.
+  const [wheelSelections, setWheelSelections] = useState([]);
   // 'answer': picking a choice; 'review': Check was pressed, showing
   // success/fail colors and waiting for Next to advance; 'summary': every
   // question in the set is done.
@@ -157,6 +180,7 @@ export function Quiz() {
       setSelectedIndex(null);
       setSpellingSlots(initSpellingSlots(questions[0]));
       setTypedAnswer('');
+      setWheelSelections(initWheelSelections(questions[0]));
       setPhase('answer');
     } catch (error) {
       setLoadError(error);
@@ -170,14 +194,24 @@ export function Quiz() {
   }, [loadLesson]);
 
   const currentRound = rounds?.[questionIndex];
-  const { entry, hidden, mode, choices, correctIndex, tiles, correctAnswer, skillKey } = currentRound || {};
+  const { entry, hidden, mode, choices, correctIndex, tiles, correctAnswer, skillKey, positions } = currentRound || {};
   // The word's mastery as of the start of *this* question — see
   // masteryByWordID above for why this isn't just currentRound.mastery.
   const mastery = entry ? masteryByWordID[entry.id] ?? currentRound.mastery : undefined;
   const modeConfig = currentRound ? MODES[mode] : null;
   // The state every mode's isAnswered/isCorrect/ghostText draws from — each
   // mode's functions only read the slice of this that's relevant to it.
-  const answerState = { spellingSlots, typedAnswer, selectedIndex, tiles, correctAnswer, choices, correctIndex };
+  const answerState = {
+    spellingSlots,
+    typedAnswer,
+    selectedIndex,
+    tiles,
+    correctAnswer,
+    choices,
+    correctIndex,
+    wheelSelections,
+    positions,
+  };
 
   const isAnswered = modeConfig ? modeConfig.isAnswered(answerState) : false;
 
@@ -219,6 +253,14 @@ export function Quiz() {
       // nulls is equivalent to shifting everything after it left.
       const placed = prev.filter((tileIndex, i) => tileIndex !== null && i !== slotIndex);
       return [...placed, ...Array(prev.length - placed.length).fill(null)];
+    });
+  }
+
+  function handleWheelChange(positionIndex, newSelectionIndex) {
+    setWheelSelections((prev) => {
+      const next = [...prev];
+      next[positionIndex] = newSelectionIndex;
+      return next;
     });
   }
 
@@ -284,6 +326,7 @@ export function Quiz() {
         setSelectedIndex(null);
         setSpellingSlots(initSpellingSlots(rounds[nextIndex]));
         setTypedAnswer('');
+        setWheelSelections(initWheelSelections(rounds[nextIndex]));
         setPhase('answer');
       }
     });
@@ -337,7 +380,7 @@ export function Quiz() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentRound, mode, choices, selectedIndex, spellingSlots, typedAnswer, phase, isTransitioning, isSettingsOpen]);
+  }, [currentRound, mode, choices, selectedIndex, spellingSlots, typedAnswer, wheelSelections, phase, isTransitioning, isSettingsOpen, isAnswered]);
 
   // Only the very first load (no rounds yet) shows the full-page overlay.
   const showLoading = useMinimumLoadingDuration(isLoading && !rounds);
@@ -417,6 +460,14 @@ export function Quiz() {
                         correctAnswer={correctAnswer}
                         revealed={phase === 'review'}
                         onChange={setTypedAnswer}
+                      />
+                    ) : mode === 'wheel' ? (
+                      <WordWheel
+                        positions={positions}
+                        selections={wheelSelections}
+                        correctAnswer={correctAnswer}
+                        revealed={phase === 'review'}
+                        onChange={handleWheelChange}
                       />
                     ) : (
                       <ChoiceGrid

@@ -1,0 +1,71 @@
+@use '../modern';
+
+.modern-word-wheel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+// A fixed (non-wheel) character — sized/positioned to sit at the same
+// vertical center as a reel's char, so the word still reads as one
+// continuous line across fixed and spinning positions alike.
+.modern-word-wheel__fixed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 4rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-family: var(--font-jp);
+  color: var(--color-text-primary);
+}
+
+.modern-word-wheel__reel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+.modern-word-wheel__char {
+  @include modern.quiz-tile-face;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.modern-word-wheel__reel--success .modern-word-wheel__char {
+  background-color: var(--color-quiz-success);
+  border-color: var(--color-quiz-success);
+  color: var(--color-bg-primary);
+  box-shadow: 0 4px 0 0 var(--color-quiz-success-lip);
+}
+
+.modern-word-wheel__reel--fail .modern-word-wheel__char {
+  background-color: var(--color-quiz-fail);
+  border-color: var(--color-quiz-fail);
+  color: var(--color-quiz-fail-text);
+  box-shadow: 0 4px 0 0 var(--color-quiz-fail);
+}
+
+@media (max-width: 768px) {
+  .modern-word-wheel {
+    gap: 0.375rem;
+  }
+
+  .modern-word-wheel__fixed {
+    height: 3.25rem;
+    font-size: 1.5rem;
+  }
+
+  .modern-word-wheel__char {
+    width: 3.25rem;
+    height: 3.25rem;
+    font-size: 1.5rem;
+  }
+}
