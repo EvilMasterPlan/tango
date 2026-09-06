@@ -21,6 +21,10 @@
   background-color: var(--color-bg-primary);
 }
 
+.practice-page__menu {
+  margin-left: auto;
+}
+
 .practice-page__header::after {
   content: '';
   position: absolute;

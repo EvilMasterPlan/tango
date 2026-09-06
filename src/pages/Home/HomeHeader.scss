@@ -25,37 +25,3 @@
   width: 1.4rem;
   height: 1.4rem;
 }
-
-.home-header__menu {
-  position: relative;
-}
-
-.home-header__menu-list {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
-  z-index: 4;
-  min-width: 8rem;
-  margin: 0;
-  padding: 0.4rem;
-  list-style: none;
-  background-color: var(--color-bg-secondary);
-  border: 1px solid var(--color-border-primary);
-  border-radius: var(--radius-md);
-  box-shadow: 0 4px 12px 0 var(--color-shadow-medium);
-}
-
-.home-header__menu-item {
-  display: block;
-  padding: 0.55rem 0.75rem;
-  border-radius: var(--radius-sm);
-  color: var(--color-text-primary);
-  font-size: 0.9rem;
-  font-weight: 600;
-  text-decoration: none;
-  white-space: nowrap;
-
-  &:hover {
-    background-color: var(--color-bg-tertiary);
-  }
-}

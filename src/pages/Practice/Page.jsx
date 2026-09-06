@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { IoArrowBack } from 'react-icons/io5';
 import { cx } from '@/utils/cx';
 import { ALL_LESSON_TYPES, LESSON_METADATA_BY_LESSON_TYPE } from '@/utils/lessonTypeMetadata';
+import { OverflowMenu } from '@/components/shared/OverflowMenu';
 import '@/pages/Practice/Page.scss';
 
 // Unlike the home page's tile row (a per-user-unlocked subset, weight-
@@ -32,6 +33,7 @@ export function PracticePage() {
             <IoArrowBack />
           </Link>
           <h1 className="practice-page__title">Practice</h1>
+          <OverflowMenu currentPage="practice" className="practice-page__menu" />
         </header>
 
         <div className="practice-page__content">

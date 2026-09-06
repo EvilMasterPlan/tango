@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { IoArrowBack, IoCaretUp, IoCaretDown } from 'react-icons/io5';
 import { cx } from '@/utils/cx';
 import { LoadingOverlay } from '@/components/shared/LoadingOverlay';
+import { OverflowMenu } from '@/components/shared/OverflowMenu';
 import { useWordProgress } from '@/hooks/useWordProgress';
 import { WordTile } from '@/pages/Overview/WordTile';
 import '@/pages/Overview/Page.scss';
@@ -85,6 +86,7 @@ export function OverviewPage() {
               <IoArrowBack />
             </Link>
             <h1 className="overview-page__title">Your Progress</h1>
+            <OverflowMenu currentPage="overview" className="overview-page__menu" />
           </div>
           <div className="overview-page__controls">
             <div className="overview-page__filters" role="group" aria-label="Filter by JLPT level">
