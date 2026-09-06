@@ -9,48 +9,14 @@ import { useOverallStats } from '@/hooks/useOverallStats';
 import { useMinimumLoadingDuration } from '@/hooks/useMinimumLoadingDuration';
 import { cx } from '@/utils/cx';
 import { HomeHeader } from '@/pages/Home/HomeHeader';
+import { LESSON_METADATA_BY_LESSON_TYPE } from '@/utils/lessonTypeMetadata';
 import '@/pages/Home/Page.scss';
 
-// Display metadata for each backend lesson type — which of these actually
-// show up, and in what order, comes from useNextLessons per user/load;
-// this is just how to render whichever ones do. Keyed by the same lesson
-// type string used for CSS class suffixes and tile/ref keys below, so
-// there's one name per lesson type. `icon` is a single bold kanji rendered
-// as plain text, so .home-tile__icon can tint it with CSS color to the
-// tile's own accent.
-const LESSON_METADATA_BY_LESSON_TYPE = {
-  new_words: {
-    icon: '新',
-    title: 'New Words',
-    subtitle: "Explore the wild unknown",
-  },
-  level_up: {
-    icon: '強',
-    title: 'Level Up',
-    subtitle: 'Focus on mastery',
-  },
-  fix_mistakes: {
-    icon: '正',
-    title: 'Fix Mistakes',
-    subtitle: "Get good",
-  },
-  kanji_spotlight: {
-    icon: '字',
-    title: 'Kanji Spotlight',
-    subtitle: 'They contain multitudes',
-  },
-  from_the_top: {
-    icon: '頭',
-    title: 'From the Top',
-    subtitle: 'Back to basics',
-  },
-  jlpt_n5: {
-    icon: 'N5',
-    title: 'JLPT N5',
-    subtitle: 'Study for the test',
-  },
-};
-
+// Which of LESSON_METADATA_BY_LESSON_TYPE's types actually show up here,
+// and in what order, comes from useNextLessons per user/load — this just
+// maps whichever ones do to their display metadata. `icon` is a single bold
+// kanji rendered as plain text, so .home-tile__icon can tint it with CSS
+// color to the tile's own accent.
 function buildTiles(options) {
   return options
     .map((lessonType) => {

@@ -157,17 +157,20 @@ function fillRadii(correctCounts, iteration, scale) {
 //
 // `fromValues`/`fromIteration`/`fromIterationsForNextLevel` (optional) are
 // a second, earlier mastery snapshot — when given, three layers are drawn
-// instead of one, bottom to top: the previous shape, still properly
-// faceted (not flattened to plain white, so it keeps reading as a gem
-// rather than a flat backdrop); a static diagonally-hatched fill at
-// `attemptedValues` (see below), showing the sliver of growth beyond that
-// previous shape; and a solid-white fill at the real (current) shape that
-// gently pulses opacity forever, alternating between that hatched preview
-// and solid white. Pulsing a flat overlay like this, rather than animating
-// the facet geometry itself, keeps the reveal legible — animating the
-// facets' own colors read as flickering rather than a clean before/after
-// comparison. `animationDelay` offsets when the pulse's cycle starts, so
-// multiple charts animating together don't all flash in lockstep.
+// instead of one, bottom to top: a solid-white fill at the real (current)
+// shape that gently pulses opacity forever, alternating between transparent
+// and solid white; a static diagonally-hatched fill at `attemptedValues`
+// (see below), showing the sliver of growth beyond the previous shape,
+// visible through the pulse layer during its transparent phase; and, on
+// top of both, the previous shape itself, still properly faceted (not
+// flattened to plain white, so it keeps reading as a gem rather than a flat
+// backdrop) — this is what stays solidly visible throughout, with the
+// growth since then peeking out around its edges instead of covering it.
+// Pulsing a flat overlay like this, rather than animating the facet
+// geometry itself, keeps the reveal legible — animating the facets' own
+// colors read as flickering rather than a clean before/after comparison.
+// `animationDelay` offsets when the pulse's cycle starts, so multiple
+// charts animating together don't all flash in lockstep.
 //
 // `attemptedValues` (optional, same shape as `values`) is what the hatch
 // layer above is drawn from — a per-axis ceiling of what `values` would be
@@ -181,10 +184,10 @@ function fillRadii(correctCounts, iteration, scale) {
 // static fill at the real shape, with no hatching or pulse.
 //
 // `color` (optional, 'red' | 'orange' | 'yellow' | 'green' | 'blue', default
-// 'blue') picks the
-// facet/core hue from FACET_HUES above — everything else (guide rings,
-// hatching, the reveal pulse, the border) stays neutral white/grey
-// regardless of which one is chosen.
+// 'blue') picks the facet/core/outer-edge hue from FACET_HUES above —
+// everything else (inner guide rings, hatching, the reveal pulse, the
+// current-mastery border) stays neutral white/grey regardless of which one
+// is chosen.
 export function GemChart({
   values: correctCounts,
   previewIndex = null,
@@ -273,13 +276,27 @@ export function GemChart({
       {innerRingRadii.map((radius) => (
         <polygon key={radius} className="gem-chart__iteration-ring" points={ringPoints(count, radius)} />
       ))}
-      <polygon className="gem-chart__outline" points={outline} />
+      <polygon className="gem-chart__outline" points={outline} style={{ stroke: `hsl(${hue}, ${FACET_SATURATION}%, 60%)` }} />
       {previewDelta && <polygon className="gem-chart__preview" points={previewDelta} fill={`url(#${patternId})`} />}
       {previousFacets ? (
         <>
+          {/* Pulses between transparent and solid white, rather than
+              animating the facet geometry itself, which read as flickering
+              rather than a clean before/after reveal. Sits underneath the
+              previous shape below, so it only reads in the ring of growth
+              beyond it. */}
+          <polygon
+            className="gem-chart__reveal-pulse"
+            points={finalOutline}
+            style={{ animationDelay: `${animationDelay}ms` }}
+          />
+          {/* The hatch shows the sliver of growth beyond the previous
+              faceted shape, up to the attempted ceiling — visible through
+              the pulse layer above during its transparent phase. */}
+          {attemptedFill && <polygon className="gem-chart__preview" points={attemptedFill} fill={`url(#${patternId})`} />}
           {/* The previous state stays properly faceted (not flattened to
-              plain white) so it keeps reading as a gem in its own right
-              while the reveal plays out above it. */}
+              plain white) and drawn on top, so it stays solidly visible
+              throughout while the reveal plays out around its edges. */}
           {previousFacets.map(({ points, midAngle }, index) => (
             <polygon
               key={index}
@@ -288,17 +305,6 @@ export function GemChart({
               style={{ fill: facetFill(midAngle, facetJitters[index], hue) }}
             />
           ))}
-          {/* The hatch shows the sliver of growth beyond the previous
-              faceted shape, up to the attempted ceiling. */}
-          {attemptedFill && <polygon className="gem-chart__preview" points={attemptedFill} fill={`url(#${patternId})`} />}
-          {/* Pulses between that hatched preview and solid white, rather
-              than animating the facet geometry itself, which read as
-              flickering rather than a clean before/after reveal. */}
-          <polygon
-            className="gem-chart__reveal-pulse"
-            points={finalOutline}
-            style={{ animationDelay: `${animationDelay}ms` }}
-          />
         </>
       ) : (
         finalFacets.map(({ points, midAngle }, index) => (

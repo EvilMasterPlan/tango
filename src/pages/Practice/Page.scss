@@ -1,0 +1,167 @@
+@use '@/components/shared/mixins';
+
+.practice-page {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+// Same sticky-header + fade-into-background treatment as Overview/Page.scss
+// — a simple label/back-button header here rather than filters/sort
+// toggles, but the same reasoning: cards scrolling up under it should fade
+// out rather than get cut off by a hard edge.
+.practice-page__header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background-color: var(--color-bg-primary);
+}
+
+.practice-page__header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 2.75rem;
+  pointer-events: none;
+  background-image: linear-gradient(to bottom, var(--color-bg-primary) 0, transparent 100%);
+}
+
+.practice-page__back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-primary);
+  font-size: 1.25rem;
+}
+
+.practice-page__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.practice-page__content {
+  // Top matches __header::after's height — otherwise the first card starts
+  // out already partway under the fade before any scrolling has even
+  // happened.
+  padding: 2.75rem 1.5rem 2rem;
+}
+
+.practice-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 28rem;
+  margin: 0 auto;
+}
+
+// Same "3D pressable" face as WordTile (thick border + flat drop-shadow
+// "lip"), but actually clickable — starts that lesson type on click — so it
+// gets the hover/press lift WordTile's static tiles don't need.
+.practice-card {
+  @include mixins.quiz-button-base;
+  @include mixins.pressable-lip(var(--tile-accent));
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  width: 100%;
+  padding: 1.1rem 1.35rem;
+  text-align: left;
+  background-color: var(--color-bg-secondary);
+  border: 3px solid var(--tile-accent);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+
+  &:hover {
+    background-color: var(--color-bg-tertiary);
+  }
+}
+
+// Per-type accent color — mirrors Home/Page.scss's --tile-accent values for
+// the same lesson types, kept as its own copy since this card's face
+// (thick border, no filled background) reads differently than the home
+// page's compact icon-only tile.
+.practice-card--new_words {
+  --tile-accent: var(--color-accent-secondary);
+}
+
+.practice-card--level_up {
+  --tile-accent: var(--color-accent-primary);
+}
+
+.practice-card--fix_mistakes {
+  --tile-accent: var(--color-accent-error);
+}
+
+.practice-card--kanji_spotlight {
+  --tile-accent: var(--color-accent-warning);
+}
+
+.practice-card--from_the_top {
+  --tile-accent: #a78bfa;
+}
+
+// Same blue-through-red JLPT hue progression as Home/Page.scss (which
+// mirrors Overview's filter buttons and GemChart's per-level facet hues) —
+// see that file's comment.
+.practice-card--jlpt_n5 {
+  --tile-accent: hsl(210, 70%, 60%);
+}
+
+.practice-card--jlpt_n4 {
+  --tile-accent: hsl(140, 60%, 45%);
+}
+
+.practice-card--jlpt_n3 {
+  --tile-accent: hsl(50, 80%, 55%);
+}
+
+.practice-card--jlpt_n2 {
+  --tile-accent: hsl(30, 80%, 55%);
+}
+
+.practice-card--jlpt_n1 {
+  --tile-accent: hsl(0, 70%, 55%);
+}
+
+.practice-card--random {
+  --tile-accent: #71717a;
+}
+
+.practice-card__icon {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  font-family: var(--font-jp);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  border: 2px solid var(--tile-accent);
+  border-radius: var(--radius-md);
+}
+
+.practice-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.practice-card__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.practice-card__subtitle {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}

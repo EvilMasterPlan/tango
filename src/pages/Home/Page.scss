@@ -175,14 +175,38 @@
   --tile-accent: var(--color-accent-warning);
 }
 
-// No spare theme accent left for a 5th/6th tile type, so these use literal
-// colors instead of the shared accent tokens above.
+// No spare theme accent left for a 5th/6th/7th tile type, so these use
+// literal colors instead of the shared accent tokens above.
 .home-tile--from_the_top {
   --tile-accent: #a78bfa;
 }
 
+// JLPT_N5-N1 match the same blue-through-red hue progression Overview's
+// filter buttons and GemChart's per-level facet hues already use for JLPT
+// levels elsewhere in the app, rather than one-off colors, so a level reads
+// as "the same N4" wherever it shows up.
 .home-tile--jlpt_n5 {
-  --tile-accent: #f472b6;
+  --tile-accent: hsl(210, 70%, 60%);
+}
+
+.home-tile--jlpt_n4 {
+  --tile-accent: hsl(140, 60%, 45%);
+}
+
+.home-tile--jlpt_n3 {
+  --tile-accent: hsl(50, 80%, 55%);
+}
+
+.home-tile--jlpt_n2 {
+  --tile-accent: hsl(30, 80%, 55%);
+}
+
+.home-tile--jlpt_n1 {
+  --tile-accent: hsl(0, 70%, 55%);
+}
+
+.home-tile--random {
+  --tile-accent: #71717a;
 }
 
 .home-tile--new_words,
@@ -190,7 +214,12 @@
 .home-tile--fix_mistakes,
 .home-tile--kanji_spotlight,
 .home-tile--from_the_top,
-.home-tile--jlpt_n5 {
+.home-tile--jlpt_n5,
+.home-tile--jlpt_n4,
+.home-tile--jlpt_n3,
+.home-tile--jlpt_n2,
+.home-tile--jlpt_n1,
+.home-tile--random {
   border-color: var(--tile-accent);
   box-shadow: 0 4px 0 0 var(--tile-accent);
 }

@@ -1,7 +1,9 @@
 import { useLayoutEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MasteryGem } from '@/components/quiz/charts/MasteryGem';
 import { FuriganaWord } from '@/components/quiz/vocabulary/VocabularyDisplay';
 import { jlptGemColor } from '@/utils/jlptGemColor';
+import { getChallengeRating } from '@/utils/challengeRating';
 import { shrinkFontToFit } from '@/utils/shrinkFontToFit';
 import '@/pages/Overview/WordTile.scss';
 
@@ -25,16 +27,29 @@ function useShrinkTileText(infoRef, textRefs, deps) {
   }, deps);
 }
 
+// Clicking a tile starts a word_spotlight lesson seeded on that word — its
+// laggiest question types plus similar words by kanji/reading (see
+// lessonPools.js's rankWordSpotlight) — the same bonus-lesson navigation
+// Practice/Page.jsx uses, just with lessonParams carrying the seed instead
+// of a bare type. This is the one place a seeded lesson type can actually
+// be started, since it's the one place a specific word is already on
+// screen to seed it from.
 export function WordTile({ entry, mastery }) {
   const color = jlptGemColor(entry.jlpt) || 'blue';
+  const challengeRating = getChallengeRating(entry.score);
+  const navigate = useNavigate();
 
   const infoRef = useRef(null);
   const wordRef = useRef(null);
   const definitionRef = useRef(null);
   useShrinkTileText(infoRef, [wordRef, definitionRef], [entry.furigana, entry.definition]);
 
+  function startWordSpotlight() {
+    navigate('/lesson', { state: { lessonType: 'word_spotlight', lessonParams: { seedWordId: entry.id } } });
+  }
+
   return (
-    <div className="word-tile" data-jlpt-color={color}>
+    <button type="button" className="word-tile" data-jlpt-color={color} onClick={startWordSpotlight}>
       <MasteryGem mastery={mastery} color={color} />
       <div className="word-tile__info" ref={infoRef}>
         {/* The shrink/clip target is this wrapper, not the <ruby> itself —
@@ -50,6 +65,16 @@ export function WordTile({ entry, mastery }) {
           {entry.definition}
         </div>
       </div>
-    </div>
+      {/* Same challenge-rating + JLPT-level pairing VocabularyDisplay shows
+          on the quiz page, just smaller and right-justified against the
+          tile's own edge instead of stacked in its own column. */}
+      <div
+        className="word-tile__challenge"
+        aria-label={`Challenge rating: ${challengeRating}${entry.jlpt ? `, JLPT ${entry.jlpt}` : ''}`}
+      >
+        <span className="word-tile__challenge-value">{challengeRating}</span>
+        {entry.jlpt ? <span className="word-tile__jlpt-level">{entry.jlpt}</span> : null}
+      </div>
+    </button>
   );
 }

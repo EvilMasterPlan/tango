@@ -28,11 +28,12 @@
 
 // Outer edge — also the last iteration ring, i.e. the level-up threshold —
 // kept brighter than the intermediate __iteration-ring rings via both a
-// lighter stroke color and higher opacity.
+// thicker stroke and higher opacity. Stroke color is set inline per-instance
+// to the gem's own hue (see `color` on GemChart), rather than the neutral
+// grey the inner rings use.
 .gem-chart__outline {
   fill: none;
-  stroke: var(--color-text-muted);
-  stroke-width: 1;
+  stroke-width: 1.5;
   stroke-linejoin: round;
   opacity: 1;
 }

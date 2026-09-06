@@ -22,9 +22,17 @@ export const modernQuizApi = {
   },
   // Resolves the lesson type from the user's current lesson-choice row —
   // defaults to NEW_WORDS if nothing's been selected (e.g. a direct /lesson
-  // visit).
-  generateLesson: async () => {
-    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/modern-quiz/generate-lesson`), {});
+  // visit). Pass `lessonType` to instead start a "bonus" lesson of that
+  // exact type (see Practice/Page.jsx) — the server skips reading/writing
+  // the home page's lesson-choice row entirely in that case, so it doesn't
+  // count as picking one of the day's suggested options, but the lesson
+  // itself still gets scored/recorded normally. `lessonParams` (optional)
+  // is extra data a seeded lesson type needs beyond the bare type string —
+  // e.g. word_spotlight's { seedWordId } — meaningless without a
+  // `lessonType` alongside it.
+  generateLesson: async (lessonType = null, lessonParams = null) => {
+    const body = lessonType ? { lessonType, ...(lessonParams ? { lessonParams } : {}) } : {};
+    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/modern-quiz/generate-lesson`), body);
   },
   recordPractice: async (entryId, skillKey, isCorrect) => {
     return makePostRequest(getUrl(`${TANGO_API_PREFIX}/modern-quiz/record-practice`), {

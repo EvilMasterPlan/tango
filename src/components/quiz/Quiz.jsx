@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { modernQuizApi } from '@/utils/api/modernQuiz';
 import { VocabularyDisplay } from '@/components/quiz/vocabulary/VocabularyDisplay';
 import { ChoiceGrid } from '@/components/quiz/answering/ChoiceGrid';
@@ -62,12 +62,19 @@ const MODES = {
 };
 
 export function Quiz() {
-  // No lesson-selecting params to read here — the picked tile is recorded
-  // against the user's current lesson-choice row before ever navigating to
-  // /lesson, and the lesson-generation endpoint resolves that same row
-  // server-side, defaulting to NEW_WORDS if nothing's been selected (e.g.
-  // a direct /lesson visit).
+  // Normally no lesson-selecting params to read here — the picked tile is
+  // recorded against the user's current lesson-choice row before ever
+  // navigating to /lesson, and the lesson-generation endpoint resolves that
+  // same row server-side, defaulting to NEW_WORDS if nothing's been
+  // selected (e.g. a direct /lesson visit). The one exception is a "bonus"
+  // lesson started from Practice/Page.jsx (or a seeded type like
+  // word_spotlight, started from a specific WordTile), which navigates here
+  // with { lessonType, lessonParams } in location.state so generateLesson
+  // can request that exact type (and seed) instead — see loadLesson below.
   const navigate = useNavigate();
+  const location = useLocation();
+  const bonusLessonType = location.state?.lessonType ?? null;
+  const bonusLessonParams = location.state?.lessonParams ?? null;
 
   const [rounds, setRounds] = useState(null);
   // Word id -> mastery, captured once right after a lesson loads, before
@@ -137,7 +144,7 @@ export function Quiz() {
     setIsLoading(true);
     setLoadError(null);
     try {
-      const { questions, lessonID: newLessonID } = await modernQuizApi.generateLesson();
+      const { questions, lessonID: newLessonID } = await modernQuizApi.generateLesson(bonusLessonType, bonusLessonParams);
       setRounds(questions);
       const startingMasteryByWordID = Object.fromEntries(questions.map((round) => [round.entry.id, round.mastery]));
       setInitialMasteryByWordID(startingMasteryByWordID);
@@ -156,7 +163,7 @@ export function Quiz() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [bonusLessonType, bonusLessonParams]);
 
   useEffect(() => {
     loadLesson();

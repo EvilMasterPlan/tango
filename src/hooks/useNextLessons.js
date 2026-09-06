@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { modernQuizApi } from '@/utils/api/modernQuiz';
+import { ALL_LESSON_TYPES } from '@/utils/lessonTypeMetadata';
 
-// If the request fails, fall back to offering all five types rather than
+// If the request fails, fall back to offering every known type rather than
 // leaving the home page with no tiles at all — simpler than trying to
 // remember the last successful state, and erring toward showing more
 // options rather than fewer feels like the safer failure mode here. `id` is
@@ -10,7 +11,7 @@ import { modernQuizApi } from '@/utils/api/modernQuiz';
 // won't get recorded against anything.
 const FALLBACK_CURRENT = {
   id: null,
-  options: ['new_words', 'level_up', 'fix_mistakes', 'kanji_spotlight', 'from_the_top', 'jlpt_n5'],
+  options: ALL_LESSON_TYPES,
   selectedType: null,
 };
 
