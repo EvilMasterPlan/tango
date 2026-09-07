@@ -70,7 +70,7 @@ export function SpellingTiles({ tiles, usedTileIndices, revealed = false, onSele
       <button
         type="button"
         key={tileIndex}
-        className={cx('modern-spelling-tile', used && 'modern-spelling-tile--used')}
+        className={cx('spelling-tile', used && 'spelling-tile--used')}
         onClick={() => onSelect(tileIndex)}
         disabled={used || revealed}
       >
@@ -81,7 +81,7 @@ export function SpellingTiles({ tiles, usedTileIndices, revealed = false, onSele
 
   if (!rowCounts) {
     return (
-      <div className="modern-spelling-tiles">
+      <div className="spelling-tiles">
         {tiles.map((char, tileIndex) => renderTile(char, tileIndex))}
       </div>
     );
@@ -90,12 +90,12 @@ export function SpellingTiles({ tiles, usedTileIndices, revealed = false, onSele
   let cursor = 0;
 
   return (
-    <div className="modern-spelling-tiles modern-spelling-tiles--balanced">
+    <div className="spelling-tiles spelling-tiles--balanced">
       {rowCounts.map((count, rowIndex) => {
         const rowStart = cursor;
         cursor += count;
         return (
-          <div className="modern-spelling-tiles__row" key={rowIndex}>
+          <div className="spelling-tiles__row" key={rowIndex}>
             {tiles.slice(rowStart, cursor).map((char, i) => renderTile(char, rowStart + i))}
           </div>
         );

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { modernQuizApi } from '@/utils/api/modernQuiz';
+import { quizApi } from '@/utils/api/quiz';
 
 export function useOverallStats() {
   const [points, setPoints] = useState(0);
@@ -10,7 +10,7 @@ export function useOverallStats() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await modernQuizApi.getOverallStats();
+      const response = await quizApi.getOverallStats();
       setPoints(response.points || 0);
     } catch (apiError) {
       setError(apiError);

@@ -1,6 +1,6 @@
-@use '../modern';
+@use '../shared';
 
-.modern-spelling-tiles {
+.spelling-tiles {
   --tile-gap: 0.75rem;
   display: flex;
   flex-wrap: wrap;
@@ -13,43 +13,43 @@
 // explicit, balanced row-by-row split. Each row is its own flex container
 // so line breaks land exactly where computed, not wherever flex-wrap's
 // natural fill-to-capacity would put them.
-.modern-spelling-tiles--balanced {
+.spelling-tiles--balanced {
   flex-wrap: nowrap;
   flex-direction: column;
 }
 
-.modern-spelling-tiles__row {
+.spelling-tiles__row {
   display: flex;
   justify-content: center;
   gap: var(--tile-gap);
 }
 
-.modern-spelling-tile {
-  @include modern.quiz-tile-face;
-  @include modern.pressable-lip(var(--color-border-primary), var(--color-accent-primary));
+.spelling-tile {
+  @include shared.quiz-tile-face;
+  @include shared.pressable-lip(var(--color-border-primary), var(--color-accent-primary));
   transition: background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
 }
 
-.modern-spelling-tile:hover:not(:disabled) {
+.spelling-tile:hover:not(:disabled) {
   background-color: var(--color-bg-tertiary);
   border-color: var(--color-accent-primary);
 }
 
-.modern-spelling-tile--used {
+.spelling-tile--used {
   opacity: 0.35;
   cursor: default;
 }
 
-.modern-spelling-tile:disabled {
+.spelling-tile:disabled {
   cursor: default;
 }
 
 @media (max-width: 768px) {
-  .modern-spelling-tiles {
+  .spelling-tiles {
     --tile-gap: 0.5rem;
   }
 
-  .modern-spelling-tile {
+  .spelling-tile {
     width: 3.25rem;
     height: 3.25rem;
     font-size: 1.5rem;

@@ -1,6 +1,6 @@
-@use '../modern';
+@use '../shared';
 
-.modern-spelling-slots {
+.spelling-slots {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -8,8 +8,8 @@
   width: 100%;
 }
 
-.modern-spelling-slot {
-  @include modern.quiz-tile-face;
+.spelling-slot {
+  @include shared.quiz-tile-face;
   position: relative;
   z-index: 0;
   overflow: hidden;
@@ -27,7 +27,7 @@
 // Filled: back to the mixin's normal face color — the glassy sheen below is
 // what signals "placed," so the background doesn't need its own color
 // change too.
-.modern-spelling-slot--filled {
+.spelling-slot--filled {
   background-color: var(--color-bg-secondary);
 }
 
@@ -36,7 +36,7 @@
 // pseudo's own negative z-index would otherwise still land above in-flow
 // text per CSS2.1 painting order). Fades in gradually on placement, on its
 // own timing separate from the rest of the --filled state.
-.modern-spelling-slot::before {
+.spelling-slot::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -47,7 +47,7 @@
   background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 60%);
 }
 
-.modern-spelling-slot--filled:not(.modern-spelling-slot--success):not(.modern-spelling-slot--fail)::before {
+.spelling-slot--filled:not(.spelling-slot--success):not(.spelling-slot--fail)::before {
   opacity: 1;
 }
 
@@ -56,7 +56,7 @@
 // this element's own overflow: hidden). Eases in slow to fast, and
 // finishes quickly, reading as a per-placement "landed" cue rather than a
 // bigger celebration.
-.modern-spelling-slot--filled:not(.modern-spelling-slot--success):not(.modern-spelling-slot--fail)::after {
+.spelling-slot--filled:not(.spelling-slot--success):not(.spelling-slot--fail)::after {
   content: '';
   position: absolute;
   top: -50%;
@@ -75,10 +75,10 @@
   );
   pointer-events: none;
   transform: translateX(-100%);
-  animation: modern-spelling-slot-place-flash 0.3s ease-in-out;
+  animation: spelling-slot-place-flash 0.3s ease-in-out;
 }
 
-@keyframes modern-spelling-slot-place-flash {
+@keyframes spelling-slot-place-flash {
   from {
     transform: translateX(-100%);
   }
@@ -88,14 +88,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .modern-spelling-slot--filled::after {
+  .spelling-slot--filled::after {
     animation: none;
   }
 }
 
 // Stacked above both pseudo-elements above (face sheen at z-index: -1, place
 // flash at z-index: 0) so the glyph reads clearly through the whole animation.
-.modern-spelling-slot__char {
+.spelling-slot__char {
   position: relative;
   z-index: 1;
 }
@@ -107,17 +107,17 @@
 // recoloring rather than shifting position. Press is the one state
 // allowed to move: it flattens the footer and nudges the tile down into
 // it, same as every other button in this file.
-.modern-spelling-slot--filled:not(.modern-spelling-slot--success):not(.modern-spelling-slot--fail) {
+.spelling-slot--filled:not(.spelling-slot--success):not(.spelling-slot--fail) {
   border-color: var(--color-accent-primary);
   box-shadow: 0 4px 0 0 var(--color-accent-primary);
 }
 
-.modern-spelling-slot--filled:not(.modern-spelling-slot--success):not(.modern-spelling-slot--fail):not(:disabled):hover {
+.spelling-slot--filled:not(.spelling-slot--success):not(.spelling-slot--fail):not(:disabled):hover {
   border-color: var(--color-accent-primary-hover);
   box-shadow: 0 4px 0 0 var(--color-accent-primary-hover);
 }
 
-.modern-spelling-slot--filled:not(.modern-spelling-slot--success):not(.modern-spelling-slot--fail):not(:disabled):active {
+.spelling-slot--filled:not(.spelling-slot--success):not(.spelling-slot--fail):not(:disabled):active {
   transform: translateY(3px);
   border-color: var(--color-accent-primary-hover);
   box-shadow: 0 1px 0 0 var(--color-accent-primary-hover);
@@ -125,21 +125,21 @@
 
 // Gold for a correct letter, black for a wrong one — the same success/fail
 // treatment applied per letter.
-.modern-spelling-slot--success {
+.spelling-slot--success {
   background-color: var(--color-quiz-success);
   border-color: var(--color-quiz-success);
   color: var(--color-bg-primary);
   box-shadow: 0 4px 0 0 var(--color-quiz-success-lip);
 }
 
-.modern-spelling-slot--fail {
+.spelling-slot--fail {
   background-color: var(--color-quiz-fail);
   border-color: var(--color-quiz-fail);
   color: var(--color-quiz-fail-text);
   box-shadow: 0 4px 0 0 var(--color-quiz-fail);
 }
 
-.modern-spelling-slot--fail::after {
+.spelling-slot--fail::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -153,16 +153,16 @@
   pointer-events: none;
 }
 
-.modern-spelling-slot:disabled {
+.spelling-slot:disabled {
   cursor: default;
 }
 
 @media (max-width: 768px) {
-  .modern-spelling-slots {
+  .spelling-slots {
     gap: 0.5rem;
   }
 
-  .modern-spelling-slot {
+  .spelling-slot {
     width: 3.25rem;
     height: 3.25rem;
     font-size: 1.5rem;

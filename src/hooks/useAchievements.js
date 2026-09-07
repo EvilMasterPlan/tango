@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { modernQuizApi } from '@/utils/api/modernQuiz';
+import { quizApi } from '@/utils/api/quiz';
 
 export function useAchievements() {
   const [achievements, setAchievements] = useState({});
@@ -10,7 +10,7 @@ export function useAchievements() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await modernQuizApi.getAchievements();
+      const response = await quizApi.getAchievements();
       setAchievements(response.channels || {});
     } catch (apiError) {
       setError(apiError);

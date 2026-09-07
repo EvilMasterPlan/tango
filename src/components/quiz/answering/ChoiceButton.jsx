@@ -22,16 +22,16 @@ export function ChoiceButton({ text, index, variant = 'default', emphasized = fa
     <button
       type="button"
       className={cx(
-        'modern-choice-button',
-        variant !== 'default' && `modern-choice-button--${variant}`,
-        emphasized && 'modern-choice-button--emphasized',
-        japanese && 'modern-choice-button--japanese',
+        'choice-button',
+        variant !== 'default' && `choice-button--${variant}`,
+        emphasized && 'choice-button--emphasized',
+        japanese && 'choice-button--japanese',
       )}
       onClick={() => onSelect(index)}
       disabled={disabled}
       aria-label={statusLabel(text, variant)}
     >
-      <span ref={labelRef} className="modern-choice-button__label">
+      <span ref={labelRef} className="choice-button__label">
         {text}
       </span>
     </button>

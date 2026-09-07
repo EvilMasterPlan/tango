@@ -25,7 +25,7 @@ export function SpellingSlots({ tiles, slots, correctAnswer, revealed = false, o
   }, [revealed, slots, tiles, correctAnswer]);
 
   return (
-    <div className="modern-spelling-slots" ref={containerRef}>
+    <div className="spelling-slots" ref={containerRef}>
       {slots.map((tileIndex, slotIndex) => {
         const filled = tileIndex !== null;
         const char = filled ? tiles[tileIndex] : null;
@@ -38,15 +38,15 @@ export function SpellingSlots({ tiles, slots, correctAnswer, revealed = false, o
             type="button"
             key={slotIndex}
             className={cx(
-              'modern-spelling-slot',
-              filled && 'modern-spelling-slot--filled',
-              variant !== 'default' && `modern-spelling-slot--${variant}`,
+              'spelling-slot',
+              filled && 'spelling-slot--filled',
+              variant !== 'default' && `spelling-slot--${variant}`,
             )}
             onClick={() => onRemove(slotIndex)}
             disabled={revealed || !filled}
             aria-label={label}
           >
-            <span className="modern-spelling-slot__char">{char ?? ''}</span>
+            <span className="spelling-slot__char">{char ?? ''}</span>
           </button>
         );
       })}

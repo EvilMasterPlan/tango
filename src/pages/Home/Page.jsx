@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/shared/Button';
 import { LoadingOverlay } from '@/components/shared/LoadingOverlay';
 import { useNextLessons } from '@/hooks/useNextLessons';
-import { modernQuizApi } from '@/utils/api/modernQuiz';
+import { quizApi } from '@/utils/api/quiz';
 import { useOverallStats } from '@/hooks/useOverallStats';
 import { useMinimumLoadingDuration } from '@/hooks/useMinimumLoadingDuration';
 import { cx } from '@/utils/cx';
@@ -104,7 +104,7 @@ export function HomePage() {
     setIsStartingLesson(true);
     try {
       if (currentRow?.id) {
-        await modernQuizApi.selectLessonChoice(currentRow.id, selected.lessonType);
+        await quizApi.selectLessonChoice(currentRow.id, selected.lessonType);
       }
     } catch (error) {
       console.warn('Failed to record lesson choice selection:', error);

@@ -29,11 +29,11 @@ export function WordWheel({ positions, selections, correctAnswer, revealed = fal
   }, [revealed, positions, selections, correctAnswer]);
 
   return (
-    <div className="modern-word-wheel" ref={containerRef}>
+    <div className="word-wheel" ref={containerRef}>
       {positions.map((position, i) => {
         if (!position) {
           return (
-            <span key={i} className="modern-word-wheel__fixed">
+            <span key={i} className="word-wheel__fixed">
               {correctAnswer[i]}
             </span>
           );
@@ -45,7 +45,7 @@ export function WordWheel({ positions, selections, correctAnswer, revealed = fal
         const label = variant === 'success' ? `${char}, correct` : variant === 'fail' ? `${char}, incorrect` : undefined;
 
         return (
-          <div key={i} className={cx('modern-word-wheel__reel', variant !== 'default' && `modern-word-wheel__reel--${variant}`)}>
+          <div key={i} className={cx('word-wheel__reel', variant !== 'default' && `word-wheel__reel--${variant}`)}>
             <IconButton
               size="sm"
               label="Previous character"
@@ -54,7 +54,7 @@ export function WordWheel({ positions, selections, correctAnswer, revealed = fal
             >
               <IoChevronUp />
             </IconButton>
-            <span className="modern-word-wheel__char" aria-label={label}>
+            <span className="word-wheel__char" aria-label={label}>
               {char}
             </span>
             <IconButton

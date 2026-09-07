@@ -1,5 +1,5 @@
-// Pressable-button primitives shared across the app. quiz/modern.scss
-// forwards this so quiz components use `modern.quiz-button-base`.
+// Pressable-button primitives shared across the app. quiz/shared.scss
+// forwards this so quiz components use `shared.quiz-button-base`.
 
 @mixin quiz-button-base {
   font-family: inherit;

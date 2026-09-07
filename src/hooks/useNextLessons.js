@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { modernQuizApi } from '@/utils/api/modernQuiz';
+import { quizApi } from '@/utils/api/quiz';
 import { ALL_LESSON_TYPES } from '@/utils/lessonTypeMetadata';
 
 // If the request fails, fall back to offering every known type rather than
@@ -29,7 +29,7 @@ export function useNextLessons() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await modernQuizApi.getNextLessons();
+      const response = await quizApi.getNextLessons();
       setCurrent(response.current || FALLBACK_CURRENT);
       setHistory(response.history || []);
     } catch (apiError) {

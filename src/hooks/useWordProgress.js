@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { modernQuizApi } from '@/utils/api/modernQuiz';
+import { quizApi } from '@/utils/api/quiz';
 
 const PAGE_SIZE = 30;
 
@@ -35,7 +35,7 @@ export function useWordProgress() {
     setError(null);
 
     try {
-      const response = await modernQuizApi.getWordProgress(offset, PAGE_SIZE, by, direction, level);
+      const response = await quizApi.getWordProgress(offset, PAGE_SIZE, by, direction, level);
       if (requestID !== requestIDRef.current) return; // a newer sort/jlptLevel reset this away — discard.
 
       const page = response.words || [];

@@ -1,7 +1,7 @@
-@use '../modern';
+@use '../shared';
 
-.modern-choice-button {
-  @include modern.quiz-button-base;
+.choice-button {
+  @include shared.quiz-button-base;
   position: relative;
   // Clips the success sheen's slide-in (and the fail hatch) to the
   // button's own rounded shape — an element's own box-shadow paints
@@ -35,30 +35,30 @@
   // Solid bottom "lip" gives the button an extruded, pressable look even
   // at rest; pressing it flattens the lip and nudges the button down into
   // it for a genuinely pushed-in feel.
-  @include modern.pressable-lip(var(--color-border-primary), var(--color-accent-primary));
-  @include modern.pressable-transition;
+  @include shared.pressable-lip(var(--color-border-primary), var(--color-accent-primary));
+  @include shared.pressable-transition;
 }
 
 // :not(:disabled) guards hover/active — browsers still match :hover on a
 // disabled button from mouse position alone, even though disabled blocks
 // the click that would otherwise trigger :active.
-.modern-choice-button:hover:not(:disabled) {
+.choice-button:hover:not(:disabled) {
   background-color: var(--color-bg-tertiary);
   border-color: var(--color-accent-primary);
 }
 
-.modern-choice-button:active:not(:disabled) {
+.choice-button:active:not(:disabled) {
   // Faint tint of the selected-state blue, previewing what letting go will do.
   background-color: rgba(96, 165, 250, 0.15);
 }
 
-.modern-choice-button--selected,
+.choice-button--selected,
 // Chained with the base class to match the generic `:hover:not(:disabled)`
 // rule's specificity — that rule counts as 3 selector-components (class +
 // :hover + the :disabled inside :not()), so this needs the same 3 to keep
 // a selected button's hover state blue rather than losing to the grey
 // hover rule above.
-.modern-choice-button.modern-choice-button--selected:hover {
+.choice-button.choice-button--selected:hover {
   background-color: var(--color-accent-primary);
   border-color: var(--color-accent-primary);
   color: #ffffff;
@@ -69,15 +69,15 @@
 // a real mouse press has :hover and :active both true at once, so this
 // needs the matching specificity to keep the lip shrinking to 1px on
 // press, flattening the same way every other choice button does.
-.modern-choice-button.modern-choice-button--selected:active {
+.choice-button.choice-button--selected:active {
   box-shadow: 0 1px 0 0 var(--color-accent-primary-hover);
 }
 
 // Revealed after Check: gold for the correct choice, orange for a wrong
 // pick. Both use dark text on a bright face with a darker lip, since white
 // reads poorly on either bright hue.
-.modern-choice-button--success,
-.modern-choice-button--success:hover {
+.choice-button--success,
+.choice-button--success:hover {
   background-color: var(--color-quiz-success);
   border-color: var(--color-quiz-success);
   color: var(--color-bg-primary);
@@ -90,7 +90,7 @@
 // so it has real room to travel — a short slide over a same-size pane reads
 // as barely-there, but sweeping in from well outside the visible area gives
 // it an obvious, flashy motion before settling into its resting position.
-.modern-choice-button--success::before {
+.choice-button--success::before {
   content: '';
   position: absolute;
   top: -50%;
@@ -106,10 +106,10 @@
     rgba(255, 255, 255, 0) 65%
   );
   pointer-events: none;
-  animation: modern-choice-success-shine 0.25s ease-in-out;
+  animation: choice-success-shine 0.25s ease-in-out;
 }
 
-@keyframes modern-choice-success-shine {
+@keyframes choice-success-shine {
   from {
     transform: translate(-55%, -55%);
     opacity: 0;
@@ -121,7 +121,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .modern-choice-button--success::before {
+  .choice-button--success::before {
     animation: none;
   }
 }
@@ -133,7 +133,7 @@
 // diagonal angle coming from the gradient itself, so it reads as one
 // clean pass over the whole face. It gets clipped crisply by the button's
 // own `overflow: hidden` as it exits.
-.modern-choice-button--success::after {
+.choice-button--success::after {
   content: '';
   position: absolute;
   top: -50%;
@@ -152,10 +152,10 @@
   );
   pointer-events: none;
   transform: translateX(100%);
-  animation: modern-choice-success-flash 0.55s linear 0.15s;
+  animation: choice-success-flash 0.55s linear 0.15s;
 }
 
-@keyframes modern-choice-success-flash {
+@keyframes choice-success-flash {
   from {
     transform: translateX(-100%);
   }
@@ -165,13 +165,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .modern-choice-button--success::after {
+  .choice-button--success::after {
     animation: none;
   }
 }
 
-.modern-choice-button--fail,
-.modern-choice-button--fail:hover {
+.choice-button--fail,
+.choice-button--fail:hover {
   background-color: var(--color-quiz-fail);
   border-color: var(--color-quiz-fail);
   color: var(--color-quiz-fail-text);
@@ -182,17 +182,17 @@
 // miss at the normal choice text size. Same dvh-clamp treatment and
 // saturation height as the base font-size above, just against this
 // variant's own higher ceiling/floor.
-.modern-choice-button--emphasized {
+.choice-button--emphasized {
   font-size: clamp(1rem, 4.6dvh, 2rem);
 }
 
 // Word/reading choices — set from the settings dialog's font toggle,
 // definition (English) choices stay in the default font.
-.modern-choice-button--japanese {
+.choice-button--japanese {
   font-family: var(--font-jp);
 }
 
-.modern-choice-button:disabled {
+.choice-button:disabled {
   cursor: default;
 }
 
@@ -200,7 +200,7 @@
 // unselectable by default — override that on the label specifically (not
 // the whole button, so its own padding stays a plain cursor) so a
 // disabled/revealed choice can still be copied.
-.modern-choice-button:disabled .modern-choice-button__label {
+.choice-button:disabled .choice-button__label {
   cursor: text;
   user-select: text;
   -webkit-user-select: text;
@@ -210,7 +210,7 @@
 // hatch overlay — including the plain (unselected, untouched) wrong
 // answers, not just the one you picked — to visually mark it as wrong
 // regardless of its base color.
-.modern-choice-button:disabled:not(.modern-choice-button--success)::after {
+.choice-button:disabled:not(.choice-button--success)::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -231,7 +231,7 @@
 // face, so it gets transparent-white stripes instead for contrast. Chained
 // with the base class + :disabled (3 components, matching the rule above)
 // so this reliably wins on specificity.
-.modern-choice-button.modern-choice-button--fail:disabled::after {
+.choice-button.choice-button--fail:disabled::after {
   background-image: repeating-linear-gradient(
     45deg,
     rgba(255, 255, 255, 0.12) 0,
@@ -241,7 +241,7 @@
   );
 }
 
-.modern-choice-button__label {
+.choice-button__label {
   // Stacked above the ::after hatch overlay (which sits at z-index: 0) so
   // the text stays crisp and easy to read/compare against the pattern below.
   position: relative;
@@ -261,7 +261,7 @@
   // Narrows the ceiling of the always-on dvh clamp()s above down to
   // something that also fits comfortably at phone width — still the same
   // dvh-driven shape underneath, just saturating at a lower value.
-  .modern-choice-button {
+  .choice-button {
     // Comfortably above the 2.75rem (44px) touch-target minimum already —
     // this is the same "actual floor" lever as the desktop rule above, just
     // scaled down for phone width.
@@ -270,7 +270,7 @@
     padding: 0.65rem;
   }
 
-  .modern-choice-button--emphasized {
+  .choice-button--emphasized {
     font-size: clamp(0.85rem, 3dvh, 1.4rem);
   }
 }

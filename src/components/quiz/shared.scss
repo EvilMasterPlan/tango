@@ -4,7 +4,6 @@
 // component and belongs in that component's own file.
 //
 // The base mixins themselves live in components/shared/mixins.scss (used
-// outside the quiz too, e.g. Button/TextField) — forwarded here so existing
-// `modern.quiz-button-base` / `modern.quiz-tile-face` call sites in this
-// folder don't need to change.
+// outside the quiz too, e.g. Button/TextField) — forwarded here so quiz
+// components can call `shared.quiz-button-base` / `shared.quiz-tile-face`.
 @forward '../shared/mixins';

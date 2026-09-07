@@ -90,7 +90,7 @@ export function ChoiceGrid({ choices, selectedIndex, onSelect, correctIndex, rev
   }, [revealed, selectedIndex, correctIndex]);
 
   return (
-    <div className="modern-choice-grid" ref={gridRef}>
+    <div className="choice-grid" ref={gridRef}>
       {choices.map((choice, index) => (
         <ChoiceButton
           key={index}

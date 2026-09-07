@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { modernQuizApi } from '@/utils/api/modernQuiz';
+import { quizApi } from '@/utils/api/quiz';
 import { VocabularyDisplay } from '@/components/quiz/vocabulary/VocabularyDisplay';
 import { ChoiceGrid } from '@/components/quiz/answering/ChoiceGrid';
 import { SpellingSlots } from '@/components/quiz/answering/SpellingSlots';
@@ -167,7 +167,7 @@ export function Quiz() {
     setIsLoading(true);
     setLoadError(null);
     try {
-      const { questions, lessonID: newLessonID } = await modernQuizApi.generateLesson(bonusLessonType, bonusLessonParams);
+      const { questions, lessonID: newLessonID } = await quizApi.generateLesson(bonusLessonType, bonusLessonParams);
       setRounds(questions);
       const startingMasteryByWordID = Object.fromEntries(questions.map((round) => [round.entry.id, round.mastery]));
       setInitialMasteryByWordID(startingMasteryByWordID);
@@ -280,7 +280,7 @@ export function Quiz() {
       });
 
       try {
-        const { mastery: updatedMastery } = await modernQuizApi.recordPractice(entry.id, skillKey, isCorrect);
+        const { mastery: updatedMastery } = await quizApi.recordPractice(entry.id, skillKey, isCorrect);
         setRounds((prev) => {
           const next = [...prev];
           next[questionIndex] = { ...next[questionIndex], mastery: updatedMastery };
@@ -308,7 +308,7 @@ export function Quiz() {
           entryId: round.entry.id,
           isCorrect: i === questionIndex ? isCorrect : results[i] === 'success',
         }));
-        lessonScorePromiseRef.current = modernQuizApi.completeLesson(lessonID, answers).catch((error) => {
+        lessonScorePromiseRef.current = quizApi.completeLesson(lessonID, answers).catch((error) => {
           console.warn('Failed to complete lesson:', error);
           return { totalScore: 0, scoringBreakdown: [] };
         });

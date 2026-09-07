@@ -70,7 +70,7 @@ export const LESSON_METADATA_BY_LESSON_TYPE = {
 };
 
 // Lesson types that need a seed (extra data beyond the bare type string —
-// see modernQuizApi.generateLesson's lessonParams) to mean anything — kept
+// see quizApi.generateLesson's lessonParams) to mean anything — kept
 // in sync with the backend's own lessonPools.js SEEDED_LESSON_TYPES. A
 // seeded type has nowhere to get its seed from in a generic "pick any
 // lesson type" surface, so it's excluded from ALL_LESSON_TYPES below —

@@ -67,7 +67,7 @@ export function ReadingInput({ typedAnswer, correctAnswer, revealed = false, onC
     // means the shine would paint over the input's own native text — so on
     // success the input's text is made transparent and a second, crisp
     // label above the shine (higher z-index) duplicates it instead.
-    <span ref={wrapRef} className={cx('modern-reading-input-wrap', variant === 'success' && 'modern-reading-input-wrap--success')}>
+    <span ref={wrapRef} className={cx('reading-input-wrap', variant === 'success' && 'reading-input-wrap--success')}>
       <input
         ref={inputRef}
         type="text"
@@ -80,10 +80,10 @@ export function ReadingInput({ typedAnswer, correctAnswer, revealed = false, onC
         disabled={revealed}
         placeholder="type the reading…"
         aria-label={inputLabel}
-        className={cx('modern-reading-input', variant && `modern-reading-input--${variant}`)}
+        className={cx('reading-input', variant && `reading-input--${variant}`)}
       />
       {variant === 'success' && (
-        <span className="modern-reading-input__success-label" aria-hidden="true">
+        <span className="reading-input__success-label" aria-hidden="true">
           {correctAnswer}
         </span>
       )}
