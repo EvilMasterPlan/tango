@@ -6,6 +6,16 @@ import { ALL_LESSON_TYPES, LESSON_METADATA_BY_LESSON_TYPE } from '@/utils/lesson
 import { OverflowMenu } from '@/components/shared/OverflowMenu';
 import '@/pages/Practice/Page.scss';
 
+// Visually grouped into "regular" lesson types and the JLPT ladder, with
+// extra spacing between the two groups (see .practice-page__list's gap vs
+// .practice-page__group's) — the JLPT block reads as a separate progression
+// rather than just five more items in the same list. Derived from
+// ALL_LESSON_TYPES by the 'jlpt_' prefix rather than hand-listed, so it
+// can't drift out of sync with that list's own ordering.
+const JLPT_LESSON_TYPES = ALL_LESSON_TYPES.filter((lessonType) => lessonType.startsWith('jlpt_'));
+const OTHER_LESSON_TYPES = ALL_LESSON_TYPES.filter((lessonType) => !lessonType.startsWith('jlpt_'));
+const LESSON_TYPE_GROUPS = [OTHER_LESSON_TYPES, JLPT_LESSON_TYPES];
+
 // Unlike the home page's tile row (a per-user-unlocked subset, weight-
 // sampled down to a handful of suggestions), this always lists every known
 // lesson type — it's the "start anything, any time" list, not a
@@ -38,23 +48,27 @@ export function PracticePage() {
 
         <div className="practice-page__content">
           <div className="practice-page__list">
-            {ALL_LESSON_TYPES.map((lessonType) => {
-              const { icon, title, subtitle } = LESSON_METADATA_BY_LESSON_TYPE[lessonType];
-              return (
-                <button
-                  key={lessonType}
-                  type="button"
-                  className={cx('practice-card', `practice-card--${lessonType}`)}
-                  onClick={() => startLesson(lessonType)}
-                >
-                  <span className="practice-card__icon">{icon}</span>
-                  <span className="practice-card__info">
-                    <span className="practice-card__title">{title}</span>
-                    <span className="practice-card__subtitle">{subtitle}</span>
-                  </span>
-                </button>
-              );
-            })}
+            {LESSON_TYPE_GROUPS.map((group, index) => (
+              <div className="practice-page__group" key={index}>
+                {group.map((lessonType) => {
+                  const { icon, title, subtitle } = LESSON_METADATA_BY_LESSON_TYPE[lessonType];
+                  return (
+                    <button
+                      key={lessonType}
+                      type="button"
+                      className={cx('practice-card', `practice-card--${lessonType}`)}
+                      onClick={() => startLesson(lessonType)}
+                    >
+                      <span className="practice-card__icon">{icon}</span>
+                      <span className="practice-card__info">
+                        <span className="practice-card__title">{title}</span>
+                        <span className="practice-card__subtitle">{subtitle}</span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
           </div>
         </div>
       </div>

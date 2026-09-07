@@ -5,6 +5,7 @@ import { HomeContainer } from '@/pages/Home/Container';
 import { LessonContainer } from '@/pages/Lesson/Container';
 import { OverviewContainer } from '@/pages/Overview/Container';
 import { PracticeContainer } from '@/pages/Practice/Container';
+import { AchievementsContainer } from '@/pages/Achievements/Container';
 import { RadarDebugContainer } from '@/pages/Debug/Radar/Container';
 import AccountRoutes from '@/pages/account/AccountRoutes';
 import { UserProvider } from '@/contexts/UserContext';
@@ -38,7 +39,7 @@ function App() {
                   }
                 />
                 <Route
-                  path="/overview"
+                  path="/words"
                   element={
                     <RequireAuth>
                       <OverviewContainer />
@@ -50,6 +51,14 @@ function App() {
                   element={
                     <RequireAuth>
                       <PracticeContainer />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/achievements"
+                  element={
+                    <RequireAuth>
+                      <AchievementsContainer />
                     </RequireAuth>
                   }
                 />

@@ -1,0 +1,186 @@
+@use '@/components/shared/mixins';
+
+.achievements-page {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.achievements-page__header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 1.25rem 1.5rem;
+  background-color: var(--color-bg-primary);
+}
+
+.achievements-page__nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.achievements-page__menu {
+  margin-left: auto;
+}
+
+.achievements-page__back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-primary);
+  font-size: 1.25rem;
+}
+
+.achievements-page__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.achievements-page__content {
+  position: relative;
+  min-height: 40vh;
+  padding: 1.5rem;
+}
+
+.achievements-page__empty {
+  color: var(--color-text-secondary);
+  text-align: center;
+  padding: 3rem 0;
+}
+
+.achievements-page__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+@media (max-width: 1024px) {
+  .achievements-page__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .achievements-page__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Same "3D pressable" surface as the rest of the app's buttons/tiles (see
+// mixins.pressable-lip) — a bottom shadow "lip" that lifts on hover and
+// pushes in on press — even though these cards don't do anything on click
+// yet; the affordance just signals "this is a control", not "this is done".
+.achievement-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  cursor: pointer;
+  background-color: var(--color-bg-secondary);
+  border: 3px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  @include mixins.pressable-transition;
+  @include mixins.pressable-lip(var(--color-border-primary), var(--color-accent-primary));
+}
+
+.achievement-card:hover {
+  border-color: var(--color-accent-primary);
+}
+
+// Completed cards get the same success-green treatment as a correct answer
+// elsewhere in the quiz (--color-accent-secondary) at rest, so "done" reads
+// consistently across the app rather than inventing a new color here — but
+// still light up blue on hover/press like every other card, since being
+// completed doesn't make the card any less a control.
+.achievement-card--completed {
+  border-color: var(--color-accent-secondary);
+  @include mixins.pressable-lip(var(--color-accent-secondary), var(--color-accent-primary));
+}
+
+.achievement-card--completed:hover {
+  border-color: var(--color-accent-primary);
+}
+
+.achievement-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.achievement-card__name {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.achievement-card__check {
+  flex: 0 0 auto;
+  font-size: 1.25rem;
+  color: var(--color-accent-secondary);
+}
+
+// The highest tier already earned in this channel — shown inline before the
+// active tier's name, since once a chain has any completed tiers, the
+// card's headline text has already moved on to describing the *next* one.
+.achievement-card__badge {
+  flex: 0 0 auto;
+  padding: 0.15rem 0.5rem;
+  color: var(--color-accent-secondary);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  background-color: color-mix(in srgb, var(--color-accent-secondary) 15%, transparent);
+  border-radius: var(--radius-sm);
+}
+
+.achievement-card__description {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.achievement-card__progress-track {
+  position: relative;
+  margin-top: auto;
+  height: 1.5rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg-tertiary);
+  overflow: hidden;
+}
+
+.achievement-card__progress-fill {
+  height: 100%;
+  background-color: var(--color-accent-primary);
+  transition: width var(--transition-normal);
+}
+
+// The completed border color already says "done" — the fill just needs to
+// match rather than staying the in-progress blue once it's full.
+.achievement-card--completed .achievement-card__progress-fill {
+  background-color: var(--color-accent-secondary);
+}
+
+// Overlaid on the track itself (rather than a separate line below it) to
+// keep the card compact — white + a text-shadow reads fine over both the
+// track's dark gray and the accent fill colors, so it doesn't need to swap
+// color as the fill passes underneath it.
+.achievement-card__progress-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-shadow: 0 1px 2px var(--color-shadow-medium);
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}

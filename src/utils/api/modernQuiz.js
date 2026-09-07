@@ -63,4 +63,12 @@ export const modernQuizApi = {
       jlptLevel,
     });
   },
+  // { channels: { [channel]: { current, tiers: [{ tier, name, description,
+  // target, completed }] } } } — every tier of every achievement channel
+  // (e.g. QUESTIONS_SUCCEEDED tiers 1/2/3), not just completed ones; fully
+  // recomputed live on every call (nothing is persisted), so this is safe
+  // to call fresh each page visit.
+  getAchievements: async () => {
+    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/modern-quiz/achievements`));
+  },
 };

@@ -60,9 +60,18 @@
 .practice-page__list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  // Wider than a group's own card-to-card gap (see .practice-page__group)
+  // so the JLPT ladder reads as its own progression, not just five more
+  // items in the same list.
+  gap: 2.5rem;
   max-width: 28rem;
   margin: 0 auto;
+}
+
+.practice-page__group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 // Same "3D pressable" face as WordTile (thick border + flat drop-shadow
