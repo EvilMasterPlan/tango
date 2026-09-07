@@ -11,12 +11,13 @@ const MENU_ITEMS = [
   { key: 'home', label: 'Home', to: '/home' },
   { key: 'overview', label: 'Words', to: '/words' },
   { key: 'practice', label: 'Practice', to: '/practice' },
+  { key: 'effort', label: 'Effort', to: '/effort' },
   { key: 'achievements', label: 'Achievements', to: '/achievements' },
 ];
 
 // Ellipsis-triggered navigation menu shared by the sticky headers on the
-// home, practice, overview, and achievements pages. `currentPage` is one of
-// MENU_ITEMS' keys (or omitted) — always shows every entry, so the list
+// home, practice, overview, effort, and achievements pages. `currentPage`
+// is one of MENU_ITEMS' keys (or omitted) — always shows every entry, so the list
 // never shifts between pages, but highlights the current one and just
 // closes the menu (rather than navigating) when it's clicked.
 export function OverflowMenu({ currentPage, className }) {

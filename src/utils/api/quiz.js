@@ -13,6 +13,13 @@ export const quizApi = {
   getOverallStats: async () => {
     return makePostRequest(getUrl(`${TANGO_API_PREFIX}/quiz/overall-stats`));
   },
+  // { days: [{ date: 'yyyy-MM-dd', count }, ...] } — one entry per day with
+  // at least one completed lesson over the last ~year; days with zero are
+  // omitted, not zero-filled (see Effort/Page.jsx, which fills the gaps for
+  // the calendar).
+  getEffort: async () => {
+    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/quiz/effort`));
+  },
   // Records which tile the user picked on the home page against their
   // current lesson-choice row — the lesson-generation endpoint below reads
   // the same row back, so no lesson-selecting state needs to travel through
