@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { IoReload } from 'react-icons/io5';
 import { quizApi } from '@/utils/api/quiz';
 import { VocabularyDisplay } from '@/components/quiz/vocabulary/VocabularyDisplay';
 import { ChoiceGrid } from '@/components/quiz/answering/ChoiceGrid';
@@ -64,9 +65,16 @@ const MODES = {
   choice: {
     isAnswered: ({ selectedIndex }) => selectedIndex !== null,
     isCorrect: ({ selectedIndex, correctIndex }) => selectedIndex === correctIndex,
-    // Sized to the longest choice, not the correct one, so the blank's
-    // width never gives away which option is right.
-    ghostText: ({ choices }) => choices.reduce((longest, choice) => (choice.length > longest.length ? choice : longest), ''),
+    // Sized to whichever choice is closest to the *average* choice length,
+    // not the correct one — so the blank's width never gives away which
+    // option is right. Using the longest choice instead (as this once did)
+    // looks just as suspicious in the other direction: a short correct
+    // answer sitting in a blank sized for one long distractor stands out
+    // just as much as no blur at all.
+    ghostText: ({ choices }) => {
+      const avgLength = Math.round(choices.reduce((sum, choice) => sum + choice.length, 0) / choices.length);
+      return choices.reduce((closest, choice) => (Math.abs(choice.length - avgLength) < Math.abs(closest.length - avgLength) ? choice : closest));
+    },
   },
   wheel: {
     // A wheel's reels always show *some* character — there's no empty
@@ -95,6 +103,11 @@ export function Quiz() {
   const location = useLocation();
   const bonusLessonType = location.state?.lessonType ?? null;
   const bonusLessonParams = location.state?.lessonParams ?? null;
+  // Where Continue sends you back to — whichever page launched this lesson
+  // (see the entry points' own `navigate('/lesson', { state: { returnTo:
+  // location.pathname } })`), falling back to home for a direct /lesson
+  // visit or any entry point that hasn't opted in.
+  const returnTo = location.state?.returnTo ?? '/home';
 
   const [rounds, setRounds] = useState(null);
   // Word id -> mastery, captured once right after a lesson loads, before
@@ -352,13 +365,21 @@ export function Quiz() {
     setIsSettingsOpen(true);
   }
 
-  function handleBackToHome() {
-    navigate('/home');
+  function handleContinue() {
+    navigate(returnTo);
+  }
+
+  // Re-runs `loadLesson` with the exact same lesson type/params already in
+  // scope (frozen from `location.state` at mount, see above) — regenerates
+  // a fresh lesson of the same kind rather than navigating away, so this
+  // works equally for a bonus lesson and the default NEW_WORDS one.
+  function handleRepeatLesson() {
+    loadLesson();
   }
 
   // Keyboard shortcuts: 1-4 select a choice (while still answering, choice
   // mode only), Enter triggers whatever the action button currently does
-  // (Check, Next, or — at the end of a lesson — Home). Disabled
+  // (Check, Next, or — at the end of a lesson — Continue). Disabled
   // whenever the settings dialog is open — otherwise these fire on the quiz
   // underneath a modal that's supposed to have captured input.
   useEffect(() => {
@@ -387,7 +408,7 @@ export function Quiz() {
         lastEnterActionRef.current = now;
 
         if (phase === 'summary') {
-          handleBackToHome();
+          handleContinue();
         } else {
           handleAction();
         }
@@ -411,7 +432,7 @@ export function Quiz() {
   }
 
   const footerLabel = phase === 'summary' ? 'Continue' : phase === 'review' ? 'Next' : 'Check';
-  const footerAction = phase === 'summary' ? handleBackToHome : handleAction;
+  const footerAction = phase === 'summary' ? handleContinue : handleAction;
   const footerDisabled = isTransitioning || (phase === 'answer' && !isAnswered);
 
   return (
@@ -505,7 +526,16 @@ export function Quiz() {
           </main>
 
           <QuizFooter>
-            <Button onClick={footerAction} disabled={footerDisabled}>{footerLabel}</Button>
+            {phase === 'summary' ? (
+              <div className="quiz-footer__actions">
+                <Button onClick={footerAction} disabled={footerDisabled}>{footerLabel}</Button>
+                <Button variant="secondary" square label="Repeat lesson" onClick={handleRepeatLesson} disabled={footerDisabled}>
+                  <IoReload />
+                </Button>
+              </div>
+            ) : (
+              <Button onClick={footerAction} disabled={footerDisabled}>{footerLabel}</Button>
+            )}
           </QuizFooter>
         </div>
       )}

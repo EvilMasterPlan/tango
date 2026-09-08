@@ -218,6 +218,7 @@ export function GemChart({
   flashCorrect = false,
 }) {
   const patternId = useId();
+  const sheenId = useId();
   const count = correctCounts.length;
   const hue = FACET_HUES[color];
 
@@ -282,11 +283,36 @@ export function GemChart({
 
   return (
     <svg className="gem-chart" viewBox={`0 0 ${SIZE} ${SIZE}`}>
-      {needsHatchPattern && (
+      {(needsHatchPattern || flashCorrect) && (
         <defs>
-          <pattern id={patternId} patternUnits="userSpaceOnUse" width="2.2" height="2.2" patternTransform="rotate(45)">
-            <line x1="0" y1="0" x2="0" y2="2.2" className="gem-chart__hatch-line" />
-          </pattern>
+          {needsHatchPattern && (
+            <pattern id={patternId} patternUnits="userSpaceOnUse" width="2.2" height="2.2" patternTransform="rotate(45)">
+              <line x1="0" y1="0" x2="0" y2="2.2" className="gem-chart__hatch-line" />
+            </pattern>
+          )}
+          {flashCorrect && (
+            <>
+              {/* Clips the sheen's wrapping <g> below to the exact same
+                  silhouette the flash polygon fills — so the sliding band
+                  reads as a sheen *on* the mastery shape, not a rectangle
+                  sliding over it. */}
+              <clipPath id={`${sheenId}-clip`}>
+                <polygon points={finalOutline} />
+              </clipPath>
+              {/* Same crisp hard-edged band as ChoiceButton's success sheen
+                  (transparent/white/transparent stops) — a diagonal vector
+                  (corner to corner of the rect's own bounding box) rather
+                  than a horizontal one, for the same "flashy" angle. */}
+              <linearGradient id={`${sheenId}-gradient`} x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#ffffff" stopOpacity="0" />
+                <stop offset="42%" stopColor="#ffffff" stopOpacity="0" />
+                <stop offset="47%" stopColor="#ffffff" stopOpacity="0.95" />
+                <stop offset="53%" stopColor="#ffffff" stopOpacity="0.95" />
+                <stop offset="58%" stopColor="#ffffff" stopOpacity="0" />
+                <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+              </linearGradient>
+            </>
+          )}
         </defs>
       )}
       <polygon className="gem-chart__floor" points={floor} />
@@ -347,6 +373,31 @@ export function GemChart({
           it's lit — see the `flashCorrect` doc comment above for why this
           only ever plays once per correct answer, right on the new shape. */}
       {flashCorrect && <polygon className="gem-chart__correct-flash" points={finalOutline} />}
+      {/* On top of the flash itself — a diagonal band sliding left-to-right,
+          masked to the same shape so it's invisible before entering and
+          after leaving. The clip-path lives on this outer, untransformed
+          <g> rather than directly on the animated rect: CSS transform is
+          applied as the very last rendering step, after clipping, so a
+          transform on the same element the clip-path sits on would carry
+          the clip shape along for the ride instead of leaving it fixed in
+          place — a moving cutout, not a stationary window. Clipping the
+          parent instead means the child rect can slide freely underneath it
+          while the visible window stays put. The rect itself is sized well
+          past the shape on every side (fine to do — it's what's clipped,
+          not what's visible) so the band has real room to travel in before
+          entering and after leaving. */}
+      {flashCorrect && (
+        <g clipPath={`url(#${sheenId}-clip)`}>
+          <rect
+            className="gem-chart__correct-sheen"
+            x={-SIZE}
+            y={-SIZE}
+            width={SIZE * 3}
+            height={SIZE * 3}
+            fill={`url(#${sheenId}-gradient)`}
+          />
+        </g>
+      )}
     </svg>
   );
 }

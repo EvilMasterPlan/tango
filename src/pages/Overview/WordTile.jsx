@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { IoLockClosed } from 'react-icons/io5';
 import { cx } from '@/utils/cx';
 import { MasteryGem } from '@/components/quiz/charts/MasteryGem';
@@ -52,6 +52,7 @@ export function WordTile({ entry, mastery, canAccessAllLevels }) {
   const challengeRating = getChallengeRating(entry.score);
   const isLocked = Boolean(entry.jlpt) && entry.jlpt !== FREE_JLPT_LEVEL && !canAccessAllLevels;
   const navigate = useNavigate();
+  const location = useLocation();
 
   const infoRef = useRef(null);
   const wordRef = useRef(null);
@@ -59,7 +60,9 @@ export function WordTile({ entry, mastery, canAccessAllLevels }) {
   useShrinkTileText(infoRef, [wordRef, definitionRef], [entry.furigana, entry.definition]);
 
   function startWordSpotlight() {
-    navigate('/lesson', { state: { lessonType: 'word_spotlight', lessonParams: { seedWordId: entry.id } } });
+    navigate('/lesson', {
+      state: { lessonType: 'word_spotlight', lessonParams: { seedWordId: entry.id }, returnTo: location.pathname },
+    });
   }
 
   return (

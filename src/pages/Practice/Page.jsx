@@ -1,4 +1,4 @@
-import { useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { IoArrowBack, IoLockClosed } from 'react-icons/io5';
 import { cx } from '@/utils/cx';
@@ -35,11 +35,12 @@ const PRO_ONLY_LESSON_TYPES = JLPT_LESSON_TYPES.filter((lessonType) => lessonTyp
 // normally once completed.
 export function PracticePage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useUserContext();
   const canAccessAllLevels = hasFullAccess(user);
 
   function startLesson(lessonType) {
-    navigate('/lesson', { state: { lessonType } });
+    navigate('/lesson', { state: { lessonType, returnTo: location.pathname } });
   }
 
   return (

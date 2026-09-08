@@ -22,6 +22,22 @@
   cursor: not-allowed;
 }
 
+// Fixed-size square variant for an icon-only button (e.g. "repeat lesson"
+// next to the footer's primary action) — same pressable face, but sized to
+// match the primary button's height instead of stretching full-width.
+.shared-button--square {
+  width: auto;
+  flex: 0 0 auto;
+  padding: 0.75rem;
+  font-size: 1.3rem;
+}
+
+@media (max-width: 768px) {
+  .shared-button--square {
+    padding: 0.65rem;
+  }
+}
+
 // Primary — the quiz's own footer action button look: lip stays lit
 // (accent-hover) through rest, hover, and press alike.
 .shared-button--primary {

@@ -12,6 +12,21 @@
   }
 }
 
+// Groups the primary action with a compact secondary one (e.g. the
+// summary screen's repeat-lesson button) so they share the footer's single
+// max-width slot instead of each independently claiming it — the primary
+// button fills the remaining space while the square one keeps its own
+// fixed size.
+.quiz-footer__actions {
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+
+  > .shared-button:not(.shared-button--square) {
+    flex: 1;
+  }
+}
+
 @media (max-width: 768px) {
   .quiz-footer {
     // Symmetric top/bottom so the button actually sits centered in the

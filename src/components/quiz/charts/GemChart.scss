@@ -2,6 +2,11 @@
   width: 2.75rem;
   height: 2.75rem;
   display: block;
+  // SVG elements clip their own content to the viewBox rectangle by
+  // default — harmless for the shapes themselves (they're already sized to
+  // fit), but it also clips the correct-flash's drop-shadow glow, which is
+  // meant to bloom past the gem's own outline.
+  overflow: visible;
 }
 
 // Innermost reference pentagon — the word's current level, drawn at the
@@ -134,21 +139,56 @@
 @keyframes gem-chart-correct-flash {
   0% {
     opacity: 0;
+    filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
     animation-timing-function: ease-in;
   }
 
+  // Glow radius kept small — .vocabulary-display__side (the column this
+  // gem sits in) only reserves just enough width to fit the gem itself,
+  // not a glow's bleed, and its ancestor .vocabulary-display clips overflow
+  // for its own rounded corners. A larger radius would clip against that
+  // boundary before it ever gets to fade out.
   28.6% {
     opacity: 1;
+    filter: drop-shadow(0 0 0.125rem rgba(255, 255, 255, 0.9));
     animation-timing-function: ease-out;
   }
 
   100% {
     opacity: 0;
+    filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .gem-chart__correct-flash {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+// A second success effect layered over the flash: a crisp white band
+// sliding across the same clipped shape. Lengths are in the SVG's own
+// viewBox units (GemChart's `SIZE` = 40) rather than percentages — for an
+// SVG-rendered element, a CSS transform's percentages resolve against the
+// nearest viewport by default, which isn't guaranteed cross-browser the way
+// plain unitless/px lengths (read 1:1 as user units) are.
+.gem-chart__correct-sheen {
+  pointer-events: none;
+  animation: gem-chart-correct-sheen 0.35s ease-in-out forwards;
+}
+
+@keyframes gem-chart-correct-sheen {
+  from {
+    transform: translateX(-120px);
+  }
+  to {
+    transform: translateX(120px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gem-chart__correct-sheen {
     animation: none;
     opacity: 0;
   }

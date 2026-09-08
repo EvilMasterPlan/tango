@@ -154,7 +154,10 @@ export function MasteryGem({
         flashCorrect={flashCorrect}
         color={color}
       />
-      <span className="mastery-gem__level">Level {displayMastery.level ?? 1}</span>
+      {/* The polygon itself renders the just-completed level's full shape
+          (via `displayMastery`, above), but the label should already read
+          the level that shape just earned — not the one being left behind. */}
+      <span className="mastery-gem__level">Level {mastery.level ?? 1}</span>
     </div>
   );
 }

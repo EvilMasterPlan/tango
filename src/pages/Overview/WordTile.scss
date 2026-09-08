@@ -9,6 +9,12 @@
   @include mixins.quiz-button-base;
   @include mixins.pressable-lip(var(--tile-lip));
   position: relative; // containing block for __hatch/__tooltip below
+  // Establishes this button as its own stacking context, so __hatch's
+  // negative z-index (below) stays contained behind this tile's own content
+  // instead of escaping to the nearest ancestor that happens to establish
+  // one — which could be several levels up (e.g. the page background),
+  // rendering the hatch behind that instead of just behind this tile's text.
+  isolation: isolate;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -56,8 +62,8 @@
   border-radius: inherit;
   background-image: repeating-linear-gradient(
     135deg,
-    transparent 0 6px,
-    color-mix(in srgb, var(--color-text-disabled) 18%, transparent) 6px 8px
+    transparent 0 10px,
+    color-mix(in srgb, var(--color-text-disabled) 12%, transparent) 10px 24px
   );
 }
 
