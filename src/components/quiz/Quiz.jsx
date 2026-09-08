@@ -6,7 +6,7 @@ import { ChoiceGrid } from '@/components/quiz/answering/ChoiceGrid';
 import { SpellingSlots } from '@/components/quiz/answering/SpellingSlots';
 import { SpellingTiles } from '@/components/quiz/answering/SpellingTiles';
 import { ReadingInput } from '@/components/quiz/answering/ReadingInput';
-import { WordWheel } from '@/components/quiz/answering/WordWheel';
+import { WordWheel, getWheelDisplayedWord } from '@/components/quiz/answering/WordWheel';
 import { Button } from '@/components/shared/Button';
 import { LoadingOverlay } from '@/components/shared/LoadingOverlay';
 import { QuizHeader } from '@/components/quiz/chrome/QuizHeader';
@@ -74,7 +74,7 @@ const MODES = {
     // the moment the question loads.
     isAnswered: () => true,
     isCorrect: ({ wheelSelections, positions, correctAnswer }) =>
-      positions.every((position, i) => !position || position.options[wheelSelections[i]] === correctAnswer[i]),
+      getWheelDisplayedWord(positions, wheelSelections, correctAnswer) === correctAnswer,
     // Same reasoning as spelling/typing above — the wheel already reveals
     // the character count.
     ghostText: ({ correctAnswer }) => correctAnswer,
@@ -463,6 +463,7 @@ export function Quiz() {
                       />
                     ) : mode === 'wheel' ? (
                       <WordWheel
+                        key={questionIndex}
                         positions={positions}
                         selections={wheelSelections}
                         correctAnswer={correctAnswer}

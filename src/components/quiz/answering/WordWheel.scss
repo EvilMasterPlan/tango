@@ -1,22 +1,30 @@
 @use '../shared';
 
 .word-wheel {
+  --tile-size: 4rem;
+  --reel-peek: 0.55rem;
+  --reel-row-h: calc(var(--tile-size) - 2 * var(--reel-peek));
+  --step-h: 1.65rem;
+  --step-gap: 0.55rem;
+
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   gap: 0.5rem;
   width: 100%;
 }
 
-// A fixed (non-wheel) character — sized/positioned to sit at the same
-// vertical center as a reel's char, so the word still reads as one
-// continuous line across fixed and spinning positions alike.
+// A fixed (non-wheel) character — top-margined so its box starts at the
+// same Y as a reel's tile (past that reel's own up-button + gap), keeping
+// the word reading as one continuous line across fixed and spinning
+// positions alike.
 .word-wheel__fixed {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 4rem;
+  height: var(--tile-size);
+  margin-top: calc(var(--step-h) + var(--step-gap));
   font-size: 1.75rem;
   font-weight: 700;
   font-family: var(--font-jp);
@@ -27,45 +35,170 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.125rem;
+  gap: var(--step-gap);
 }
 
-.word-wheel__char {
+// Half-height tile button — same face/press treatment as a quiz tile
+// (SpellingTiles' .spelling-tile), just squashed to read as a rocker
+// stacked directly above/below the reel it steps rather than a full tile
+// of its own.
+.word-wheel__step {
+  @include shared.quiz-button-base;
+  @include shared.pressable-lip(var(--color-border-primary), var(--color-accent-primary));
+  width: var(--tile-size);
+  height: var(--step-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  background-color: var(--color-bg-secondary);
+  border: 3px solid var(--color-border-primary);
+  color: var(--color-text-primary);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.word-wheel__step:hover:not(:disabled) {
+  background-color: var(--color-bg-tertiary);
+  border-color: var(--color-accent-primary);
+}
+
+.word-wheel__step:disabled {
+  cursor: default;
+  opacity: 0.25;
+}
+
+.word-wheel__tile {
   @include shared.quiz-tile-face;
+  // Overrides quiz-tile-face's literal 4rem — sized off --tile-size instead
+  // so it stays in lockstep with --reel-row-h (derived from the same var)
+  // across the mobile breakpoint below, rather than the two drifting apart.
+  width: var(--tile-size);
+  height: var(--tile-size);
+  position: relative;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: default;
+  // The viewport below is sized off --reel-row-h/--reel-peek, which (by
+  // design, see its own comment) comes out slightly taller than the
+  // tile's content box once the tile's own border is subtracted — this
+  // clips that overflow to the tile's rounded corners rather than letting
+  // it poke past them. Flex-centered above, so the clip trims the same
+  // sliver off top and bottom, leaving the centering result untouched.
+  overflow: hidden;
   transition: background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.word-wheel__reel--success .word-wheel__char {
+// Explicitly sized off --reel-row-h/--reel-peek rather than 100% of the
+// tile — the tile's height also includes its 3px border (border-box), so a
+// 100%-of-tile viewport would come up short of row-h + 2*peek by that
+// border's width, leaving a bigger gap above the centered row than below
+// it. Flex-centered in the tile (above) instead, so it's correct
+// regardless of the tile's own border width.
+.word-wheel__viewport {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: calc(var(--reel-row-h) + 2 * var(--reel-peek));
+  overflow: hidden;
+}
+
+// Each row positions itself absolutely, translated by its own distance
+// from the currently-centered tick (see WordWheel.jsx) — so its motion
+// only ever depends on that distance changing, never on how many sibling
+// rows happen to be mounted alongside it.
+.word-wheel__row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--reel-row-h);
+  line-height: 1;
+  transition-property: transform;
+}
+
+// Same color as the tile face, covering the sliver of neighboring rows
+// above/below the resting one so they stay fully hidden at rest, only
+// actually fading once the strip is spinning through them — identical
+// technique to DigitReel's fade masks. Sits outside .word-wheel__viewport
+// (a sibling, not a child) so its own overhang can cover the clip edge
+// rather than being clipped identically alongside the spinning strip.
+.word-wheel__fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: calc(var(--reel-peek) + 5px);
+  pointer-events: none;
+}
+
+.word-wheel__fade--top {
+  top: -5px;
+  background: linear-gradient(to bottom, var(--color-bg-secondary) 0, var(--color-bg-secondary) calc(5px + var(--reel-peek) * 0.85), transparent 100%);
+}
+
+.word-wheel__fade--bottom {
+  bottom: -5px;
+  background: linear-gradient(to top, var(--color-bg-secondary) 0, var(--color-bg-secondary) calc(5px + var(--reel-peek) * 0.85), transparent 100%);
+}
+
+.word-wheel__reel--success .word-wheel__tile {
   background-color: var(--color-quiz-success);
   border-color: var(--color-quiz-success);
   color: var(--color-bg-primary);
   box-shadow: 0 4px 0 0 var(--color-quiz-success-lip);
 }
 
-.word-wheel__reel--fail .word-wheel__char {
+.word-wheel__reel--success .word-wheel__fade--top {
+  background: linear-gradient(to bottom, var(--color-quiz-success) 0, var(--color-quiz-success) calc(5px + var(--reel-peek) * 0.85), transparent 100%);
+}
+
+.word-wheel__reel--success .word-wheel__fade--bottom {
+  background: linear-gradient(to top, var(--color-quiz-success) 0, var(--color-quiz-success) calc(5px + var(--reel-peek) * 0.85), transparent 100%);
+}
+
+.word-wheel__reel--fail .word-wheel__tile {
   background-color: var(--color-quiz-fail);
   border-color: var(--color-quiz-fail);
   color: var(--color-quiz-fail-text);
   box-shadow: 0 4px 0 0 var(--color-quiz-fail);
 }
 
+.word-wheel__reel--fail .word-wheel__fade--top {
+  background: linear-gradient(to bottom, var(--color-quiz-fail) 0, var(--color-quiz-fail) calc(5px + var(--reel-peek) * 0.85), transparent 100%);
+}
+
+.word-wheel__reel--fail .word-wheel__fade--bottom {
+  background: linear-gradient(to top, var(--color-quiz-fail) 0, var(--color-quiz-fail) calc(5px + var(--reel-peek) * 0.85), transparent 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .word-wheel__row {
+    transition: none;
+  }
+}
+
 @media (max-width: 768px) {
   .word-wheel {
+    --tile-size: 3.25rem;
+    --reel-peek: 0.45rem;
+    --step-h: 1.4rem;
+    --step-gap: 0.4rem;
     gap: 0.375rem;
   }
 
   .word-wheel__fixed {
-    height: 3.25rem;
     font-size: 1.5rem;
   }
 
-  .word-wheel__char {
-    width: 3.25rem;
-    height: 3.25rem;
+  .word-wheel__tile {
     font-size: 1.5rem;
+  }
+
+  .word-wheel__step {
+    font-size: 1rem;
   }
 }

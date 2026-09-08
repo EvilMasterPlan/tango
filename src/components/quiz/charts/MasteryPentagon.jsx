@@ -42,7 +42,24 @@ import './MasteryPentagon.scss';
 // level's own floor/threshold recovers a genuinely full polygon rather
 // than an approximation. Not meant for QuizSummary, which always shows the
 // lesson's true final state.
-const SUMMARY_KEYS = ['iteration', 'level', 'iterationsForNextLevel'];
+const SUMMARY_KEYS = ['iteration', 'level', 'iterationsForNextLevel', 'wheelUnlockIteration'];
+
+// word.wheel is the one axis excluded from the word's bottleneck/iteration
+// calculation until it unlocks (see masteryStore.js's ALL_SKILL_KEYS) — so
+// its own correct count restarts from 0 right as every other axis is
+// already sitting at or past `wheelUnlockIteration`. `buildMastery` shifts
+// word.wheel by that same constant when computing the word's overall
+// `iteration`/`level`; `shiftedCorrect` below applies the identical shift
+// here, so the chart agrees with what leveling already accounts for,
+// rather than reading word.wheel as stuck behind even right after a
+// correct answer. Only ever used for chart geometry — the raw `correct` on
+// `mastery[WHEEL_SKILL_KEY]` itself stays untouched, since achievements and
+// any other consumer counting actual attempts want the real number.
+const WHEEL_SKILL_KEY = 'word.wheel';
+function shiftedCorrect(skillEntry, skillKey, wheelUnlockIteration) {
+  const correct = skillEntry?.correct || 0;
+  return skillKey === WHEEL_SKILL_KEY ? correct + wheelUnlockIteration : correct;
+}
 
 // RadarChart scales every axis's position off of a floor iteration count —
 // but that floor needs to stay fixed for the word's whole current level, not
@@ -63,7 +80,11 @@ function levelFloorIteration({ level, iterationsForNextLevel }) {
 
 export function MasteryPentagon({ mastery = {}, currentSkillKey, initialMastery, animationDelay, justLeveledUp = false }) {
   const skillKeys = Object.keys(mastery).filter((key) => !SUMMARY_KEYS.includes(key));
-  const correctCounts = skillKeys.map((skillKey) => mastery[skillKey].correct);
+  // Present whenever WHEEL_SKILL_KEY is (see masteryStore.js's buildMastery)
+  // — 0 otherwise, which makes shiftedCorrect's shift a no-op for a word
+  // that hasn't unlocked word.wheel at all.
+  const wheelUnlockIteration = mastery.wheelUnlockIteration ?? 0;
+  const correctCounts = skillKeys.map((skillKey) => shiftedCorrect(mastery[skillKey], skillKey, wheelUnlockIteration));
   const previewIndex = skillKeys.indexOf(currentSkillKey);
 
   // Swap in the just-completed level's own level/threshold in place of the
@@ -76,8 +97,15 @@ export function MasteryPentagon({ mastery = {}, currentSkillKey, initialMastery,
     ? { ...mastery, level: (mastery.level ?? 1) - 1, iterationsForNextLevel: levelFloorIteration(mastery) }
     : mastery;
 
+  // A word can cross into word.wheel's unlock tier mid-lesson — `mastery`
+  // (now) carries WHEEL_SKILL_KEY while `initialMastery` (the lesson's
+  // starting snapshot) doesn't have it at all yet. shiftedCorrect treats
+  // that missing entry as raw 0, so it comes out to exactly
+  // `wheelUnlockIteration` — the fresh-unlock floor, which is genuinely
+  // where that axis sat at the start of this lesson, not a phantom 0 that
+  // would make the very unlock itself look like a full axis of progress.
   const initialCorrectCounts = initialMastery
-    ? skillKeys.map((skillKey) => initialMastery[skillKey]?.correct || 0)
+    ? skillKeys.map((skillKey) => shiftedCorrect(initialMastery[skillKey], skillKey, wheelUnlockIteration))
     : null;
 
   // The correct-count-equivalent ceiling for each axis if every attempt
@@ -86,12 +114,17 @@ export function MasteryPentagon({ mastery = {}, currentSkillKey, initialMastery,
   // attempts = (final.correct + final.incorrect) - (initial.correct +
   // initial.incorrect). Simplifies to final.correct + final.incorrect -
   // initial.incorrect. Always >= correctCounts, by exactly however many
-  // wrong answers happened this session.
+  // wrong answers happened this session. word.wheel's raw correct/incorrect
+  // aren't shifted (only its final `correct` reading is, elsewhere) — since
+  // both terms of the subtraction are equally unshifted, the difference is
+  // unaffected, so `wheelUnlockIteration` is added once at the end instead,
+  // to land on the same shifted scale as correctCounts/initialCorrectCounts.
   const attemptedCounts = initialMastery
     ? skillKeys.map((skillKey) => {
         const final = mastery[skillKey];
         const initial = initialMastery[skillKey] || { correct: 0, incorrect: 0 };
-        return final.correct + final.incorrect - initial.incorrect;
+        const raw = final.correct + final.incorrect - initial.incorrect;
+        return skillKey === WHEEL_SKILL_KEY ? raw + wheelUnlockIteration : raw;
       })
     : null;
 
