@@ -209,6 +209,35 @@
   --tile-accent: #71717a;
 }
 
+// The 6 question-type tiles — no theme accent or JLPT hue left to reuse, so
+// literal colors again (same reasoning as from_the_top above), grouped into
+// two families to stay clear of every hue already claimed above: a lime
+// solo for word_choice, then a cool cyan/teal pair and a warm
+// fuchsia/pink/rose trio for the rest.
+.home-tile--word_choice {
+  --tile-accent: #a3e635;
+}
+
+.home-tile--reading_choice {
+  --tile-accent: #2dd4bf;
+}
+
+.home-tile--meaning_choice {
+  --tile-accent: #22d3ee;
+}
+
+.home-tile--reading_spelling {
+  --tile-accent: #e879f9;
+}
+
+.home-tile--reading_typing {
+  --tile-accent: #f472b6;
+}
+
+.home-tile--word_wheel {
+  --tile-accent: #fb7185;
+}
+
 .home-tile--new_words,
 .home-tile--level_up,
 .home-tile--fix_mistakes,
@@ -219,7 +248,13 @@
 .home-tile--jlpt_n3,
 .home-tile--jlpt_n2,
 .home-tile--jlpt_n1,
-.home-tile--random {
+.home-tile--random,
+.home-tile--word_choice,
+.home-tile--reading_choice,
+.home-tile--meaning_choice,
+.home-tile--reading_spelling,
+.home-tile--reading_typing,
+.home-tile--word_wheel {
   border-color: var(--tile-accent);
   box-shadow: 0 4px 0 0 var(--tile-accent);
 }

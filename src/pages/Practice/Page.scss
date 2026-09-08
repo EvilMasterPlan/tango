@@ -146,6 +146,32 @@
   --tile-accent: #71717a;
 }
 
+// Same literal-color reasoning (and same values) as Home/Page.scss's
+// question-type tiles — see that file's comment.
+.practice-card--word_choice {
+  --tile-accent: #a3e635;
+}
+
+.practice-card--reading_choice {
+  --tile-accent: #2dd4bf;
+}
+
+.practice-card--meaning_choice {
+  --tile-accent: #22d3ee;
+}
+
+.practice-card--reading_spelling {
+  --tile-accent: #e879f9;
+}
+
+.practice-card--reading_typing {
+  --tile-accent: #f472b6;
+}
+
+.practice-card--word_wheel {
+  --tile-accent: #fb7185;
+}
+
 // A JLPT level above what the user's plan allows — still shown (not
 // hidden) so free users can see what's there, just dimmed and inert.
 // Overriding --tile-accent to a neutral gray here (rather than adding a

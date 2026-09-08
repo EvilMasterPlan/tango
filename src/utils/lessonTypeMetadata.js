@@ -32,6 +32,44 @@ export const LESSON_METADATA_BY_LESSON_TYPE = {
     title: 'From the Top',
     subtitle: 'Back to basics',
   },
+  // One lesson type per question type — mirrors the backend's
+  // QUESTION_TYPE_VARIANTS (lessonPools.js), each restricted to a single
+  // question type rather than mixing several per lesson like every type
+  // above. reading_spelling/reading_typing/word_wheel only ever show up on
+  // the home page once at least one word has actually unlocked that
+  // question type (see nextLessons.js) — the practice page below lists
+  // them unconditionally, same as every other type, and just falls back to
+  // a NEW_WORDS lesson if nothing qualifies yet.
+  word_choice: {
+    icon: '選',
+    title: 'Word Choice',
+    subtitle: 'Pick the right word',
+  },
+  reading_choice: {
+    icon: '読',
+    title: 'Reading Choice',
+    subtitle: 'Sound it out',
+  },
+  meaning_choice: {
+    icon: '意',
+    title: 'Meaning Choice',
+    subtitle: 'Know what it means',
+  },
+  reading_spelling: {
+    icon: '綴',
+    title: 'Spelling',
+    subtitle: 'Piece it together',
+  },
+  reading_typing: {
+    icon: '打',
+    title: 'Typing',
+    subtitle: 'Type it from memory',
+  },
+  word_wheel: {
+    icon: '輪',
+    title: 'Word Wheel',
+    subtitle: 'Spin it into place',
+  },
   jlpt_n5: {
     icon: 'N5',
     title: 'JLPT N5',

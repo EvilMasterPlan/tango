@@ -16,9 +16,18 @@ export const quizApi = {
   // { days: [{ date: 'yyyy-MM-dd', count }, ...] } — one entry per day with
   // at least one completed lesson over the last ~year; days with zero are
   // omitted, not zero-filled (see Effort/Page.jsx, which fills the gaps for
-  // the calendar).
+  // the calendar). CompletedAt is stored in UTC, so grouping by calendar day
+  // needs to know this browser's own UTC offset — otherwise a lesson
+  // completed late in the local day (after UTC's midnight has already
+  // rolled over) gets bucketed under tomorrow's date, a day Effort/Page.jsx
+  // hasn't rendered yet, and today's count just stops moving.
+  // getTimezoneOffset() is minutes to *add* to local time to reach UTC
+  // (positive west of UTC) — exactly what the backend needs to shift a UTC
+  // timestamp back to this browser's local calendar day.
   getEffort: async () => {
-    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/quiz/effort`));
+    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/quiz/effort`), {
+      timezoneOffsetMinutes: new Date().getTimezoneOffset(),
+    });
   },
   // Records which tile the user picked on the home page against their
   // current lesson-choice row — the lesson-generation endpoint below reads
