@@ -8,6 +8,7 @@
 .word-tile {
   @include mixins.quiz-button-base;
   @include mixins.pressable-lip(var(--tile-lip));
+  position: relative; // containing block for __hatch/__tooltip below
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -25,6 +26,71 @@
   &:hover {
     background-color: var(--color-bg-tertiary);
   }
+}
+
+// A word above the free plan's JLPT ceiling — still fully readable (the
+// word/reading/definition/gem stay exactly as crisp as any other tile), but
+// visibly inert. cursor/disabled state come from the plain :disabled
+// selector below; this one just handles the hover fade-out, since a locked
+// tile's hover state is "show the tooltip", not "brighten like a normal
+// pressable tile."
+.word-tile--locked:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+.word-tile:disabled {
+  cursor: not-allowed;
+}
+
+// Diagonal hatch sitting between the tile's own background (painted first)
+// and its content (word/definition/gem/challenge column, all plain
+// non-positioned flow) — a negative z-index positioned box always paints
+// behind non-positioned content in the same stacking context, which is
+// what keeps this under the text/gem rather than needing z-index bumps on
+// every other child. Low-contrast so it reads as a texture, not a block.
+.word-tile__hatch {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0 6px,
+    color-mix(in srgb, var(--color-text-disabled) 18%, transparent) 6px 8px
+  );
+}
+
+// Hidden by default, faded in on hover/focus — plain CSS rather than a JS
+// tooltip library, since it's static text with no positioning logic beyond
+// "centered above this one button."
+.word-tile__tooltip {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  width: max-content;
+  max-width: 14rem;
+  padding: 0.5rem 0.75rem;
+  color: var(--color-text-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  background-color: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-sm);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition-fast);
+  pointer-events: none;
+}
+
+// Note: no :focus-visible pairing here — the tile is a disabled <button>
+// when locked, and disabled buttons can't receive focus at all.
+.word-tile--locked:hover .word-tile__tooltip {
+  opacity: 1;
+  visibility: visible;
 }
 
 // Lip color tinted to the word's JLPT level, matching GemChart's own
@@ -125,4 +191,13 @@
   font-weight: 600;
   color: var(--color-text-disabled);
   opacity: 0.75;
+}
+
+// Stacks below the JLPT level (column flex + DOM order — see
+// .word-tile__challenge above), rather than beside it, to read as "here's
+// why this level is dimmed" attached to the level badge specifically.
+.word-tile__lock {
+  margin-top: 0.15rem;
+  font-size: 0.75rem;
+  color: var(--color-text-disabled);
 }

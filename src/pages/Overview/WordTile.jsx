@@ -1,10 +1,13 @@
 import { useLayoutEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { IoLockClosed } from 'react-icons/io5';
+import { cx } from '@/utils/cx';
 import { MasteryGem } from '@/components/quiz/charts/MasteryGem';
 import { FuriganaWord } from '@/components/quiz/vocabulary/VocabularyDisplay';
 import { jlptGemColor } from '@/utils/jlptGemColor';
 import { getChallengeRating } from '@/utils/challengeRating';
 import { shrinkFontToFit } from '@/utils/shrinkFontToFit';
+import { FREE_JLPT_LEVEL } from '@/utils/planAccess';
 import '@/pages/Overview/WordTile.scss';
 
 // Shrinks the word and definition lines independently to fit within the
@@ -34,9 +37,20 @@ function useShrinkTileText(infoRef, textRefs, deps) {
 // of a bare type. This is the one place a seeded lesson type can actually
 // be started, since it's the one place a specific word is already on
 // screen to seed it from.
-export function WordTile({ entry, mastery }) {
+//
+// `canAccessAllLevels` (the free/paid gate — see planAccess.js) locks any
+// word above N5: the tile still shows its word/reading/definition crisply
+// (nothing about the content itself is hidden — you can still see what
+// you'd be unlocking), but a diagonal hatch overlay, a lock icon, and a
+// disabled/inert button all signal it can't be tapped into a lesson from
+// here. Matches the backend's own enforcement (see generate.js's
+// generateRounds) — a locked word could never actually seed a working
+// word_spotlight lesson anyway, so disabling the tile avoids the silent
+// fallback-to-NEW_WORDS surprise that would otherwise happen on click.
+export function WordTile({ entry, mastery, canAccessAllLevels }) {
   const color = jlptGemColor(entry.jlpt) || 'blue';
   const challengeRating = getChallengeRating(entry.score);
+  const isLocked = Boolean(entry.jlpt) && entry.jlpt !== FREE_JLPT_LEVEL && !canAccessAllLevels;
   const navigate = useNavigate();
 
   const infoRef = useRef(null);
@@ -49,7 +63,14 @@ export function WordTile({ entry, mastery }) {
   }
 
   return (
-    <button type="button" className="word-tile" data-jlpt-color={color} onClick={startWordSpotlight}>
+    <button
+      type="button"
+      className={cx('word-tile', isLocked && 'word-tile--locked')}
+      data-jlpt-color={color}
+      onClick={startWordSpotlight}
+      disabled={isLocked}
+    >
+      {isLocked && <span className="word-tile__hatch" aria-hidden="true" />}
       <MasteryGem mastery={mastery} color={color} />
       <div className="word-tile__info" ref={infoRef}>
         {/* The shrink/clip target is this wrapper, not the <ruby> itself —
@@ -70,11 +91,17 @@ export function WordTile({ entry, mastery }) {
           tile's own edge instead of stacked in its own column. */}
       <div
         className="word-tile__challenge"
-        aria-label={`Challenge rating: ${challengeRating}${entry.jlpt ? `, JLPT ${entry.jlpt}` : ''}`}
+        aria-label={`Challenge rating: ${challengeRating}${entry.jlpt ? `, JLPT ${entry.jlpt}` : ''}${isLocked ? ', requires upgrade' : ''}`}
       >
         <span className="word-tile__challenge-value">{challengeRating}</span>
         {entry.jlpt ? <span className="word-tile__jlpt-level">{entry.jlpt}</span> : null}
+        {isLocked && <IoLockClosed className="word-tile__lock" />}
       </div>
+      {isLocked && (
+        <span className="word-tile__tooltip" role="tooltip">
+          Upgrade to practice words beyond {FREE_JLPT_LEVEL}
+        </span>
+      )}
     </button>
   );
 }

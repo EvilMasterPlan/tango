@@ -146,6 +146,31 @@
   --tile-accent: #71717a;
 }
 
+// A JLPT level above what the user's plan allows — still shown (not
+// hidden) so free users can see what's there, just dimmed and inert.
+// Overriding --tile-accent to a neutral gray here (rather than adding a
+// second, separate style branch) means the icon border, lip shadow, and
+// hover/press states all fall back to gray for free through the same
+// accent-derived rules every other card already uses.
+.practice-card--locked {
+  --tile-accent: var(--color-text-disabled);
+  opacity: 0.6;
+}
+
+.practice-card--locked:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+.practice-card:disabled {
+  cursor: not-allowed;
+}
+
+.practice-card__lock {
+  flex: 0 0 auto;
+  font-size: 1.1rem;
+  color: var(--color-text-disabled);
+}
+
 .practice-card__icon {
   flex: 0 0 auto;
   display: flex;

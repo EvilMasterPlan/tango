@@ -7,6 +7,8 @@ import { LoadingOverlay } from '@/components/shared/LoadingOverlay';
 import { OverflowMenu } from '@/components/shared/OverflowMenu';
 import { useWordProgress } from '@/hooks/useWordProgress';
 import { WordTile } from '@/pages/Overview/WordTile';
+import { useUserContext } from '@/contexts/UserContext';
+import { hasFullAccess } from '@/utils/planAccess';
 import '@/pages/Overview/Page.scss';
 
 const JLPT_LEVELS = ['N5', 'N4', 'N3', 'N2', 'N1'];
@@ -57,6 +59,8 @@ export function OverviewPage() {
     loadMore,
   } = useWordProgress();
   const sentinelRef = useRef(null);
+  const { user } = useUserContext();
+  const canAccessAllLevels = hasFullAccess(user);
 
   // Fires loadMore whenever the sentinel (just past the last card) scrolls
   // into view — observed unconditionally so the effect doesn't need to
@@ -129,7 +133,7 @@ export function OverviewPage() {
 
           <div className="overview-page__grid">
             {words.map(({ entry, mastery }) => (
-              <WordTile entry={entry} mastery={mastery} key={entry.id} />
+              <WordTile entry={entry} mastery={mastery} canAccessAllLevels={canAccessAllLevels} key={entry.id} />
             ))}
           </div>
 

@@ -1,9 +1,11 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { IoArrowBack } from 'react-icons/io5';
+import { IoArrowBack, IoLockClosed } from 'react-icons/io5';
 import { cx } from '@/utils/cx';
 import { ALL_LESSON_TYPES, LESSON_METADATA_BY_LESSON_TYPE } from '@/utils/lessonTypeMetadata';
 import { OverflowMenu } from '@/components/shared/OverflowMenu';
+import { useUserContext } from '@/contexts/UserContext';
+import { FREE_JLPT_LEVEL, hasFullAccess } from '@/utils/planAccess';
 import '@/pages/Practice/Page.scss';
 
 // Visually grouped into "regular" lesson types and the JLPT ladder, with
@@ -16,6 +18,12 @@ const JLPT_LESSON_TYPES = ALL_LESSON_TYPES.filter((lessonType) => lessonType.sta
 const OTHER_LESSON_TYPES = ALL_LESSON_TYPES.filter((lessonType) => !lessonType.startsWith('jlpt_'));
 const LESSON_TYPE_GROUPS = [OTHER_LESSON_TYPES, JLPT_LESSON_TYPES];
 
+// N5 stays free for everyone (see the backend's planAccess.js) — only the
+// JLPT levels above it are gated, so this is JLPT_LESSON_TYPES minus N5
+// rather than a second hand-maintained list.
+const FREE_JLPT_TYPE = `jlpt_${FREE_JLPT_LEVEL.toLowerCase()}`;
+const PRO_ONLY_LESSON_TYPES = JLPT_LESSON_TYPES.filter((lessonType) => lessonType !== FREE_JLPT_TYPE);
+
 // Unlike the home page's tile row (a per-user-unlocked subset, weight-
 // sampled down to a handful of suggestions), this always lists every known
 // lesson type — it's the "start anything, any time" list, not a
@@ -27,6 +35,8 @@ const LESSON_TYPE_GROUPS = [OTHER_LESSON_TYPES, JLPT_LESSON_TYPES];
 // normally once completed.
 export function PracticePage() {
   const navigate = useNavigate();
+  const { user } = useUserContext();
+  const canAccessAllLevels = hasFullAccess(user);
 
   function startLesson(lessonType) {
     navigate('/lesson', { state: { lessonType } });
@@ -52,18 +62,21 @@ export function PracticePage() {
               <div className="practice-page__group" key={index}>
                 {group.map((lessonType) => {
                   const { icon, title, subtitle } = LESSON_METADATA_BY_LESSON_TYPE[lessonType];
+                  const isLocked = PRO_ONLY_LESSON_TYPES.includes(lessonType) && !canAccessAllLevels;
                   return (
                     <button
                       key={lessonType}
                       type="button"
-                      className={cx('practice-card', `practice-card--${lessonType}`)}
+                      className={cx('practice-card', `practice-card--${lessonType}`, isLocked && 'practice-card--locked')}
                       onClick={() => startLesson(lessonType)}
+                      disabled={isLocked}
                     >
                       <span className="practice-card__icon">{icon}</span>
                       <span className="practice-card__info">
                         <span className="practice-card__title">{title}</span>
-                        <span className="practice-card__subtitle">{subtitle}</span>
+                        <span className="practice-card__subtitle">{isLocked ? 'Upgrade to unlock' : subtitle}</span>
                       </span>
+                      {isLocked && <IoLockClosed className="practice-card__lock" aria-label="Requires upgrade" />}
                     </button>
                   );
                 })}
