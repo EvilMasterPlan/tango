@@ -53,6 +53,14 @@ function WordWheelReel({ options, selection, correctChar, revealed, onChange }) 
   }));
   const centerRowRef = useRef(null);
 
+  // The authoritative step counter, mirroring `ticks` but readable/writable
+  // synchronously — unlike the `selection` prop (which only reflects this
+  // reel's last reported index once it's round-tripped through the parent's
+  // state and back down) or `ticks` state (only settled after React commits
+  // it). Steps taken faster than that round trip must still accumulate
+  // correctly, both visually and in what gets reported via `onChange`.
+  const ticksRef = useRef(selection);
+
   useEffect(() => {
     const centerRow = centerRowRef.current;
     if (!centerRow || instant) return;
@@ -66,6 +74,7 @@ function WordWheelReel({ options, selection, correctChar, revealed, onChange }) 
       if (e.target !== centerRow || e.propertyName !== 'transform') return;
       setState((s) => {
         const t = mod(s.ticks, length);
+        ticksRef.current = t;
         return { ticks: t, lo: t - 1, hi: t + 1, instant: true };
       });
     }
@@ -75,16 +84,15 @@ function WordWheelReel({ options, selection, correctChar, revealed, onChange }) 
 
   function step(delta) {
     if (revealed) return;
-    setState((s) => {
-      const newTicks = s.ticks + delta;
-      return {
-        ticks: newTicks,
-        lo: Math.min(s.lo, newTicks - 1),
-        hi: Math.max(s.hi, newTicks + 1),
-        instant: false,
-      };
-    });
-    onChange(mod(selection + delta, length));
+    const newTicks = ticksRef.current + delta;
+    ticksRef.current = newTicks;
+    setState((s) => ({
+      ticks: newTicks,
+      lo: Math.min(s.lo, newTicks - 1),
+      hi: Math.max(s.hi, newTicks + 1),
+      instant: false,
+    }));
+    onChange(mod(newTicks, length));
   }
 
   const char = options[selection];
