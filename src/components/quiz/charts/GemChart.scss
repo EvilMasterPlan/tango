@@ -113,6 +113,47 @@
   }
 }
 
+// A one-shot flash over the *current* shape (GemChart.jsx only ever renders
+// this once that shape has already expanded to its new value — see the
+// `flashCorrect` doc comment there), masking the instant re-facet a correct
+// answer causes. Punches in fast, fades out slower. Setting
+// animation-timing-function per keyframe (rather than once for the whole
+// animation) is what lets the rise and fall use different eases: the one
+// set on 0% governs the 0%-28.6% segment, the one on 28.6% governs the rest
+// — 28.6% is where 0.1s (the rise) lands within the 0.35s total (0.1s rise +
+// 0.25s fall).
+.gem-chart__correct-flash {
+  fill: #ffffff;
+  stroke: #ffffff;
+  stroke-width: 1;
+  stroke-linejoin: round;
+  pointer-events: none;
+  animation: gem-chart-correct-flash 0.35s forwards;
+}
+
+@keyframes gem-chart-correct-flash {
+  0% {
+    opacity: 0;
+    animation-timing-function: ease-in;
+  }
+
+  28.6% {
+    opacity: 1;
+    animation-timing-function: ease-out;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gem-chart__correct-flash {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 @media (max-width: 768px) {
   .gem-chart {
     width: 2.5rem;

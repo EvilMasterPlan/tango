@@ -188,6 +188,22 @@ function fillRadii(correctCounts, iteration, scale) {
 // everything else (inner guide rings, hatching, the reveal pulse, the
 // current-mastery border) stays neutral white/grey regardless of which one
 // is chosen.
+//
+// `flashCorrect` (optional) is a one-shot white flash over the *current*
+// shape (`finalOutline` — wherever `values`/`iteration` have this render
+// land, not a separate target), meant to mask the instant re-facet a
+// correct answer causes when `values` jumps straight from one shape to
+// another with no in-between frames (unlike the fromValues reveal above,
+// there's no earlier shape to keep visible underneath here — this is for
+// the plain live-quiz case every caller besides QuizSummary is in). Punches
+// in fast (ease-in, 0.1s) then fades out slower (ease-out, 0.25s) — see
+// GemChart.scss's keyframes for the exact split. Plays once on mount: the
+// caller is responsible for only passing `flashCorrect={true}` once the
+// underlying mastery has *already* updated to its new (expanded) value —
+// see Quiz.jsx's justAnsweredCorrectly, which exists specifically to land
+// that prop and the shape change in the same render, and false the rest of
+// the time so this element unmounts (rather than merely re-rendering
+// in place, which wouldn't replay the animation) between questions.
 export function GemChart({
   values: correctCounts,
   previewIndex = null,
@@ -199,6 +215,7 @@ export function GemChart({
   attemptedValues = null,
   animationDelay = 0,
   color = DEFAULT_GEM_COLOR,
+  flashCorrect = false,
 }) {
   const patternId = useId();
   const count = correctCounts.length;
@@ -326,6 +343,10 @@ export function GemChart({
           crisp no matter what it coincides with underneath. */}
       <polygon className="gem-chart__border" points={finalOutline} />
       {previewMarker && <circle className="gem-chart__preview-marker" cx={previewMarker.x} cy={previewMarker.y} r="1.4" />}
+      {/* Topmost, so it briefly covers the facets/core/border alike while
+          it's lit — see the `flashCorrect` doc comment above for why this
+          only ever plays once per correct answer, right on the new shape. */}
+      {flashCorrect && <polygon className="gem-chart__correct-flash" points={finalOutline} />}
     </svg>
   );
 }

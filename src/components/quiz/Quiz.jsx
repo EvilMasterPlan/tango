@@ -116,11 +116,25 @@ export function Quiz() {
   const [masteryByWordID, setMasteryByWordID] = useState({});
   // True from the moment recordPractice's response shows the answer just
   // graded pushed the word's level up, until the next question starts —
-  // see the justLeveledUp prop plumbed down to MasteryPentagon below. Only
+  // see the justLeveledUp prop plumbed down to MasteryGem below. Only
   // meaningful during 'review' for the exact question that earned it: reset
   // before every recordPractice call, so it never lingers onto a later
   // question for the same (or a different) word.
   const [justLeveledUp, setJustLeveledUp] = useState(false);
+  // Same lifecycle as justLeveledUp above (reset before every
+  // recordPractice call, set alongside masteryByWordID once its response
+  // lands), but true only when that answer was correct — see the
+  // flashCorrect prop plumbed down to MasteryGem below. Deliberately not
+  // derived from `results[questionIndex] === 'success'` alone: that already
+  // flips true the instant Check is pressed, a render *before*
+  // masteryByWordID (and so the gem's own shape) actually updates — gating
+  // the flash on that would play it against the still-collapsed pre-answer
+  // shape instead of the expanded one, one render too early. This only
+  // becomes true in the exact same state update as masteryByWordID's own,
+  // so the gem has already expanded by the time MasteryGem first receives
+  // flashCorrect=true — its flash polygon mounts fresh right then, which is
+  // what actually plays the one-shot CSS animation (see GemChart.jsx).
+  const [justAnsweredCorrectly, setJustAnsweredCorrectly] = useState(false);
   // The current lesson's ID — null if the backend failed to record the
   // lesson start. Sent back to completeLesson once the final question is
   // answered — see handleAction.
@@ -269,6 +283,7 @@ export function Quiz() {
       if (!isAnswered) return;
       setPhase('review');
       setJustLeveledUp(false);
+      setJustAnsweredCorrectly(false);
 
       const isCorrect = modeConfig.isCorrect(answerState);
       const priorLevel = mastery?.level ?? 1;
@@ -288,6 +303,7 @@ export function Quiz() {
         });
         setMasteryByWordID((prev) => ({ ...prev, [entry.id]: updatedMastery }));
         setJustLeveledUp((updatedMastery.level ?? 1) > priorLevel);
+        setJustAnsweredCorrectly(isCorrect);
       } catch (error) {
         // Fire-and-forget from the user's perspective — a failed practice
         // record shouldn't block moving on through the lesson.
@@ -435,6 +451,7 @@ export function Quiz() {
                     mastery={mastery}
                     currentSkillKey={phase === 'answer' ? skillKey : null}
                     justLeveledUp={phase === 'review' && justLeveledUp}
+                    flashCorrect={phase === 'review' && justAnsweredCorrectly}
                   />
                   <div className="quiz__answer-area">
                     {mode === 'spelling' ? (

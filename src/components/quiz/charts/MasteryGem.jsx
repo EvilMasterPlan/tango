@@ -43,8 +43,8 @@ import './MasteryGem.scss';
 // than an approximation. Not meant for QuizSummary, which always shows the
 // lesson's true final state.
 //
-// `color` (optional) is passed straight through to GemChart — see its own
-// doc comment for the choices and default.
+// `flashCorrect` (optional) and `color` are passed straight through to
+// GemChart — see its own doc comment for what each does.
 const SUMMARY_KEYS = ['iteration', 'level', 'iterationsForNextLevel', 'wheelUnlockIteration'];
 
 // word.wheel is the one axis excluded from the word's bottleneck/iteration
@@ -81,7 +81,15 @@ function levelFloorIteration({ level, iterationsForNextLevel }) {
   return iterationsForNextLevel - level - 1;
 }
 
-export function MasteryGem({ mastery = {}, currentSkillKey, initialMastery, animationDelay, justLeveledUp = false, color }) {
+export function MasteryGem({
+  mastery = {},
+  currentSkillKey,
+  initialMastery,
+  animationDelay,
+  justLeveledUp = false,
+  flashCorrect = false,
+  color,
+}) {
   const skillKeys = Object.keys(mastery).filter((key) => !SUMMARY_KEYS.includes(key));
   // Present whenever WHEEL_SKILL_KEY is (see masteryStore.js's buildMastery)
   // — 0 otherwise, which makes shiftedCorrect's shift a no-op for a word
@@ -143,6 +151,7 @@ export function MasteryGem({ mastery = {}, currentSkillKey, initialMastery, anim
         fromIterationsForNextLevel={initialMastery?.iterationsForNextLevel}
         attemptedValues={attemptedCounts}
         animationDelay={animationDelay}
+        flashCorrect={flashCorrect}
         color={color}
       />
       <span className="mastery-gem__level">Level {displayMastery.level ?? 1}</span>

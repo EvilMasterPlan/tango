@@ -77,7 +77,7 @@ export function FuriganaWord({ furigana }) {
 // known (hidden === 'definition' from the start, or hidden === 'word'/
 // 'reading' once revealed), they're merged into a single furigana display
 // so each reading segment sits directly over its own kanji.
-export function VocabularyDisplay({ entry, hidden, ghostText, revealed = false, mastery, currentSkillKey, justLeveledUp }) {
+export function VocabularyDisplay({ entry, hidden, ghostText, revealed = false, mastery, currentSkillKey, justLeveledUp, flashCorrect }) {
   const showFurigana = hidden === 'definition' || revealed;
   const challengeRating = getChallengeRating(entry.score);
 
@@ -95,6 +95,7 @@ export function VocabularyDisplay({ entry, hidden, ghostText, revealed = false, 
           mastery={mastery}
           currentSkillKey={currentSkillKey}
           justLeveledUp={justLeveledUp}
+          flashCorrect={flashCorrect}
           color={jlptGemColor(entry.jlpt)}
         />
       </div>
