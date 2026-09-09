@@ -1,0 +1,47 @@
+.mastery-gem-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  display: block;
+}
+
+.mastery-gem-icon__floor {
+  fill: none;
+  stroke: var(--color-border-primary);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  opacity: 0.35;
+}
+
+.mastery-gem-icon__ring {
+  fill: none;
+  stroke: var(--color-text-muted);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  opacity: 0.3;
+}
+
+// Stroke color (the gem's own hue) is set inline per-instance — see the
+// `color` prop on MasteryGemIcon.
+.mastery-gem-icon__outline {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.mastery-gem-icon__facet {
+  stroke: none;
+}
+
+// Fill/stroke (the gem's own hue) are set inline per-instance — see the
+// `color` prop on MasteryGemIcon.
+.mastery-gem-icon__core {
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+.mastery-gem-icon__border {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 1;
+  stroke-linejoin: round;
+}

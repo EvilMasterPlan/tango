@@ -10,16 +10,25 @@ export const UserProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const loadUser = useCallback(async () => {
+  // `trackLoading` is false for a background refresh (see refreshUser
+  // below) — RequireAuth blanks the whole page while `isLoading` is true
+  // (it doesn't yet know whether there's even a session to show), which is
+  // right for the initial load but would otherwise unmount, then remount,
+  // the entire authenticated page tree — losing any of its own local state
+  // in the process (e.g. a Settings dialog open somewhere in it closing) —
+  // every time something merely refreshes the already-known-authenticated
+  // user's profile in the background, like SettingsDialog does after every
+  // preference save.
+  const loadUser = useCallback(async (trackLoading = true) => {
     setError(null);
 
     if (!userSeemsAuthenticated()) {
       setUser(null);
-      setIsLoading(false);
+      if (trackLoading) setIsLoading(false);
       return;
     }
 
-    setIsLoading(true);
+    if (trackLoading) setIsLoading(true);
     try {
       const profile = await accountApi.loadProfile();
       setUser(profile || null);
@@ -27,13 +36,18 @@ export const UserProvider = ({ children }) => {
       setUser(null);
       setError(apiError?.response?.data?.message || 'Failed to load user profile');
     } finally {
-      setIsLoading(false);
+      if (trackLoading) setIsLoading(false);
     }
   }, []);
 
   useEffect(() => {
     loadUser();
   }, [loadUser]);
+
+  // A background re-fetch of the same profile, e.g. after saving a
+  // preference — see loadUser's own `trackLoading` param above for why this
+  // deliberately doesn't touch `isLoading`.
+  const refreshUser = useCallback(() => loadUser(false), [loadUser]);
 
   const logout = useCallback(async () => {
     try {
@@ -48,10 +62,10 @@ export const UserProvider = ({ children }) => {
       user,
       isLoading,
       error,
-      refreshUser: loadUser,
+      refreshUser,
       logout,
     }),
-    [user, isLoading, error, loadUser, logout],
+    [user, isLoading, error, refreshUser, logout],
   );
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

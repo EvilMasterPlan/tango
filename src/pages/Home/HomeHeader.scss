@@ -13,15 +13,34 @@
   z-index: 3;
 }
 
+// A <button> (not a plain div) so the whole coins+gem section is one click
+// target for opening StatsDialog — reset to look like the plain flex row it
+// used to be.
 .home-header__coins {
   display: flex;
   align-items: center;
   gap: 0.4rem;
   font-size: 1.15rem;
   font-weight: 700;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
 }
 
 .home-header__coins .coin-icon {
   width: 1.4rem;
   height: 1.4rem;
+}
+
+// Sized down 40% from MasteryGemIcon's default 2.75rem, to match the coin
+// icon's own scale in this header. Extra left margin (beyond the row's own
+// gap) so the gem reads as its own group, separate from the coin count.
+.home-header__gem-icon {
+  width: 1.65rem;
+  height: 1.65rem;
+  margin-left: 0.5rem;
 }

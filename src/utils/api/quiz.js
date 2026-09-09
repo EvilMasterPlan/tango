@@ -12,7 +12,11 @@ export const quizApi = {
   getNextLessons: async () => {
     return makePostRequest(getUrl(`${TANGO_API_PREFIX}/quiz/next-lessons`));
   },
-  // { points } — Score summed across every completed lesson.
+  // { points, wordsDiscovered, jlptLevels: [{ level: 'N5', wordsDiscovered,
+  // totalWords }, ...] } — Score summed across every completed lesson; the
+  // count of distinct words attempted at least once, overall and broken
+  // down per JLPT level; and each level's total pool size (global, not
+  // specific to this user).
   getOverallStats: async () => {
     return makePostRequest(getUrl(`${TANGO_API_PREFIX}/quiz/overall-stats`));
   },

@@ -56,7 +56,7 @@ const PREVIEW_GAP_PX = 12;
 export function HomePage() {
   const navigate = useNavigate();
   const { current, history, isLoading: isLessonsLoading } = useNextLessons();
-  const { points, isLoading: isStatsLoading } = useOverallStats();
+  const { points, wordsDiscovered, jlptLevels, isLoading: isStatsLoading } = useOverallStats();
   const showLoading = useMinimumLoadingDuration(isLessonsLoading || isStatsLoading);
 
   // Most-recent-first (the order history already arrives in) — each entry
@@ -412,7 +412,7 @@ export function HomePage() {
       </Helmet>
 
       <div className="home-page">
-        <HomeHeader points={points} />
+        <HomeHeader points={points} wordsDiscovered={wordsDiscovered} jlptLevels={jlptLevels} />
 
         <div className="home-content" ref={contentRef}>
           {/* Clips history rows that overflow above the current one. */}
@@ -520,9 +520,14 @@ export function HomePage() {
               ))}
             </div>
           </div>
-        </div>
 
-        <LoadingOverlay active={showLoading} />
+          {/* Scoped to .home-content specifically, not the whole page — a
+              refetch (e.g. the recommended options re-rolling right after a
+              JLPT focus-mode change elsewhere — see useNextLessons) should
+              only refresh this panel in place, leaving HomeHeader above it
+              on screen the whole time. */}
+          <LoadingOverlay active={showLoading} />
+        </div>
       </div>
     </>
   );
