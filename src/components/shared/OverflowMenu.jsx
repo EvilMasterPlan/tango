@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 import { cx } from '@/utils/cx';
 import { IconButton } from '@/components/shared/IconButton';
+import { SettingsDialog } from '@/components/quiz/chrome/SettingsDialog';
 import './OverflowMenu.scss';
 
 // Every page this menu can link to, keyed by the page it represents so
@@ -15,6 +16,11 @@ const MENU_ITEMS = [
   { key: 'achievements', label: 'Achievements', to: '/achievements' },
 ];
 
+// Not a page to navigate to (no `to`, and never the "current" entry) — an
+// action item that opens the same shared SettingsDialog the quiz page's own
+// settings icon does, rendered by this component itself below.
+const SETTINGS_ITEM = { key: 'settings', label: 'Settings' };
+
 // Ellipsis-triggered navigation menu shared by the sticky headers on the
 // home, practice, overview, effort, and achievements pages. `currentPage`
 // is one of MENU_ITEMS' keys (or omitted) — always shows every entry, so the list
@@ -22,6 +28,7 @@ const MENU_ITEMS = [
 // closes the menu (rather than navigating) when it's clicked.
 export function OverflowMenu({ currentPage, className }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const menuRef = useRef(null);
 
   // Closes on an outside click/tap or Escape — the two standard ways to
@@ -83,8 +90,33 @@ export function OverflowMenu({ currentPage, className }) {
               </li>
             );
           })}
+          <li className="shared-overflow-menu__divider" role="none">
+            <button
+              type="button"
+              className="shared-overflow-menu__item"
+              role="menuitem"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Profile
+            </button>
+          </li>
+          <li role="none">
+            <button
+              type="button"
+              className="shared-overflow-menu__item"
+              role="menuitem"
+              onClick={() => {
+                setIsMenuOpen(false);
+                setIsSettingsOpen(true);
+              }}
+            >
+              {SETTINGS_ITEM.label}
+            </button>
+          </li>
         </ul>
       )}
+
+      {isSettingsOpen && <SettingsDialog onClose={() => setIsSettingsOpen(false)} />}
     </div>
   );
 }

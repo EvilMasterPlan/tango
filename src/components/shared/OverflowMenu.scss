@@ -38,6 +38,15 @@
   }
 }
 
+// Separates the Settings action from the page links above it — a different
+// kind of item (opens a dialog, not a navigation target), not just another
+// page in the list.
+.shared-overflow-menu__divider {
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--color-border-primary);
+}
+
 .shared-overflow-menu__item--active {
   color: var(--color-text-secondary);
   cursor: default;

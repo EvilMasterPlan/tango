@@ -17,8 +17,8 @@ import '@/App.scss';
 function App() {
   return (
     <HelmetProvider>
-      <SettingsProvider>
-        <UserProvider>
+      <UserProvider>
+        <SettingsProvider>
           <Router basename="/tango">
             <div className="app">
               <Routes>
@@ -85,8 +85,8 @@ function App() {
               </Routes>
             </div>
           </Router>
-        </UserProvider>
-      </SettingsProvider>
+        </SettingsProvider>
+      </UserProvider>
     </HelmetProvider>
   );
 }

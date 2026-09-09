@@ -1,5 +1,3 @@
-@use '@/components/shared/mixins';
-
 .home-page {
   height: 100vh;
   height: 100dvh;
@@ -72,11 +70,16 @@
 // the right height; the fallback below is the plain-CSS no-history
 // default (dead center).
 .home-board {
-  --home-tile-size: 4.5rem;
+  // Feeds Tile.scss's own generic --tile-size/--tile-font-size custom
+  // properties (see .shared-tile) — every Tile inside this board picks
+  // these up by inheritance, responsive breakpoint below included, without
+  // this page needing any tile-sizing CSS of its own.
+  --tile-size: 4.5rem;
+  --tile-font-size: 2.25rem;
 
   position: absolute;
   left: 50%;
-  bottom: var(--home-board-bottom, calc(50% - var(--home-tile-size) / 2));
+  bottom: var(--home-board-bottom, calc(50% - var(--tile-size) / 2));
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
@@ -134,205 +137,6 @@
   display: flex;
   justify-content: center;
   gap: 1.5rem;
-}
-
-.home-tile {
-  @include mixins.quiz-button-base;
-  @include mixins.pressable-lip(var(--color-border-primary), #fff);
-  position: relative;
-  isolation: isolate;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
-  width: var(--home-tile-size);
-  height: var(--home-tile-size);
-  font-size: 2.25rem;
-  background-color: var(--color-bg-secondary);
-  border: 3px solid var(--color-border-primary);
-  transition: background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
-
-  &:hover {
-    background-color: var(--color-bg-tertiary);
-    border-color: #fff;
-  }
-}
-
-// Per-type accent color, referenced by the shared rule below.
-.home-tile--new_words {
-  --tile-accent: var(--color-accent-secondary);
-}
-
-.home-tile--level_up {
-  --tile-accent: var(--color-accent-primary);
-}
-
-.home-tile--fix_mistakes {
-  --tile-accent: var(--color-accent-error);
-}
-
-.home-tile--kanji_spotlight {
-  --tile-accent: var(--color-accent-warning);
-}
-
-// No spare theme accent left for a 5th/6th/7th tile type, so these use
-// literal colors instead of the shared accent tokens above.
-.home-tile--from_the_top {
-  --tile-accent: #a78bfa;
-}
-
-// JLPT_N5-N1 match the same blue-through-red hue progression Overview's
-// filter buttons and GemChart's per-level facet hues already use for JLPT
-// levels elsewhere in the app, rather than one-off colors, so a level reads
-// as "the same N4" wherever it shows up.
-.home-tile--jlpt_n5 {
-  --tile-accent: hsl(210, 70%, 60%);
-}
-
-.home-tile--jlpt_n4 {
-  --tile-accent: hsl(140, 60%, 45%);
-}
-
-.home-tile--jlpt_n3 {
-  --tile-accent: hsl(50, 80%, 55%);
-}
-
-.home-tile--jlpt_n2 {
-  --tile-accent: hsl(30, 80%, 55%);
-}
-
-.home-tile--jlpt_n1 {
-  --tile-accent: hsl(0, 70%, 55%);
-}
-
-.home-tile--random {
-  --tile-accent: #71717a;
-}
-
-// The 6 question-type tiles — no theme accent or JLPT hue left to reuse, so
-// literal colors again (same reasoning as from_the_top above), grouped into
-// two families to stay clear of every hue already claimed above: a lime
-// solo for word_choice, then a cool cyan/teal pair and a warm
-// fuchsia/pink/rose trio for the rest.
-.home-tile--word_choice {
-  --tile-accent: #a3e635;
-}
-
-.home-tile--reading_choice {
-  --tile-accent: #2dd4bf;
-}
-
-.home-tile--meaning_choice {
-  --tile-accent: #22d3ee;
-}
-
-.home-tile--reading_spelling {
-  --tile-accent: #e879f9;
-}
-
-.home-tile--reading_typing {
-  --tile-accent: #f472b6;
-}
-
-.home-tile--word_wheel {
-  --tile-accent: #fb7185;
-}
-
-.home-tile--new_words,
-.home-tile--level_up,
-.home-tile--fix_mistakes,
-.home-tile--kanji_spotlight,
-.home-tile--from_the_top,
-.home-tile--jlpt_n5,
-.home-tile--jlpt_n4,
-.home-tile--jlpt_n3,
-.home-tile--jlpt_n2,
-.home-tile--jlpt_n1,
-.home-tile--random,
-.home-tile--word_choice,
-.home-tile--reading_choice,
-.home-tile--meaning_choice,
-.home-tile--reading_spelling,
-.home-tile--reading_typing,
-.home-tile--word_wheel {
-  border-color: var(--tile-accent);
-  box-shadow: 0 4px 0 0 var(--tile-accent);
-}
-
-// Selected tile stays pressed in.
-.home-tile--selected {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 0 var(--tile-accent, var(--color-accent-primary));
-}
-
-// Hover on an already-selected tile: stays pressed, lip goes plain white to
-// match the base :hover border — both properties redeclared here since the
-// mixin's hover rule ties this selector's specificity.
-.home-tile.home-tile--selected:hover {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 0 #fff;
-}
-
-// History row tiles — a fixed record, not interactive: plain divs, so
-// pointer-events: none stands in for disabled. Unchosen options render
-// hatched/dimmed; the chosen one gets the gold "correct" treatment plus a
-// sheen.
-.home-tile--history {
-  pointer-events: none;
-  opacity: 0.25;
-  border-color: var(--color-border-secondary);
-  box-shadow: 0 4px 0 0 var(--color-border-secondary);
-  background-color: var(--color-bg-secondary);
-  background-image: repeating-linear-gradient(
-    45deg,
-    var(--color-border-secondary) 0,
-    var(--color-border-secondary) 3px,
-    transparent 3px,
-    transparent 9px
-  );
-
-  &.home-tile--chosen {
-    opacity: 1;
-    background-color: var(--color-quiz-success);
-    background-image: none;
-    border-color: var(--color-quiz-success);
-    box-shadow: 0 4px 0 0 var(--color-quiz-success-lip);
-
-    .home-tile__icon {
-      color: var(--color-bg-primary);
-    }
-  }
-}
-
-// Static gold-glint shine bands on a chosen tile.
-.home-tile--chosen::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  border-radius: inherit;
-  background-image: linear-gradient(
-    135deg,
-    transparent 0%,
-    transparent 20%,
-    #fff 20%,
-    #fff 32%,
-    transparent 32%,
-    transparent 44%,
-    #fff 44%,
-    #fff 50%,
-    transparent 50%,
-    transparent 100%
-  );
-}
-
-.home-tile__icon {
-  position: relative;
-  z-index: 1;
-  font-family: var(--font-jp);
-  font-weight: 700;
-  color: #fff;
 }
 
 // Points at the selected tile (`left` set inline from a measured position)
@@ -439,9 +243,17 @@
     --home-next-row-max-position: 0.65;
   }
 
+  // Narrower tiles (and the hole's own padding, below) mean a narrower
+  // measured board width, and .home-hole's width tracks that directly — so
+  // shrinking these also opens up more space to either side of the hole.
+  .home-hole {
+    --home-hole-padding-x: 2rem;
+  }
+
   .home-board {
-    --home-tile-size: 3.75rem;
-    gap: 1.1rem;
+    --tile-size: 3.25rem;
+    --tile-font-size: 1.5rem;
+    gap: 0.9rem;
   }
 
   // Keeps the same history-to-current total as the smaller board gap here.
@@ -450,10 +262,6 @@
   }
 
   .home-tiles {
-    gap: 0.85rem;
-  }
-
-  .home-tile {
-    font-size: 1.75rem;
+    gap: 0.65rem;
   }
 }

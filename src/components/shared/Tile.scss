@@ -1,0 +1,189 @@
+@use '@/components/shared/mixins';
+
+// The single stylesheet for .shared-tile (see Tile.jsx) — every state this
+// tile can be in lives here, on purpose, so no other file ever needs its
+// own override of these selectors (the cross-file specificity collision
+// this component replaced came from exactly that: two stylesheets each
+// declaring a piece of the same class).
+.shared-tile {
+  @include mixins.quiz-button-base;
+  @include mixins.pressable-lip(var(--color-border-primary), #fff);
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  width: var(--tile-size, 4.5rem);
+  height: var(--tile-size, 4.5rem);
+  font-size: var(--tile-font-size, 2.25rem);
+  background-color: var(--color-bg-secondary);
+  // Falls back to the plain grey lip when no accent is set (e.g. the
+  // locked/dim states below always override this explicitly anyway); an
+  // accent-bearing tile picks up --tile-accent (set inline by Tile.jsx)
+  // here instead of needing a per-type selector of its own.
+  border: 3px solid var(--tile-accent, var(--color-border-primary));
+  box-shadow: 0 4px 0 0 var(--tile-accent, var(--color-border-primary));
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+
+  &:hover {
+    background-color: var(--color-bg-tertiary);
+    border-color: #fff;
+  }
+}
+
+// A persistent "chosen/pending" look, driven by JS state (Tile.jsx's
+// `selected` prop) rather than the native :active pseudo-class — the
+// mixin's own :active lip (see pressable-lip above) is a plain literal
+// grey, not accent-aware, so this restates the pressed transform with the
+// tile's own accent color instead.
+.shared-tile--selected {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 0 var(--tile-accent, var(--color-accent-primary));
+}
+
+// Hover on an already-selected tile: stays pressed, lip goes plain white to
+// match the base :hover border — both properties redeclared here since the
+// mixin's hover rule ties this selector's specificity.
+.shared-tile.shared-tile--selected:hover {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 0 #fff;
+}
+
+// A past, settled choice — a fixed record, not interactive (rendered as a
+// plain non-button element, so pointer-events: none stands in for
+// disabled). Unchosen options render hatched/dimmed; the chosen one gets
+// the gold "correct" treatment plus a sheen (see ::after below) — nested
+// under history since "chosen" only means something in that context.
+.shared-tile--history {
+  pointer-events: none;
+  opacity: 0.25;
+  border-color: var(--color-border-secondary);
+  box-shadow: 0 4px 0 0 var(--color-border-secondary);
+  background-color: var(--color-bg-secondary);
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--color-border-secondary) 0,
+    var(--color-border-secondary) 3px,
+    transparent 3px,
+    transparent 9px
+  );
+
+  &.shared-tile--chosen {
+    opacity: 1;
+    background-color: var(--color-quiz-success);
+    background-image: none;
+    border-color: var(--color-quiz-success);
+    box-shadow: 0 4px 0 0 var(--color-quiz-success-lip);
+
+    .shared-tile__icon {
+      color: var(--color-bg-primary);
+    }
+  }
+}
+
+// Static gold-glint shine bands on a chosen tile.
+.shared-tile--chosen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background-image: linear-gradient(
+    135deg,
+    transparent 0%,
+    transparent 20%,
+    #fff 20%,
+    #fff 32%,
+    transparent 32%,
+    transparent 44%,
+    #fff 44%,
+    #fff 50%,
+    transparent 50%,
+    transparent 100%
+  );
+}
+
+// A toggle-style tile's "off" state — dimmed, plain grey lip regardless of
+// its own accent. The settings dialog's JLPT level buttons use this for a
+// level that isn't currently selected; an "on" tile just omits this
+// modifier and shows its normal accent-colored rest state above. Locked
+// tiles (below) always carry this too, dim being exactly the right look
+// for "can't use this right now" either way.
+.shared-tile--dim,
+.shared-tile--locked {
+  opacity: 0.4;
+  border-color: var(--color-border-secondary);
+  box-shadow: 0 4px 0 0 var(--color-border-secondary);
+}
+
+// Same locked/upgrade-prompt treatment as Overview/WordTile.jsx's own
+// locked tiles (see WordTile.scss) — hatch overlay, lock icon, and a hover
+// tooltip. Disabled via the native `disabled` attribute (see Tile.jsx), so
+// no :focus-visible pairing is needed — a disabled button can't receive
+// focus.
+.shared-tile:disabled {
+  cursor: not-allowed;
+}
+
+.shared-tile--locked:hover {
+  background-color: var(--color-bg-secondary);
+  border-color: var(--color-border-secondary);
+}
+
+.shared-tile__hatch {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0 10px,
+    color-mix(in srgb, var(--color-text-disabled) 12%, transparent) 10px 24px
+  );
+}
+
+.shared-tile__lock {
+  position: absolute;
+  bottom: 0.3rem;
+  right: 0.3rem;
+  font-size: 0.7rem;
+  color: var(--color-text-disabled);
+}
+
+.shared-tile__tooltip {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  width: max-content;
+  max-width: 12rem;
+  padding: 0.5rem 0.75rem;
+  color: var(--color-text-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  background-color: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-sm);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition-fast);
+  pointer-events: none;
+}
+
+.shared-tile--locked:hover .shared-tile__tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.shared-tile__icon {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-jp);
+  font-weight: 700;
+  color: #fff;
+}

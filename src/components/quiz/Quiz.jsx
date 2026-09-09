@@ -152,6 +152,13 @@ export function Quiz() {
   // lesson start. Sent back to completeLesson once the final question is
   // answered — see handleAction.
   const [lessonID, setLessonID] = useState(null);
+  // The lesson type actually generated (see generateLesson's own response)
+  // — can differ from bonusLessonType for a normal (non-bonus) lesson,
+  // which never sends one of its own and instead finds out here what the
+  // backend resolved it to. Shown as a small debugging badge in the header
+  // (see QuizHeader) so it's obvious at a glance what a lesson actually
+  // ended up being, independent of how it was started.
+  const [lessonType, setLessonType] = useState(null);
   // completeLesson's { totalScore, scoringBreakdown } response — scoring
   // happens server-side. Fetched as soon as the last question is answered
   // (see handleAction), not when the summary phase is reached, per
@@ -190,16 +197,23 @@ export function Quiz() {
 
   useEffect(() => () => window.clearTimeout(transitionTimeoutRef.current), []);
 
-  const loadLesson = useCallback(async () => {
+  // `override` lets a caller request a specific type/params instead of the
+  // bonusLessonType/bonusLessonParams frozen from location.state at mount —
+  // see handleRepeatLesson below, the one caller that actually needs this.
+  const loadLesson = useCallback(async (override = {}) => {
+    const requestedLessonType = override.lessonType ?? bonusLessonType;
+    const requestedLessonParams = override.lessonType ? (override.lessonParams ?? null) : bonusLessonParams;
+
     setIsLoading(true);
     setLoadError(null);
     try {
-      const { questions, lessonID: newLessonID } = await quizApi.generateLesson(bonusLessonType, bonusLessonParams);
+      const { questions, lessonID: newLessonID, lessonType: newLessonType } = await quizApi.generateLesson(requestedLessonType, requestedLessonParams);
       setRounds(questions);
       const startingMasteryByWordID = Object.fromEntries(questions.map((round) => [round.entry.id, round.mastery]));
       setInitialMasteryByWordID(startingMasteryByWordID);
       setMasteryByWordID(startingMasteryByWordID);
       setLessonID(newLessonID ?? null);
+      setLessonType(newLessonType ?? null);
       setLessonScore(null);
       lessonScorePromiseRef.current = null;
       setResults([]);
@@ -369,12 +383,19 @@ export function Quiz() {
     navigate(returnTo);
   }
 
-  // Re-runs `loadLesson` with the exact same lesson type/params already in
-  // scope (frozen from `location.state` at mount, see above) — regenerates
-  // a fresh lesson of the same kind rather than navigating away, so this
-  // works equally for a bonus lesson and the default NEW_WORDS one.
+  // Re-runs loadLesson for the exact same kind of lesson as the one just
+  // finished. A bonus lesson already repeats correctly via its own
+  // unchanging bonusLessonType (frozen from location.state at mount), but a
+  // normal (home-page-recommended) lesson has no bonusLessonType of its own
+  // — without passing `lessonType` (the type the backend actually resolved
+  // the just-finished lesson to; see loadLesson) explicitly here, repeating
+  // one would silently re-enter the normal recommendation flow instead,
+  // which resolves against whatever the *current* pending recommendation
+  // row happens to be (possibly a fresh, never-seen one by this point) and
+  // can default all the way down to NEW_WORDS rather than actually
+  // repeating what was just played.
   function handleRepeatLesson() {
-    loadLesson();
+    loadLesson({ lessonType: bonusLessonType ?? lessonType, lessonParams: bonusLessonParams });
   }
 
   // Keyboard shortcuts: 1-4 select a choice (while still answering, choice
@@ -426,7 +447,7 @@ export function Quiz() {
     return (
       <div className="quiz-page quiz-page--status">
         <p>Could not load the quiz.</p>
-        <Button onClick={loadLesson}>Retry</Button>
+        <Button onClick={() => loadLesson()}>Retry</Button>
       </div>
     );
   }
@@ -450,6 +471,7 @@ export function Quiz() {
             results={results}
             currentIndex={phase === 'summary' ? -1 : questionIndex}
             total={rounds.length}
+            lessonType={lessonType}
             onSettingsClick={handleSettingsClick}
           />
 

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Button } from '@/components/shared/Button';
 import { LoadingOverlay } from '@/components/shared/LoadingOverlay';
+import { Tile } from '@/components/shared/Tile';
 import { useNextLessons } from '@/hooks/useNextLessons';
 import { quizApi } from '@/utils/api/quiz';
 import { useOverallStats } from '@/hooks/useOverallStats';
@@ -15,8 +16,8 @@ import '@/pages/Home/Page.scss';
 // Which of LESSON_METADATA_BY_LESSON_TYPE's types actually show up here,
 // and in what order, comes from useNextLessons per user/load — this just
 // maps whichever ones do to their display metadata. `icon` is a single bold
-// kanji rendered as plain text, so .home-tile__icon can tint it with CSS
-// color to the tile's own accent.
+// kanji rendered as plain text, passed to <Tile>'s own icon slot, which
+// tints it with CSS color to the tile's accent.
 function buildTiles(options) {
   return options
     .map((lessonType) => {
@@ -33,12 +34,6 @@ function buildTiles(options) {
 function tileKey(rowKey, tileType) {
   return `${rowKey}::${tileType}`;
 }
-
-// Where the "hole" (see .home-hole) ends within the gap between the last
-// history row and the current row below it — 0 would stop it flush with
-// the history row's own bottom edge, 1 flush with the current row's top
-// edge. 0.75 leaves it mostly closed, just short of the current row.
-const HOLE_BOTTOM_GAP_FRACTION = 0.75;
 
 // How far above the current row's top edge the "hole" stops when there's no
 // history row to split the gap with — ensures a first-time user with only
@@ -57,12 +52,28 @@ export function HomePage() {
   const showLoading = useMinimumLoadingDuration(isLessonsLoading || isStatsLoading);
 
   // Oldest-first: up to 5 completed history rows, then the live current row
-  // last. Every row but the last is guaranteed to have a completed lesson —
-  // a new row is only ever created once the previous one's lesson is done —
-  // so only the last row is ever interactive; the rest are a fixed record
-  // of what was offered and picked.
+  // last. Every row but the last is normally guaranteed to have a completed
+  // lesson — a new row is only ever created once the previous one's lesson
+  // is done — so only the last row is ever interactive; the rest are a
+  // fixed record of what was offered and picked. The most recent history
+  // row can still end up with no *resolvable* selection, though: either
+  // selectedType is null outright (e.g. a lesson started without ever going
+  // through the home page's own choice-recording flow — see
+  // startSelectedLesson), or it's set but doesn't match any of that row's
+  // own options (e.g. a bonus lesson from Practice/Page.jsx completed while
+  // this row was still pending, recording its own explicit type onto
+  // SelectedType regardless of what this row had actually offered). Either
+  // way there's no tile in the row itself to point a connector line at, so
+  // it's trimmed off the end here (and any further back too, on the off
+  // chance more than one in a row lack one) rather than rendered with
+  // nothing to show as chosen — the connector lines instead run from the
+  // most recent row that *does* have a selection matching one of its own
+  // options straight to the current row's own choices.
   const rows = useMemo(() => {
     const historyRows = [...(history || [])].reverse();
+    while (historyRows.length > 0 && !historyRows[historyRows.length - 1].options.includes(historyRows[historyRows.length - 1].selectedType)) {
+      historyRows.pop();
+    }
     const ordered = current ? [...historyRows, current] : historyRows;
     return ordered.map((row, index) => ({
       key: row.id || `row-${index}`,
@@ -136,7 +147,7 @@ export function HomePage() {
     if (!selected) return;
 
     function handlePointerDown(e) {
-      if (!e.target.closest('.home-tile, .home-preview, .home-preview-arrow')) setSelected(null);
+      if (!e.target.closest('.shared-tile, .home-preview, .home-preview-arrow')) setSelected(null);
     }
     function handleKeyDown(e) {
       if (e.key === 'Escape') setSelected(null);
@@ -190,16 +201,15 @@ export function HomePage() {
     return () => window.removeEventListener('resize', position);
   }, [rows]);
 
-  // Sizes the "dug hole" that history rows appear to sit inside — its
-  // width tracks the board's own natural width (the widest row), and its
-  // height runs from the top of .home-content down to
-  // HOLE_BOTTOM_GAP_FRACTION of the way through the gap between the last
-  // history row and the current row below it (0.75 — mostly closed, so the
-  // hole reads as ending just shy of the current row), or, with no history
-  // yet, to a fixed short gap above the current row
-  // (HOLE_MIN_GAP_ABOVE_CURRENT_PX). Reads on-screen rects, so this must
-  // run after the board-positioning effect above has settled the board's
-  // position for this render.
+  // Sizes the "dug hole" that history rows appear to sit inside — its width
+  // tracks the board's own natural width (the widest row), and its height
+  // runs from the top of .home-content down to just past the last history
+  // row's own bottom edge, padded by the same amount as the hole's left/
+  // right padding (--home-hole-padding-x) so it reads as symmetric on all
+  // three sides — or, with no history yet, to a fixed short gap above the
+  // current row (HOLE_MIN_GAP_ABOVE_CURRENT_PX). Reads on-screen rects, so
+  // this must run after the board-positioning effect above has settled the
+  // board's position for this render.
   useLayoutEffect(() => {
     function size() {
       const boardEl = boardRef.current;
@@ -211,16 +221,18 @@ export function HomePage() {
       const contentTop = contentEl.getBoundingClientRect().top;
       const currentTop = currentEl.getBoundingClientRect().top;
 
-      // The board's children are the lines <svg> (always first), then one
-      // wrap per row in order, current row last — so the second-to-last
-      // child is the most recent history row's wrap, when one exists.
-      const historyEls = Array.from(boardEl.children).slice(1, -1);
+      // Selected by attribute rather than DOM position — .home-board's
+      // children also include the lines <svg> ahead of the row wraps, so a
+      // fixed slice-off-the-ends offset isn't reliable here.
+      const historyEls = Array.from(boardEl.querySelectorAll('.home-tiles-wrap:not([data-current])'));
       const lastHistoryEl = historyEls[historyEls.length - 1];
 
       let holeBottom;
       if (lastHistoryEl) {
-        const lastHistoryBottom = lastHistoryEl.getBoundingClientRect().bottom;
-        holeBottom = lastHistoryBottom + (currentTop - lastHistoryBottom) * HOLE_BOTTOM_GAP_FRACTION;
+        const holeStyle = getComputedStyle(holeEl);
+        const paddingXRem = parseFloat(holeStyle.getPropertyValue('--home-hole-padding-x')) || 0;
+        const rootFontSizePx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+        holeBottom = lastHistoryEl.getBoundingClientRect().bottom + paddingXRem * rootFontSizePx;
       } else {
         holeBottom = currentTop - HOLE_MIN_GAP_ABOVE_CURRENT_PX;
       }
@@ -386,6 +398,7 @@ export function HomePage() {
                 <div
                   className={cx('home-tiles-wrap', row.isCurrent && rows.length > 1 && 'home-tiles-wrap--current')}
                   key={row.key}
+                  data-current={row.isCurrent || undefined}
                   ref={row.isCurrent ? currentTilesWrapRef : null}
                 >
                   <div className="home-tiles">
@@ -394,38 +407,35 @@ export function HomePage() {
 
                       if (!row.isCurrent) {
                         return (
-                          <div
+                          <Tile
+                            as="div"
                             key={tile.lessonType}
                             ref={(el) => {
                               tileRefs.current[tileKey(row.key, tile.lessonType)] = el;
                             }}
-                            className={cx('home-tile', `home-tile--${tile.lessonType}`, 'home-tile--history', isChosen && 'home-tile--chosen')}
-                          >
-                            <span className="home-tile__icon">{tile.icon}</span>
-                          </div>
+                            accent={tile.lessonType}
+                            icon={tile.icon}
+                            history
+                            chosen={isChosen}
+                          />
                         );
                       }
 
                       const key = tileKey(row.key, tile.lessonType);
                       return (
-                        <button
+                        <Tile
                           key={tile.lessonType}
-                          type="button"
                           ref={(el) => {
                             tileRefs.current[key] = el;
                           }}
-                          className={cx(
-                            'home-tile',
-                            `home-tile--${tile.lessonType}`,
-                            selected?.lessonType === tile.lessonType && 'home-tile--selected',
-                          )}
+                          accent={tile.lessonType}
+                          icon={tile.icon}
+                          selected={selected?.lessonType === tile.lessonType}
                           aria-pressed={selected?.lessonType === tile.lessonType}
                           onClick={() => setSelected((prev) => (prev?.lessonType === tile.lessonType ? null : tile))}
                           onMouseEnter={() => setHoveredKey(key)}
                           onMouseLeave={() => setHoveredKey((prev) => (prev === key ? null : prev))}
-                        >
-                          <span className="home-tile__icon">{tile.icon}</span>
-                        </button>
+                        />
                       );
                     })}
                   </div>

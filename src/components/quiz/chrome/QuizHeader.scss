@@ -17,8 +17,22 @@
 .quiz-header__center {
   flex: 1;
   display: flex;
+  align-items: center;
   justify-content: center;
+  gap: 0.5rem;
   padding: 0 1rem;
+}
+
+// A small debugging aid (see QuizHeader.jsx's LessonTypeBadge) — the same
+// icon/accent-color mapping the home page's own tiles use, just sized down
+// to sit quietly next to the progress dots rather than compete with them.
+.quiz-header__lesson-type {
+  flex: none;
+  font-family: var(--font-jp);
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--lesson-type-accent, var(--color-text-secondary));
 }
 
 @media (max-width: 768px) {
