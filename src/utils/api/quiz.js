@@ -2,10 +2,13 @@ import { makePostRequest, getUrl } from './common';
 import { TANGO_API_PREFIX } from './tango';
 
 export const quizApi = {
-  // { current, history } — current is the user's still-open lesson-choice
-  // row (get-or-created: the same row keeps coming back until its lesson is
-  // completed, so bailing out or reloading doesn't reshuffle), history is up
-  // to the 2 prior (completed) rows before it.
+  // { current: { options }, history: [{ id, lessonType, perfect, score,
+  // incorrectCount, completedAt, params }, ...] } — current's 3 options are
+  // freshly derived on every call, not persisted (a reload re-rolls them);
+  // history is the user's most recently completed lessons, most recent
+  // first, read straight from actual lesson records rather than anything
+  // resembling "the offer that led to it". `perfect` is true for a
+  // zero-wrong-answer lesson; the rest ride along for the UI to use later.
   getNextLessons: async () => {
     return makePostRequest(getUrl(`${TANGO_API_PREFIX}/quiz/next-lessons`));
   },
@@ -29,23 +32,13 @@ export const quizApi = {
       timezoneOffsetMinutes: new Date().getTimezoneOffset(),
     });
   },
-  // Records which tile the user picked on the home page against their
-  // current lesson-choice row — the lesson-generation endpoint below reads
-  // the same row back, so no lesson-selecting state needs to travel through
-  // the URL.
-  selectLessonChoice: async (choiceId, selectedType) => {
-    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/quiz/select-lesson-choice`), { choiceId, selectedType });
-  },
-  // Resolves the lesson type from the user's current lesson-choice row —
-  // defaults to NEW_WORDS if nothing's been selected (e.g. a direct /lesson
-  // visit). Pass `lessonType` to instead start a "bonus" lesson of that
-  // exact type (see Practice/Page.jsx) — the server skips reading/writing
-  // the home page's lesson-choice row entirely in that case, so it doesn't
-  // count as picking one of the day's suggested options, but the lesson
-  // itself still gets scored/recorded normally. `lessonParams` (optional)
-  // is extra data a seeded lesson type needs beyond the bare type string —
-  // e.g. word_spotlight's { seedWordId } — meaningless without a
-  // `lessonType` alongside it.
+  // Generates a lesson of `lessonType` — every caller passes one explicitly
+  // now (Home/Page.jsx picks one of getNextLessons' own recommended
+  // options, Practice/Page.jsx sends an explicit/bonus type the same way),
+  // falling back to NEW_WORDS server-side only for a direct /lesson visit
+  // with nothing to pass. `lessonParams` (optional) is extra data a seeded
+  // lesson type needs beyond the bare type string — e.g. word_spotlight's
+  // { seedWordId } — meaningless without a `lessonType` alongside it.
   generateLesson: async (lessonType = null, lessonParams = null) => {
     const body = lessonType ? { lessonType, ...(lessonParams ? { lessonParams } : {}) } : {};
     return makePostRequest(getUrl(`${TANGO_API_PREFIX}/quiz/generate-lesson`), body);

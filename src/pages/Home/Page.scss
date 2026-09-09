@@ -139,6 +139,15 @@
   gap: 1.5rem;
 }
 
+// A gap in the history "snake" (see the rows memo in Page.jsx) — takes up
+// exactly one tile's footprint so the row's other tiles still land on the
+// same column grid as every other row, but renders nothing at all.
+.home-tile-slot--empty {
+  flex: none;
+  width: var(--tile-size, 4.5rem);
+  height: var(--tile-size, 4.5rem);
+}
+
 // Points at the selected tile (`left` set inline from a measured position)
 // while the preview card stays centered under the row. Two placements —
 // below the row (default) or above it, when the card doesn't fit below —
