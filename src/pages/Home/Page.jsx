@@ -55,25 +55,23 @@ export function HomePage() {
   // last. Every row but the last is normally guaranteed to have a completed
   // lesson — a new row is only ever created once the previous one's lesson
   // is done — so only the last row is ever interactive; the rest are a
-  // fixed record of what was offered and picked. The most recent history
-  // row can still end up with no *resolvable* selection, though: either
-  // selectedType is null outright (e.g. a lesson started without ever going
-  // through the home page's own choice-recording flow — see
-  // startSelectedLesson), or it's set but doesn't match any of that row's
-  // own options (e.g. a bonus lesson from Practice/Page.jsx completed while
-  // this row was still pending, recording its own explicit type onto
-  // SelectedType regardless of what this row had actually offered). Either
-  // way there's no tile in the row itself to point a connector line at, so
-  // it's trimmed off the end here (and any further back too, on the off
-  // chance more than one in a row lack one) rather than rendered with
-  // nothing to show as chosen — the connector lines instead run from the
-  // most recent row that *does* have a selection matching one of its own
-  // options straight to the current row's own choices.
+  // fixed record of what was offered and picked. A history row can still
+  // end up with no *resolvable* selection, though: either selectedType is
+  // null outright (e.g. a lesson started without ever going through the
+  // home page's own choice-recording flow — see startSelectedLesson), or
+  // it's set but doesn't match any of that row's own options (e.g. an
+  // arbitrary lesson type started via Practice/Page.jsx while this row was
+  // still pending — completing it never touches this row at all, so it's
+  // left exactly as offered-but-never-answered). Either way there's no tile
+  // in the row itself to point a connector line at, so it's filtered out of
+  // rendering entirely here — anywhere in the history, not just trailing —
+  // rather than rendered with nothing to show as chosen. This is purely a
+  // display filter: the row still exists server-side (and still occupies
+  // one of the 5 history slots getNextLessons returns), it's just treated
+  // as though it were never offered for the connector-line chain and tile
+  // rendering below.
   const rows = useMemo(() => {
-    const historyRows = [...(history || [])].reverse();
-    while (historyRows.length > 0 && !historyRows[historyRows.length - 1].options.includes(historyRows[historyRows.length - 1].selectedType)) {
-      historyRows.pop();
-    }
+    const historyRows = [...(history || [])].reverse().filter((row) => row.options.includes(row.selectedType));
     const ordered = current ? [...historyRows, current] : historyRows;
     return ordered.map((row, index) => ({
       key: row.id || `row-${index}`,
