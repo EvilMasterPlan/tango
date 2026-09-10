@@ -1,0 +1,179 @@
+.profile-page {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.profile-page__header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 1.25rem 1.5rem;
+  background-color: var(--color-bg-primary);
+}
+
+.profile-page__nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.profile-page__menu {
+  margin-left: auto;
+}
+
+.profile-page__back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-primary);
+  font-size: 1.25rem;
+}
+
+.profile-page__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.profile-page__content {
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+// One bordered panel per section (Info, Security) — same surface/border
+// treatment as achievement-card, minus the pressable hover/press affordance
+// since these cards aren't clickable controls.
+.profile-card {
+  padding: 1.25rem 1.5rem;
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+}
+
+.profile-card__title {
+  margin: 0 0 1rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+// A thin rule between every row/block in a card but the first, so adding or
+// removing a row never needs its own first/last-child bookkeeping.
+.profile-card__body {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-card__body > * + * {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border-primary);
+}
+
+// A single label/value block (see the ProfileRow component in Page.jsx) —
+// label stacked above its value rather than side-by-side, so a long value
+// (an email address, a login timestamp) never has to compete with the
+// label for width on a narrow screen.
+.profile-card__row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.profile-card__row-label {
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.profile-card__row-value {
+  color: var(--color-text-primary);
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.profile-card__logins {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.profile-card__logins-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+// Two stacked lines per login: the main line (dot, timestamp, device) and,
+// only when present, a second "Ended ..." line below it — kept as two rows
+// rather than cramming both onto one, since the main line's device is
+// already claiming the row's own right edge (see `--device` below).
+.profile-card__logins-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  color: var(--color-text-primary);
+  font-size: 0.9rem;
+}
+
+.profile-card__logins-main {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+// Green for a still-active session, grey for one that's ended — same info
+// the "Active" / "Ended ..." text used to carry alone, now readable at a
+// glance; the exact status/timestamp is still available via the `title`
+// tooltip on this dot for anyone who wants it spelled out.
+.profile-card__logins-dot {
+  flex: 0 0 auto;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: var(--color-text-muted);
+}
+
+.profile-card__logins-dot--active {
+  background-color: var(--color-accent-secondary);
+}
+
+// Zero-padded day/time (see formatDateTime in Page.jsx) plus a tabular
+// number rendering keeps every row's timestamp the same width, so the
+// device column after it lines up cleanly row to row.
+.profile-card__logins-time {
+  font-variant-numeric: tabular-nums;
+}
+
+// Pushed to the row's right edge — "Mobile"/"Desktop" (or a specific device
+// name) reads as its own column rather than trailing the timestamp inline.
+.profile-card__logins-device {
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.profile-card__logins-status {
+  padding-left: 1rem;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.profile-card__logins-empty {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}

@@ -24,4 +24,11 @@ export const accountApi = {
   setPreference: async (key, value) => {
     return makePostRequest(getUrl(`${TANGO_API_PREFIX}/me/preference/set`), { key, value });
   },
+
+  // { logins: [{ loggedInAt, terminatedAt }, ...] }, most recent first,
+  // capped at 3 — terminatedAt is null for a still-active session. See
+  // Profile/Page.jsx's security section.
+  getLoginHistory: async () => {
+    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/me/login-history`));
+  },
 };

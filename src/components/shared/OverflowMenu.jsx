@@ -91,14 +91,26 @@ export function OverflowMenu({ currentPage, className }) {
             );
           })}
           <li className="shared-overflow-menu__divider" role="none">
-            <button
-              type="button"
-              className="shared-overflow-menu__item"
-              role="menuitem"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Profile
-            </button>
+            {currentPage === 'profile' ? (
+              <button
+                type="button"
+                className="shared-overflow-menu__item shared-overflow-menu__item--active"
+                role="menuitem"
+                aria-current="page"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Profile
+              </button>
+            ) : (
+              <Link
+                className="shared-overflow-menu__item"
+                role="menuitem"
+                to="/profile"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Profile
+              </Link>
+            )}
           </li>
           <li role="none">
             <button
