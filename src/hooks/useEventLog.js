@@ -12,7 +12,14 @@ const MOBILE_MAX_WIDTH = 768;
 // individual page needs to remember to call this itself. `page` is just the
 // route's own pathname; nothing here needs a separate per-page label the
 // way otter's PageContainer threads one through.
-export function useEventLog() {
+//
+// `eventType` defaults to 'view' (the app-root PageViewLogger's own call,
+// logged for every navigation regardless of whether a route matched) — the
+// only other caller is NotFoundPage, which uses this same hook with
+// 'not_found' so its own hit logs as that explicit EventType *in addition*
+// to the generic 'view' row the app-root logger already produces for the
+// same navigation, rather than instead of it.
+export function useEventLog(eventType = 'view') {
   const location = useLocation();
   const width = useViewportWidth();
 
@@ -24,6 +31,7 @@ export function useEventLog() {
         session: getViewSessionID(),
         path: location.pathname,
         search: location.search,
+        eventType,
       })
       .catch(() => {});
     // Deliberately excludes `width`: a page view is logged once per
@@ -31,5 +39,5 @@ export function useEventLog() {
     // breakpoint while the user stays on the same page (e.g. rotating a
     // device or resizing a window).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname, location.search]);
+  }, [location.pathname, location.search, eventType]);
 }

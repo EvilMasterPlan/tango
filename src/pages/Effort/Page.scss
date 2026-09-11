@@ -1,95 +1,10 @@
-.effort-page {
-  position: relative;
-  min-height: 100vh;
-  min-height: 100dvh;
-}
-
-// Same sticky-header + fade-into-background treatment as the other list
-// pages (Practice, Achievements, Overview) — content scrolling up under it
-// should fade out rather than get cut off by a hard edge.
-.effort-page__header {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.25rem 1.5rem;
-  background-color: var(--color-bg-primary);
-}
-
-.effort-page__header::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 100%;
-  height: 2.75rem;
-  pointer-events: none;
-  background-image: linear-gradient(to bottom, var(--color-bg-primary) 0, transparent 100%);
-}
-
-.effort-page__back {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-primary);
-  font-size: 1.25rem;
-}
-
-.effort-page__title {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-.effort-page__menu {
-  margin-left: auto;
-}
-
+// Top padding matches the sticky header's own fade-into-background height
+// (see Dashboard/Page.scss's __header::after and Overview's
+// overview-page__content, which does the same) — otherwise the calendar
+// starts out already partway under the fade before any scrolling has
+// happened. The calendar/trend chart's own styling lives in the shared
+// ActivityLineChart.scss now (also used by the admin dashboard).
 .effort-page__content {
   position: relative;
-  // Top matches __header::after's height — otherwise the calendar starts
-  // out already partway under the fade before any scrolling has happened.
   padding: 2.75rem 1.5rem 2rem;
-}
-
-// The full year's worth of weeks is wider than a phone screen, so this
-// scrolls horizontally on its own rather than letting the page itself grow
-// wider than the viewport.
-.effort-page__calendar-wrap {
-  max-width: 54rem;
-  margin: 0 auto;
-  overflow-x: auto;
-  padding-bottom: 0.5rem;
-}
-
-.effort-page__trend {
-  max-width: 54rem;
-  margin: 2rem auto 0;
-}
-
-.effort-page__trend-title {
-  margin: 0 0 0.75rem;
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--color-text-secondary);
-}
-
-.effort-page__trend-tooltip {
-  padding: 0.5rem 0.75rem;
-  background-color: var(--color-bg-secondary);
-  border: 1px solid var(--color-border-primary);
-  border-radius: var(--radius-sm);
-}
-
-.effort-page__trend-tooltip-date {
-  font-size: 0.75rem;
-  color: var(--color-text-secondary);
-}
-
-.effort-page__trend-tooltip-count {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--color-text-primary);
 }

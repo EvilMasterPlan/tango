@@ -1,0 +1,39 @@
+.trend-line-chart {
+  position: relative;
+  // Recharts' ResponsiveContainer measures *this* element's width, so it
+  // needs an explicit non-auto width here — inside a flex column (the
+  // admin dashboard stacks two of these), align-items: stretch never
+  // kicks in when the cross-axis margins are both auto (exactly what
+  // centering via margin: 0 auto does), so without this the item shrinks
+  // to its content's own min-width instead of filling the container,
+  // and the chart renders tiny. width: 100% (capped by max-width, then
+  // centered by the auto margins as before) sidesteps that entirely.
+  width: 100%;
+  max-width: 54rem;
+  margin: 0 auto;
+}
+
+.trend-line-chart__title {
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.trend-line-chart__tooltip {
+  padding: 0.5rem 0.75rem;
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-sm);
+}
+
+.trend-line-chart__tooltip-date {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.trend-line-chart__tooltip-count {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}

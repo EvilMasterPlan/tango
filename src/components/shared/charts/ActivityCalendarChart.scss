@@ -1,0 +1,13 @@
+.activity-calendar-chart {
+  position: relative;
+}
+
+// The full window's worth of weeks is wider than a phone screen, so this
+// scrolls horizontally on its own rather than letting the page itself grow
+// wider than the viewport.
+.activity-calendar-chart__wrap {
+  max-width: 54rem;
+  margin: 0 auto;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}

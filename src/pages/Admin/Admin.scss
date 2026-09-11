@@ -1,0 +1,355 @@
+.admin-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.admin-page__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.admin-page__back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-primary);
+  font-size: 1.25rem;
+}
+
+.admin-page__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.admin-page__content {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 0 1.5rem 2rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.admin-page__section {
+  margin-top: 2.5rem;
+}
+
+.admin-page__section-title {
+  margin: 0 0 0.5rem;
+  color: var(--color-text-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.admin-page__section-subtitle {
+  margin: 0 0 0.75rem;
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+}
+
+// The hub's links out to each subpage — plain button-styled links, no
+// per-page icon/accent needed yet since there's nothing to visually
+// distinguish them by (unlike Practice's per-lesson-type cards).
+.admin-page__links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.admin-page__link {
+  display: block;
+  padding: 0.9rem 1.1rem;
+  color: var(--color-text-primary);
+  font-weight: 700;
+  text-decoration: none;
+  background-color: var(--color-bg-secondary);
+  border: 2px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+}
+
+.admin-page__link:hover {
+  border-color: var(--color-accent-primary);
+}
+
+// All-time totals — sits between the activity calendar and the timeframe
+// dropdown (see Admin/Dashboard/Page.jsx), since these aren't affected by
+// it the way the trend charts below are.
+.admin-page__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  max-width: 54rem;
+  margin: 2rem auto 0;
+}
+
+.admin-page__stat {
+  flex: 1 1 12rem;
+  padding: 1rem 1.25rem;
+  background-color: var(--color-bg-secondary);
+  border: 2px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+}
+
+.admin-page__stat-value {
+  color: var(--color-text-primary);
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-page__stat-label {
+  margin-top: 0.15rem;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.admin-page__stat-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.5rem;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+// Governs both trend charts below it at once (see Admin/Dashboard/
+// Page.jsx) — sits between the fixed-window calendar above and the
+// charts it drives, so its effect on them reads as immediate.
+.admin-page__timeframe {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 2rem auto 0;
+  max-width: 54rem;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.admin-page__timeframe-select {
+  padding: 0.4rem 0.6rem;
+  color: var(--color-text-primary);
+  font: inherit;
+  background-color: var(--color-bg-secondary);
+  border: 2px solid var(--color-border-primary);
+  border-radius: var(--radius-sm);
+}
+
+.admin-page__trend-charts {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  margin-top: 1.5rem;
+}
+
+// The Spotlight page's search box — deliberately roomier than the app's
+// usual compact filter/sort controls (larger font, more vertical padding),
+// since it's the sole focus at the top of an otherwise-empty page rather
+// than one control among several in a header row.
+.admin-page__search {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding: 0.9rem 1.25rem;
+  background-color: var(--color-bg-secondary);
+  border: 2px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+}
+
+.admin-page__search:focus-within {
+  border-color: var(--color-accent-primary);
+}
+
+.admin-page__search-icon {
+  flex: 0 0 auto;
+  color: var(--color-text-secondary);
+  font-size: 1.25rem;
+}
+
+.admin-page__search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--color-text-primary);
+  font: inherit;
+  font-size: 1.05rem;
+  background: none;
+  border: none;
+}
+
+.admin-page__search-input:focus {
+  outline: none;
+}
+
+.admin-page__search-input::placeholder {
+  color: var(--color-text-disabled);
+}
+
+.admin-page__results {
+  margin-top: 1.5rem;
+}
+
+.admin-page__empty {
+  color: var(--color-text-secondary);
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.admin-page__user-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 1rem;
+}
+
+// Same "3D pressable" surface as the rest of the app's cards (achievement
+// cards, practice cards) even though clicking one doesn't do anything yet
+// — the affordance signals "this will be a control" ahead of whatever
+// per-user action lands here.
+.admin-page__user-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1rem 1.1rem;
+  text-align: left;
+  color: var(--color-text-primary);
+  text-decoration: none;
+  background-color: var(--color-bg-secondary);
+  border: 2px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.admin-page__user-card:hover {
+  border-color: var(--color-accent-primary);
+}
+
+.admin-page__user-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.admin-page__user-card-email {
+  overflow: hidden;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-page__user-card-plan {
+  flex: 0 0 auto;
+  padding: 0.15rem 0.5rem;
+  color: var(--color-accent-secondary);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  background-color: color-mix(in srgb, var(--color-accent-secondary) 15%, transparent);
+  border-radius: var(--radius-sm);
+}
+
+.admin-page__user-card-handle {
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+}
+
+.admin-page__user-card-id {
+  overflow: hidden;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-family: monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-page__user-card-joined {
+  margin-top: auto;
+  padding-top: 0.35rem;
+  color: var(--color-text-disabled);
+  font-size: 0.75rem;
+}
+
+// Wraps the spotlight detail page's own content (below the shared
+// admin-page__content) so LoadingOverlay has a positioned, non-collapsing
+// ancestor to fill while the user/eventLogs fetch is in flight — the other
+// admin pages don't need this since none of them render LoadingOverlay
+// directly against admin-page__content itself.
+.admin-page__detail {
+  position: relative;
+  min-height: 40vh;
+}
+
+.admin-page__user-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.admin-page__user-detail-email {
+  color: var(--color-text-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+// Generic ranked/tabular data table — the spotlight detail page's event
+// log (Admin/Spotlight/Detail/Page.jsx) and the security page's three
+// ranked 404 breakdowns (Admin/Security/Page.jsx) both use this same face.
+.admin-page__table-wrap {
+  max-width: 54rem;
+  overflow-x: auto;
+}
+
+.admin-page__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.admin-page__table th {
+  padding: 0.5rem 0.75rem;
+  color: var(--color-text-secondary);
+  font-weight: 700;
+  text-align: left;
+  border-bottom: 2px solid var(--color-border-primary);
+}
+
+// The security page links a user's email straight to their spotlight
+// detail page — same accent color as the rest of the app's links, not the
+// browser default blue-and-underlined, which would clash with everything
+// else in this dark theme.
+.admin-page__table td a {
+  color: var(--color-accent-primary);
+  text-decoration: none;
+}
+
+.admin-page__table td a:hover {
+  text-decoration: underline;
+}
+
+.admin-page__table td {
+  max-width: 16rem;
+  padding: 0.5rem 0.75rem;
+  overflow: hidden;
+  color: var(--color-text-primary);
+  text-overflow: ellipsis;
+  border-bottom: 1px solid var(--color-border-primary);
+}
+
+.admin-page__table tr:last-child td {
+  border-bottom: none;
+}
+
+// Right-aligned numeric columns (rank, hit count) read better lined up on
+// their ones-place than left-aligned like the rest of a row's text cells.
+.admin-page__table-numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}

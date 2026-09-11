@@ -1,0 +1,7 @@
+.radar-chart-preview {
+  display: grid;
+  grid-template-columns: repeat(6, auto);
+  gap: 2rem;
+  padding: 2rem;
+  overflow-x: auto;
+}

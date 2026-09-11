@@ -1,8 +1,6 @@
 import { useMemo } from 'react';
-import { Helmet } from 'react-helmet-async';
-import { RadarChart } from '@/components/quiz/charts/RadarChart';
 import { GemChart } from '@/components/quiz/charts/GemChart';
-import './Page.scss';
+import '@/pages/Admin/RadarChartPreview.scss';
 
 // One value per column-pair / row-pair — see buildGrid below. The real app
 // always uses exactly 5 fixed skill keys; the extra axis counts here are
@@ -42,31 +40,25 @@ function buildGrid() {
   });
 }
 
-export function RadarDebugPage() {
+// Was its own standalone (unauthenticated) /debug/radar page — moved here
+// as one section of the admin hub now that the hub gates on sign-in + the
+// admin role, so it doesn't need its own separate access story anymore.
+export function RadarChartPreview() {
   // Generated once per mount rather than per render, so the grid doesn't
   // reshuffle itself on every unrelated re-render.
   const charts = useMemo(buildGrid, []);
 
   return (
-    <>
-      <Helmet>
-        <title>Tango Tanuki - Radar Debug</title>
-        <meta name="robots" content="noindex" />
-      </Helmet>
-
-      <div className="radar-debug">
-        <div className="radar-debug__grid">
-          {charts.map((chart) => (
-            <GemChart
-              key={chart.id}
-              values={chart.correctCounts}
-              previewIndex={chart.previewIndex}
-              iteration={ITERATION}
-              iterationsForNextLevel={chart.steps}
-            />
-          ))}
-        </div>
-      </div>
-    </>
+    <div className="radar-chart-preview">
+      {charts.map((chart) => (
+        <GemChart
+          key={chart.id}
+          values={chart.correctCounts}
+          previewIndex={chart.previewIndex}
+          iteration={ITERATION}
+          iterationsForNextLevel={chart.steps}
+        />
+      ))}
+    </div>
   );
 }
