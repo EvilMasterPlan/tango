@@ -1,19 +1,21 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 import { cx } from '@/utils/cx';
 import { IconButton } from '@/components/shared/IconButton';
 import { SettingsDialog } from '@/components/quiz/chrome/SettingsDialog';
+import { useDismissablePopover } from '@/hooks/useDismissablePopover';
 import './OverflowMenu.scss';
 
 // Every page this menu can link to, keyed by the page it represents so
-// `currentPage` can mark that page's own entry active.
+// `currentPage` can mark that page's own entry active. Words/Effort/
+// Achievements collapsed into the single combined /overview page (see
+// pages/Dashboard) — their standalone routes still work (bookmarks, direct
+// links) but are no longer surfaced here.
 const MENU_ITEMS = [
   { key: 'home', label: 'Home', to: '/home' },
-  { key: 'overview', label: 'Words', to: '/words' },
+  { key: 'overview', label: 'Overview', to: '/overview' },
   { key: 'practice', label: 'Practice', to: '/practice' },
-  { key: 'effort', label: 'Effort', to: '/effort' },
-  { key: 'achievements', label: 'Achievements', to: '/achievements' },
 ];
 
 // Not a page to navigate to (no `to`, and never the "current" entry) — an
@@ -29,31 +31,7 @@ const SETTINGS_ITEM = { key: 'settings', label: 'Settings' };
 export function OverflowMenu({ currentPage, className }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const menuRef = useRef(null);
-
-  // Closes on an outside click/tap or Escape — the two standard ways to
-  // dismiss a popup menu without picking an option.
-  useEffect(() => {
-    if (!isMenuOpen) return undefined;
-
-    function handlePointerDown(event) {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setIsMenuOpen(false);
-      }
-    }
-    function handleKeyDown(event) {
-      if (event.key === 'Escape') {
-        setIsMenuOpen(false);
-      }
-    }
-
-    document.addEventListener('mousedown', handlePointerDown);
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', handlePointerDown);
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isMenuOpen]);
+  const menuRef = useDismissablePopover(isMenuOpen, () => setIsMenuOpen(false));
 
   return (
     <div className={cx('shared-overflow-menu', className)} ref={menuRef}>

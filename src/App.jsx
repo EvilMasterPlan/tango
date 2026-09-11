@@ -1,12 +1,10 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { MarketingContainer } from '@/pages/Marketing/Container';
 import { HomeContainer } from '@/pages/Home/Container';
 import { LessonContainer } from '@/pages/Lesson/Container';
-import { OverviewContainer } from '@/pages/Overview/Container';
+import { DashboardContainer } from '@/pages/Dashboard/Container';
 import { PracticeContainer } from '@/pages/Practice/Container';
-import { EffortContainer } from '@/pages/Effort/Container';
-import { AchievementsContainer } from '@/pages/Achievements/Container';
 import { ProfileContainer } from '@/pages/Profile/Container';
 import { RadarDebugContainer } from '@/pages/Debug/Radar/Container';
 import AccountRoutes from '@/pages/account/AccountRoutes';
@@ -51,34 +49,24 @@ function App() {
                   }
                 />
                 <Route
-                  path="/words"
+                  path="/overview"
                   element={
                     <RequireAuth>
-                      <OverviewContainer />
+                      <DashboardContainer />
                     </RequireAuth>
                   }
                 />
+                {/* Collapsed into /overview's mode switcher (see
+                    pages/Dashboard) — kept as redirects rather than deleted
+                    outright so old bookmarks/links still land somewhere. */}
+                <Route path="/words" element={<Navigate to="/overview" replace />} />
+                <Route path="/effort" element={<Navigate to="/overview?mode=effort" replace />} />
+                <Route path="/achievements" element={<Navigate to="/overview?mode=achievement" replace />} />
                 <Route
                   path="/practice"
                   element={
                     <RequireAuth>
                       <PracticeContainer />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/effort"
-                  element={
-                    <RequireAuth>
-                      <EffortContainer />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/achievements"
-                  element={
-                    <RequireAuth>
-                      <AchievementsContainer />
                     </RequireAuth>
                   }
                 />

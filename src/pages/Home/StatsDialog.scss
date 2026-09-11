@@ -22,6 +22,18 @@
   color: var(--color-text-primary);
 }
 
+// Sits between the gem icon and its progress bar — a fixed width so every
+// row's bar starts at the same horizontal position regardless of the
+// level's own label width (N5 vs N1 are both 2 characters, but this keeps
+// it robust either way).
+.stats-dialog__level-label {
+  flex: 0 0 auto;
+  width: 1.6rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
 .stats-dialog__bar-track {
   position: relative;
   flex: 1 1 auto;
@@ -49,4 +61,8 @@
   font-weight: 700;
   color: #ffffff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.stats-dialog__achievements-button {
+  margin-top: 1rem;
 }

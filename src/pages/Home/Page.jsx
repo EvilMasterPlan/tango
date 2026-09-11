@@ -7,8 +7,10 @@ import { Tile } from '@/components/shared/Tile';
 import { useNextLessons } from '@/hooks/useNextLessons';
 import { useOverallStats } from '@/hooks/useOverallStats';
 import { useMinimumLoadingDuration } from '@/hooks/useMinimumLoadingDuration';
+import { useUserContext } from '@/contexts/UserContext';
 import { cx } from '@/utils/cx';
 import { HomeHeader } from '@/pages/Home/HomeHeader';
+import { OnboardingOverlay } from '@/pages/Home/OnboardingOverlay';
 import { LESSON_METADATA_BY_LESSON_TYPE } from '@/utils/lessonTypeMetadata';
 import '@/pages/Home/Page.scss';
 
@@ -58,6 +60,7 @@ export function HomePage() {
   const { current, history, isLoading: isLessonsLoading } = useNextLessons();
   const { points, wordsDiscovered, jlptLevels, isLoading: isStatsLoading } = useOverallStats();
   const showLoading = useMinimumLoadingDuration(isLessonsLoading || isStatsLoading);
+  const { user, refreshUser } = useUserContext();
 
   // Most-recent-first (the order history already arrives in) — each entry
   // is one completed lesson (see the "snake" layout below). The API already
@@ -529,6 +532,14 @@ export function HomePage() {
           <LoadingOverlay active={showLoading} />
         </div>
       </div>
+
+      {/* user is only known once UserProvider's own initial load finishes
+          (see UserContext.jsx) — checking `user.onboarded` before then would
+          either flash the wizard for an already-onboarded user or miss it
+          for a new one, so this waits for a real answer either way. */}
+      {user && !user.onboarded && (
+        <OnboardingOverlay hasHandle={Boolean(user.handle)} onComplete={refreshUser} />
+      )}
     </>
   );
 }

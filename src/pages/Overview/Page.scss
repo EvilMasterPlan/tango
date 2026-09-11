@@ -87,7 +87,7 @@
   font-size: 0.85rem;
   font-weight: 600;
   background-color: transparent;
-  border: none;
+  border: 2px solid transparent;
   border-radius: 0.5rem;
 }
 
@@ -108,6 +108,14 @@
 .overview-page__filters {
   display: flex;
   gap: 0.5rem;
+}
+
+// The full inline row (filters + toggles) is the default; swapped for the
+// collapsed FilterButton/SortButton pair below 768px (see the media query
+// at the bottom of this file), since 5 filter buttons + 3 sort toggles
+// side by side run off the edge of a phone screen.
+.overview-page__controls--mobile {
+  display: none;
 }
 
 .overview-page__filter-option {
@@ -150,6 +158,81 @@
   color: hsl(0, 75%, 35%);
   background-color: hsl(0, 75%, 90%);
   border-color: hsl(0, 75%, 60%);
+}
+
+// Anchors a mobile FilterButton/SortButton's popup to its own trigger,
+// same as OverflowMenu's own wrapper/list positioning.
+.overview-page__mobile-control {
+  position: relative;
+  flex: 1 1 0;
+}
+
+.overview-page__mobile-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.5rem 0.9rem;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  background-color: var(--color-bg-secondary);
+  border: 2px solid transparent;
+  border-radius: 0.5rem;
+}
+
+.overview-page__mobile-trigger--active {
+  color: var(--color-text-primary);
+  border-color: var(--color-border-primary);
+}
+
+.overview-page__mobile-popup {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  z-index: 4;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.6rem;
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px 0 var(--color-shadow-medium);
+}
+
+// The sort popup's ToggleButtons stack full-width (only three of them, no
+// wrapping needed) rather than the filter popup's wrapped row of five
+// short level buttons.
+.overview-page__mobile-popup .overview-page__toggle {
+  flex: 1 1 auto;
+  justify-content: flex-start;
+  background-color: var(--color-bg-primary);
+}
+
+// Same blue used for the N5 filter option's active state — the popup's own
+// bg-secondary makes the plain __toggle--active look (bg-secondary on
+// bg-secondary) invisible, so the currently-selected sort needs a color of
+// its own here rather than reusing the desktop row's subtler highlight.
+.overview-page__mobile-popup .overview-page__toggle--active {
+  color: hsl(210, 75%, 30%);
+  background-color: hsl(210, 75%, 90%);
+  border-color: hsl(210, 75%, 60%);
+}
+
+.overview-page__mobile-popup .overview-page__toggle--active .overview-page__toggle-arrow {
+  color: hsl(210, 75%, 30%);
+}
+
+// The filter popup shares the same bg-secondary as its trigger/toggle
+// counterparts above, so an unselected filter-option (also bg-secondary)
+// would otherwise blend into the popup — give it the same primary-bg
+// contrast the sort toggles get, but only while inactive so it doesn't
+// wash out the per-level active hues below.
+.overview-page__mobile-popup .overview-page__filter-option:not(.overview-page__filter-option--active) {
+  background-color: var(--color-bg-primary);
 }
 
 .overview-page__content {
@@ -201,6 +284,14 @@
 @media (max-width: 768px) {
   .overview-page__grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .overview-page__controls--desktop {
+    display: none;
+  }
+
+  .overview-page__controls--mobile {
+    display: flex;
   }
 }
 

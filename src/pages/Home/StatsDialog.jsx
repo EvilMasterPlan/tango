@@ -1,6 +1,8 @@
+import { useNavigate } from 'react-router-dom';
 import { CoinIcon } from '@/components/quiz/summary/CoinIcon';
 import { GEM_HUES, MasteryGemIcon } from '@/components/shared/MasteryGemIcon';
 import { Modal } from '@/components/shared/Modal';
+import { Button } from '@/components/shared/Button';
 import { jlptGemColor } from '@/utils/jlptGemColor';
 import './StatsDialog.scss';
 
@@ -11,8 +13,10 @@ import './StatsDialog.scss';
 // `useOverallStats`'s own array (see Home/Page.jsx), already in ascending
 // N5-N1 order straight from the API.
 export function StatsDialog({ points, jlptLevels, onClose }) {
+  const navigate = useNavigate();
+
   return (
-    <Modal title="Your Stats" onClose={onClose} className="stats-dialog">
+    <Modal title="Your Progress" onClose={onClose} className="stats-dialog">
       <div className="stats-dialog__row">
         <CoinIcon />
         <span className="stats-dialog__label">{points}</span>
@@ -23,6 +27,7 @@ export function StatsDialog({ points, jlptLevels, onClose }) {
         return (
           <div className="stats-dialog__row" key={level}>
             <MasteryGemIcon className="stats-dialog__gem-icon" color={jlptGemColor(level)} />
+            <span className="stats-dialog__level-label">{level}</span>
             <div className="stats-dialog__bar-track">
               <div className="stats-dialog__bar-fill" style={{ width: `${percent}%`, backgroundColor: `hsl(${hue}, 65%, 45%)` }} />
               <span className="stats-dialog__bar-label">
@@ -32,6 +37,9 @@ export function StatsDialog({ points, jlptLevels, onClose }) {
           </div>
         );
       })}
+      <Button className="stats-dialog__achievements-button" variant="secondary" onClick={() => navigate('/overview?mode=achievement')}>
+        See Achievements
+      </Button>
     </Modal>
   );
 }

@@ -1,0 +1,217 @@
+// Full-screen dimmed backdrop, same treatment as Modal's own — this just
+// centers the actual wizard card below rather than holding content itself.
+.onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+// The wizard card — same surface/border treatment as .shared-modal, sized
+// a bit taller/narrower to read as a focused, one-thing-at-a-time step
+// rather than a settings dialog.
+.onboarding-overlay__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+  max-width: 30rem;
+  padding: 2.5rem 2rem 2rem;
+  background-color: var(--color-bg-primary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-lg);
+}
+
+.onboarding-overlay__dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+// The largest dot variant (--current) sets the slot size — every slot is
+// this size regardless of the dot it holds, so the row's width is fixed and
+// advancing a stage doesn't shift the other dots (same trick as
+// QuizProgress's own slots).
+.onboarding-overlay__dot-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.9rem;
+  height: 0.9rem;
+  flex-shrink: 0;
+}
+
+.onboarding-overlay__dot {
+  display: block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: var(--color-text-disabled);
+  opacity: 0.5;
+  transition: width var(--transition-fast), height var(--transition-fast),
+    background-color var(--transition-fast), opacity var(--transition-fast);
+}
+
+// A completed stage — green, but back at the resting size once the current
+// stage (below) has moved past it.
+.onboarding-overlay__dot--done {
+  background-color: var(--color-accent-secondary);
+  opacity: 1;
+}
+
+// The stage on screen right now — green and largest, same "current" role
+// QuizProgress's own largest/brightest dot plays.
+.onboarding-overlay__dot--current {
+  width: 0.9rem;
+  height: 0.9rem;
+  background-color: var(--color-accent-secondary);
+  opacity: 1;
+}
+
+.onboarding-overlay__content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+
+.onboarding-overlay__text {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.onboarding-overlay__handle-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.onboarding-overlay__handle-stage .shared-field {
+  width: 100%;
+}
+
+// Always present (see OnboardingOverlay.jsx) so the status line's own
+// height is reserved from the start — sized to the line it holds, so it
+// fading in/out never nudges the TextField or Continue button around it.
+.onboarding-overlay__handle-status-slot {
+  display: flex;
+  align-items: center;
+  height: 1.25rem;
+}
+
+// Fades in on mount rather than transitioning an opacity change in place —
+// this element is only ever rendered once there's an available/taken
+// result to show (see OnboardingOverlay.jsx), so "on mount" and "as soon as
+// the result comes in" are the same moment.
+.onboarding-overlay__handle-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  animation: onboarding-handle-status-fade-in 0.2s ease-out;
+}
+
+@keyframes onboarding-handle-status-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.onboarding-overlay__handle-status-dot {
+  flex: 0 0 auto;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+}
+
+.onboarding-overlay__handle-status--available {
+  color: var(--color-accent-secondary);
+}
+
+.onboarding-overlay__handle-status--available .onboarding-overlay__handle-status-dot {
+  background-color: var(--color-accent-secondary);
+}
+
+.onboarding-overlay__handle-status--taken {
+  color: var(--color-accent-error);
+}
+
+.onboarding-overlay__handle-status--taken .onboarding-overlay__handle-status-dot {
+  background-color: var(--color-accent-error);
+}
+
+// Phase-2 gem demo — MasteryGem/GemChart size to fit small in-app spots
+// (word tiles, quiz summary rows) by default; blown up here since this is
+// the one time the gem itself is the whole point of the screen rather than
+// an icon alongside other content.
+.onboarding-overlay__gem-demo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.onboarding-overlay__gem-demo .gem-chart {
+  width: 9rem;
+  height: 9rem;
+}
+
+// This is a fabricated demo shape rather than a real word (see
+// DEMO_MASTERY), so the "Level 1" label underneath — accurate for a real
+// mastery gem, meaningless here — is hidden rather than shown.
+.onboarding-overlay__gem-demo .mastery-gem__level {
+  display: none;
+}
+
+.onboarding-overlay__gem-demo-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.onboarding-overlay__gem-demo-caption {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+// Phase-3 word demo — VocabularyDisplay is designed to sit in a wider quiz
+// card; centered here in the narrower onboarding panel instead, with its
+// caption stacked below using the same styling as the gem demo's.
+.onboarding-overlay__word-demo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+// VocabularyDisplay's own font sizes are tuned for the quiz page's full-
+// width card — dialed back here so the word block reads as a small preview
+// rather than dominating the onboarding step the way it does mid-quiz.
+.onboarding-overlay__word-demo .vocabulary-display__prompt--word,
+.onboarding-overlay__word-demo .vocabulary-display__prompt--furigana {
+  font-size: 2.25rem;
+}
+
+.onboarding-overlay__word-demo .vocabulary-display__prompt--reading,
+.onboarding-overlay__word-demo .vocabulary-display__prompt--definition {
+  font-size: 1rem;
+}

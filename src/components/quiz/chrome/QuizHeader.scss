@@ -1,4 +1,5 @@
 .quiz-header {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -19,20 +20,79 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.85rem;
   padding: 0 1rem;
 }
 
-// A small debugging aid (see QuizHeader.jsx's LessonTypeBadge) — the same
-// icon/accent-color mapping the home page's own tiles use, just sized down
-// to sit quietly next to the progress dots rather than compete with them.
+// The same icon/accent-color mapping the home page's own tiles use (see
+// QuizHeader.jsx's LessonTypeBadge), sized down to sit quietly next to the
+// progress dots rather than compete with them.
 .quiz-header__lesson-type {
   flex: none;
+  display: inline-flex;
+}
+
+.quiz-header__lesson-type-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  background: none;
   font-family: var(--font-jp);
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.85rem;
   line-height: 1;
   color: var(--lesson-type-accent, var(--color-text-secondary));
+  cursor: pointer;
+}
+
+// Hidden by default, faded in on hover (mouse) or via
+// .quiz-header__lesson-type--open (click/tap — tracked in JS since hover
+// alone doesn't cover touch). Same bubble treatment as SettingsDialog's own
+// InfoTooltip. Anchored to .quiz-header itself (the closest positioned
+// ancestor) rather than to the badge it's nested in — the badge sits
+// wherever the progress dots push it, often well left of the header's own
+// center, so centering on the badge could shove more than half the tooltip
+// past the left edge of a narrow (mobile) viewport. Centering on the full
+// header width instead keeps it within the viewport regardless of where
+// the badge itself lands.
+.quiz-header__lesson-type-tooltip {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 0.5rem);
+  transform: translate(-50%, -4px);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  width: max-content;
+  max-width: min(14rem, calc(100vw - 2rem));
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-primary);
+  background-color: var(--color-bg-tertiary);
+  box-shadow: 0 4px 12px 0 var(--color-shadow-medium);
+  color: var(--color-text-primary);
+  font-family: var(--font-default);
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+
+.quiz-header__lesson-type-tooltip strong {
+  font-size: 0.85rem;
+}
+
+.quiz-header__lesson-type:hover .quiz-header__lesson-type-tooltip,
+.quiz-header__lesson-type--open .quiz-header__lesson-type-tooltip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  pointer-events: auto;
 }
 
 @media (max-width: 768px) {

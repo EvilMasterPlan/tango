@@ -31,4 +31,26 @@ export const accountApi = {
   getLoginHistory: async () => {
     return makePostRequest(getUrl(`${TANGO_API_PREFIX}/me/login-history`));
   },
+
+  // Marks the account as having finished the first-run onboarding wizard
+  // (see Home/OnboardingOverlay.jsx) — one-way; there's no corresponding
+  // "un-onboard" call.
+  completeOnboarding: async () => {
+    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/me/complete-onboarding`));
+  },
+
+  // Resolves (200) if `handle` could be claimed right now, rejects (409,
+  // already taken; 400, bad format) otherwise — never mutates anything. See
+  // OnboardingOverlay.jsx's debounced live-availability check.
+  checkHandleAvailability: async (handle) => {
+    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/me/handle/check`), { handle });
+  },
+
+  // Sets the account's @handle — once; rejects 409 if the account already
+  // has one, or if `handle` has since been taken by someone else. See the
+  // backend's tango/user.js setHandle for why this isn't a general-purpose
+  // "change your handle" call.
+  setHandle: async (handle) => {
+    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/me/handle/set`), { handle });
+  },
 };

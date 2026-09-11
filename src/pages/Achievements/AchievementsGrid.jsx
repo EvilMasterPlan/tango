@@ -1,9 +1,6 @@
-import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
-import { IoArrowBack, IoCheckmarkCircle } from 'react-icons/io5';
+import { IoCheckmarkCircle } from 'react-icons/io5';
 import { cx } from '@/utils/cx';
 import { LoadingOverlay } from '@/components/shared/LoadingOverlay';
-import { OverflowMenu } from '@/components/shared/OverflowMenu';
 import { useAchievements } from '@/hooks/useAchievements';
 import '@/pages/Achievements/Page.scss';
 
@@ -18,7 +15,7 @@ const displayName = (name) => name.replace(TRAILING_NUMERAL, '');
 
 // Picks the tier a channel's card should show (the lowest not-yet-completed
 // one, or the last tier once every tier is completed) plus that tier's
-// progress fraction — shared by AchievementsPage (to sort channels by
+// progress fraction — shared by AchievementsGrid (to sort channels by
 // closeness to completion) and ChannelCard (to render), so there's exactly
 // one place that decides which tier is "active".
 function getActiveTierProgress(current, tiers) {
@@ -55,7 +52,11 @@ function ChannelCard({ current, activeTier, progress }) {
   );
 }
 
-export function AchievementsPage() {
+// Self-contained: fetches its own data via useAchievements, so it can be
+// dropped into the standalone /achievements page or the combined /overview
+// page's Achievements mode (see pages/Dashboard) without either one needing
+// to know about the fetch.
+export function AchievementsGrid() {
   const { achievements, isLoading } = useAchievements();
 
   // Closest-to-completion first, so the achievements a user is most likely
@@ -66,35 +67,16 @@ export function AchievementsPage() {
     .sort((a, b) => b.progress - a.progress);
 
   return (
-    <>
-      <Helmet>
-        <title>Achievements</title>
-      </Helmet>
-      <div className="achievements-page">
-        <header className="achievements-page__header">
-          <div className="achievements-page__nav">
-            <Link to="/home" className="achievements-page__back" aria-label="Back to home">
-              <IoArrowBack />
-            </Link>
-            <h1 className="achievements-page__title">Achievements</h1>
-            <OverflowMenu currentPage="achievements" className="achievements-page__menu" />
-          </div>
-        </header>
+    <div className="achievements-page__content">
+      {!isLoading && channels.length === 0 && <p className="achievements-page__empty">No achievements yet.</p>}
 
-        <div className="achievements-page__content">
-          {!isLoading && channels.length === 0 && (
-            <p className="achievements-page__empty">No achievements yet.</p>
-          )}
-
-          <div className="achievements-page__grid">
-            {channels.map(({ channel, current, activeTier, progress }) => (
-              <ChannelCard key={channel} current={current} activeTier={activeTier} progress={progress} />
-            ))}
-          </div>
-
-          <LoadingOverlay active={isLoading} />
-        </div>
+      <div className="achievements-page__grid">
+        {channels.map(({ channel, current, activeTier, progress }) => (
+          <ChannelCard key={channel} current={current} activeTier={activeTier} progress={progress} />
+        ))}
       </div>
-    </>
+
+      <LoadingOverlay active={isLoading} />
+    </div>
   );
 }

@@ -8,15 +8,28 @@ import { useUserContext } from '@/contexts/UserContext';
 import { FREE_JLPT_LEVEL, hasFullAccess } from '@/utils/planAccess';
 import '@/pages/Practice/Page.scss';
 
-// Visually grouped into "regular" lesson types and the JLPT ladder, with
-// extra spacing between the two groups (see .practice-page__list's gap vs
-// .practice-page__group's) — the JLPT block reads as a separate progression
-// rather than just five more items in the same list. Derived from
-// ALL_LESSON_TYPES by the 'jlpt_' prefix rather than hand-listed, so it
-// can't drift out of sync with that list's own ordering.
+// Visually grouped into three blocks — general lesson types, the
+// per-question-type lessons, and the JLPT ladder — with extra spacing
+// between each (see .practice-page__list's gap vs .practice-page__group's)
+// so each reads as its own progression rather than just more items in the
+// same list. QUESTION_TYPE_LESSON_TYPES is hand-listed (it mirrors the
+// backend's QUESTION_TYPE_VARIANTS — see lessonTypeMetadata.js's comment on
+// those entries) since there's no shared prefix to derive it from the way
+// JLPT_LESSON_TYPES is; GENERAL_LESSON_TYPES is just "everything else"
+// so a newly added general lesson type doesn't need this list touched too.
 const JLPT_LESSON_TYPES = ALL_LESSON_TYPES.filter((lessonType) => lessonType.startsWith('jlpt_'));
-const OTHER_LESSON_TYPES = ALL_LESSON_TYPES.filter((lessonType) => !lessonType.startsWith('jlpt_'));
-const LESSON_TYPE_GROUPS = [OTHER_LESSON_TYPES, JLPT_LESSON_TYPES];
+const QUESTION_TYPE_LESSON_TYPES = [
+  'word_choice',
+  'reading_choice',
+  'meaning_choice',
+  'reading_spelling',
+  'reading_typing',
+  'word_wheel',
+];
+const GENERAL_LESSON_TYPES = ALL_LESSON_TYPES.filter(
+  (lessonType) => !JLPT_LESSON_TYPES.includes(lessonType) && !QUESTION_TYPE_LESSON_TYPES.includes(lessonType)
+);
+const LESSON_TYPE_GROUPS = [GENERAL_LESSON_TYPES, QUESTION_TYPE_LESSON_TYPES, JLPT_LESSON_TYPES];
 
 // N5 stays free for everyone (see the backend's planAccess.js) — only the
 // JLPT levels above it are gated, so this is JLPT_LESSON_TYPES minus N5

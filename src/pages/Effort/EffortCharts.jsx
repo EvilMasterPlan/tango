@@ -1,11 +1,7 @@
-import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
-import { IoArrowBack } from 'react-icons/io5';
 import { ActivityCalendar } from 'react-activity-calendar';
 import 'react-activity-calendar/tooltips.css';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { LoadingOverlay } from '@/components/shared/LoadingOverlay';
-import { OverflowMenu } from '@/components/shared/OverflowMenu';
 import { useEffort } from '@/hooks/useEffort';
 import { useViewportWidth } from '@/hooks/useViewportWidth';
 import '@/pages/Effort/Page.scss';
@@ -130,7 +126,11 @@ function TrendTooltip({ active, payload }) {
   );
 }
 
-export function EffortPage() {
+// Self-contained: fetches its own data via useEffort, so it can be dropped
+// into the standalone /effort page or the combined /overview page's Effort
+// mode (see pages/Dashboard) without either one needing to know about the
+// fetch.
+export function EffortCharts() {
   const { days, isLoading } = useEffort();
   const viewportWidth = useViewportWidth();
   const isMobile = viewportWidth <= MOBILE_BREAKPOINT;
@@ -144,79 +144,64 @@ export function EffortPage() {
   const windowLabel = isMobile ? 'last 6 months' : 'last year';
 
   return (
-    <>
-      <Helmet>
-        <title>Effort</title>
-      </Helmet>
-      <div className="effort-page">
-        <header className="effort-page__header">
-          <Link to="/home" className="effort-page__back" aria-label="Back to home">
-            <IoArrowBack />
-          </Link>
-          <h1 className="effort-page__title">Effort</h1>
-          <OverflowMenu currentPage="effort" className="effort-page__menu" />
-        </header>
-
-        <div className="effort-page__content">
-          <div className="effort-page__calendar-wrap">
-            <ActivityCalendar
-              data={calendarData}
-              theme={CALENDAR_THEME}
-              colorScheme="dark"
-              maxLevel={MAX_LEVEL}
-              blockSize={11}
-              blockMargin={4}
-              blockRadius={3}
-              fontSize={13}
-              labels={{
-                totalCount: `${totalLessons} lesson${totalLessons === 1 ? '' : 's'} completed in the ${windowLabel}`,
-              }}
-              tooltips={{
-                activity: { text: tooltipTextFor },
-              }}
-            />
-          </div>
-
-          <div className="effort-page__trend">
-            <h2 className="effort-page__trend-title">Last {trendDays} Days</h2>
-            <ResponsiveContainer width="100%" height={180}>
-              <LineChart data={trendData} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
-                <CartesianGrid vertical={false} stroke={GRID_LINE} />
-                <XAxis
-                  dataKey="label"
-                  interval={0}
-                  tick={{ fill: AXIS_TEXT, fontSize: 12 }}
-                  axisLine={{ stroke: GRID_LINE }}
-                  tickLine={false}
-                />
-                <YAxis
-                  domain={['dataMin', 'dataMax']}
-                  allowDecimals={false}
-                  width={28}
-                  tick={{ fill: AXIS_TEXT, fontSize: 12 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                {/* Recharts animates the tooltip sliding from its old position to its
-                    new one by default (400ms), which reads as sluggish/"drifty" when
-                    moving quickly between points — isAnimationActive={false} snaps it
-                    straight to the hovered point instead. */}
-                <Tooltip content={<TrendTooltip />} cursor={{ stroke: GRID_LINE }} isAnimationActive={false} />
-                <Line
-                  type="monotone"
-                  dataKey="count"
-                  stroke={ACCENT_BLUE}
-                  strokeWidth={2}
-                  dot={{ r: 4, fill: ACCENT_BLUE, strokeWidth: 0 }}
-                  activeDot={{ r: 5 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          <LoadingOverlay active={isLoading} />
-        </div>
+    <div className="effort-page__content">
+      <div className="effort-page__calendar-wrap">
+        <ActivityCalendar
+          data={calendarData}
+          theme={CALENDAR_THEME}
+          colorScheme="dark"
+          maxLevel={MAX_LEVEL}
+          blockSize={11}
+          blockMargin={4}
+          blockRadius={3}
+          fontSize={13}
+          labels={{
+            totalCount: `${totalLessons} lesson${totalLessons === 1 ? '' : 's'} completed in the ${windowLabel}`,
+          }}
+          tooltips={{
+            activity: { text: tooltipTextFor },
+          }}
+        />
       </div>
-    </>
+
+      <div className="effort-page__trend">
+        <h2 className="effort-page__trend-title">Last {trendDays} Days</h2>
+        <ResponsiveContainer width="100%" height={180}>
+          <LineChart data={trendData} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
+            <CartesianGrid vertical={false} stroke={GRID_LINE} />
+            <XAxis
+              dataKey="label"
+              interval={0}
+              tick={{ fill: AXIS_TEXT, fontSize: 12 }}
+              axisLine={{ stroke: GRID_LINE }}
+              tickLine={false}
+            />
+            <YAxis
+              domain={['dataMin', 'dataMax']}
+              allowDecimals={false}
+              width={28}
+              tick={{ fill: AXIS_TEXT, fontSize: 12 }}
+              axisLine={false}
+              tickLine={false}
+            />
+            {/* Recharts animates the tooltip sliding from its old position to its
+                new one by default (400ms), which reads as sluggish/"drifty" when
+                moving quickly between points — isAnimationActive={false} snaps it
+                straight to the hovered point instead. */}
+            <Tooltip content={<TrendTooltip />} cursor={{ stroke: GRID_LINE }} isAnimationActive={false} />
+            <Line
+              type="monotone"
+              dataKey="count"
+              stroke={ACCENT_BLUE}
+              strokeWidth={2}
+              dot={{ r: 4, fill: ACCENT_BLUE, strokeWidth: 0 }}
+              activeDot={{ r: 5 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      <LoadingOverlay active={isLoading} />
+    </div>
   );
 }

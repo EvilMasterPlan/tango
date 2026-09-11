@@ -1,0 +1,114 @@
+.dashboard-page {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+// Same sticky + fade-into-background treatment as the standalone
+// Overview/Effort/Achievements headers — grows by one row when Words mode
+// adds its filter/sort controls (see Page.jsx), same as Overview's own
+// header does for its desktop/mobile controls rows.
+.dashboard-page__header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  background-color: var(--color-bg-primary);
+}
+
+.dashboard-page__header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 2.75rem;
+  pointer-events: none;
+  background-image: linear-gradient(to bottom, var(--color-bg-primary) 0, transparent 100%);
+}
+
+.dashboard-page__nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.dashboard-page__menu {
+  margin-left: auto;
+}
+
+.dashboard-page__back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-primary);
+  font-size: 1.25rem;
+}
+
+// Stands in for the page's <h1> — a clickable trigger rather than static
+// text, since it doubles as the mode switcher.
+.dashboard-page__mode {
+  position: relative;
+}
+
+.dashboard-page__mode-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0;
+  color: var(--color-text-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
+  background: none;
+  border: none;
+}
+
+.dashboard-page__mode-chevron {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+.dashboard-page__mode-popup {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  z-index: 4;
+  min-width: 10rem;
+  margin: 0;
+  padding: 0.4rem;
+  list-style: none;
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px 0 var(--color-shadow-medium);
+}
+
+.dashboard-page__mode-option {
+  display: block;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text-primary);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dashboard-page__mode-option:hover {
+  background-color: var(--color-bg-tertiary);
+}
+
+.dashboard-page__mode-option--active {
+  color: var(--color-accent-primary);
+}
+
+.dashboard-page__content {
+  position: relative;
+}
