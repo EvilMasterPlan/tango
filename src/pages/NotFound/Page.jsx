@@ -19,7 +19,7 @@ export function NotFoundPage() {
         <meta name="robots" content="noindex" />
       </Helmet>
       <div className="not-found-page">
-        <div className="not-found-page__code">404</div>
+        <div className="not-found-page__code">無い</div>
         <p className="not-found-page__message">This page doesn't exist.</p>
         <Link to="/" className="not-found-page__home-link">
           Go Home

@@ -1,19 +1,24 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
-import { MarketingContainer } from '@/pages/Marketing/Container';
-import { HomeContainer } from '@/pages/Home/Container';
-import { LessonContainer } from '@/pages/Lesson/Container';
-import { DashboardContainer } from '@/pages/Dashboard/Container';
-import { PracticeContainer } from '@/pages/Practice/Container';
-import { ProfileContainer } from '@/pages/Profile/Container';
-import { AdminContainer } from '@/pages/Admin/Container';
-import { AdminRadarContainer } from '@/pages/Admin/Radar/Container';
-import { AdminDashboardContainer } from '@/pages/Admin/Dashboard/Container';
-import { AdminSpotlightContainer } from '@/pages/Admin/Spotlight/Container';
-import { AdminSpotlightDetailContainer } from '@/pages/Admin/Spotlight/Detail/Container';
-import { AdminSecurityContainer } from '@/pages/Admin/Security/Container';
-import { NotFoundContainer } from '@/pages/NotFound/Container';
 import AccountRoutes from '@/pages/account/AccountRoutes';
+
+const MarketingContainer = lazy(() => import('@/pages/Marketing/Container').then(m => ({ default: m.MarketingContainer })));
+const HomeContainer = lazy(() => import('@/pages/Home/Container').then(m => ({ default: m.HomeContainer })));
+const LessonContainer = lazy(() => import('@/pages/Lesson/Container').then(m => ({ default: m.LessonContainer })));
+const DashboardContainer = lazy(() => import('@/pages/Dashboard/Container').then(m => ({ default: m.DashboardContainer })));
+const PracticeContainer = lazy(() => import('@/pages/Practice/Container').then(m => ({ default: m.PracticeContainer })));
+const ProfileContainer = lazy(() => import('@/pages/Profile/Container').then(m => ({ default: m.ProfileContainer })));
+const AdminContainer = lazy(() => import('@/pages/Admin/Container').then(m => ({ default: m.AdminContainer })));
+const AdminRadarContainer = lazy(() => import('@/pages/Admin/Radar/Container').then(m => ({ default: m.AdminRadarContainer })));
+const AdminDashboardContainer = lazy(() => import('@/pages/Admin/Dashboard/Container').then(m => ({ default: m.AdminDashboardContainer })));
+const AdminSpotlightContainer = lazy(() => import('@/pages/Admin/Spotlight/Container').then(m => ({ default: m.AdminSpotlightContainer })));
+const AdminSpotlightDetailContainer = lazy(() => import('@/pages/Admin/Spotlight/Detail/Container').then(m => ({ default: m.AdminSpotlightDetailContainer })));
+const AdminSecurityContainer = lazy(() => import('@/pages/Admin/Security/Container').then(m => ({ default: m.AdminSecurityContainer })));
+const NotFoundContainer = lazy(() => import('@/pages/NotFound/Container').then(m => ({ default: m.NotFoundContainer })));
+const LegalPrivacyContainer = lazy(() => import('@/pages/Legal/Privacy/Container').then(m => ({ default: m.LegalPrivacyContainer })));
+const LegalTermsContainer = lazy(() => import('@/pages/Legal/Terms/Container').then(m => ({ default: m.LegalTermsContainer })));
+const LegalCookiesContainer = lazy(() => import('@/pages/Legal/Cookies/Container').then(m => ({ default: m.LegalCookiesContainer })));
 import { UserProvider } from '@/contexts/UserContext';
 import { SettingsProvider } from '@/contexts/SettingsContext';
 import RequireAuth from '@/components/auth/RequireAuth';
@@ -68,91 +73,96 @@ function App() {
           <Router basename="/tango">
             <PageViewLogger />
             <div className="app">
-              <Routes>
-                <Route path="/" element={<MarketingContainer />} />
-                <Route
-                  path="/home"
-                  element={
-                    <RequireAuth>
-                      <HomeContainer />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/lesson"
-                  element={
-                    <RequireAuth>
-                      <LessonContainer />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/overview"
-                  element={
-                    <RequireAuth>
-                      <DashboardContainer />
-                    </RequireAuth>
-                  }
-                />
-                {/* Collapsed into /overview's mode switcher (see
-                    pages/Dashboard) — kept as redirects rather than deleted
-                    outright so old bookmarks/links still land somewhere. */}
-                <Route path="/words" element={<Navigate to="/overview" replace />} />
-                <Route path="/effort" element={<Navigate to="/overview?mode=effort" replace />} />
-                <Route path="/achievements" element={<Navigate to="/overview?mode=achievement" replace />} />
-                <Route
-                  path="/practice"
-                  element={
-                    <RequireAuth>
-                      <PracticeContainer />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/profile"
-                  element={
-                    <RequireAuth>
-                      <ProfileContainer />
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path={ADMIN_HUB_PATH}
-                  element={
-                    <AdminGate>
-                      <AdminContainer />
-                    </AdminGate>
-                  }
-                />
-                {ADMIN_SUBPAGES.map(({ path, Container }) => (
+              <Suspense fallback={null}>
+                <Routes>
+                  <Route path="/" element={<MarketingContainer />} />
                   <Route
-                    key={path}
-                    path={path}
+                    path="/home"
+                    element={
+                      <RequireAuth>
+                        <HomeContainer />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/lesson"
+                    element={
+                      <RequireAuth>
+                        <LessonContainer />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/overview"
+                    element={
+                      <RequireAuth>
+                        <DashboardContainer />
+                      </RequireAuth>
+                    }
+                  />
+                  {/* Collapsed into /overview's mode switcher (see
+                      pages/Dashboard) — kept as redirects rather than deleted
+                      outright so old bookmarks/links still land somewhere. */}
+                  <Route path="/words" element={<Navigate to="/overview" replace />} />
+                  <Route path="/effort" element={<Navigate to="/overview?mode=effort" replace />} />
+                  <Route path="/achievements" element={<Navigate to="/overview?mode=achievement" replace />} />
+                  <Route
+                    path="/practice"
+                    element={
+                      <RequireAuth>
+                        <PracticeContainer />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path="/profile"
+                    element={
+                      <RequireAuth>
+                        <ProfileContainer />
+                      </RequireAuth>
+                    }
+                  />
+                  <Route
+                    path={ADMIN_HUB_PATH}
                     element={
                       <AdminGate>
-                        <Container />
+                        <AdminContainer />
                       </AdminGate>
                     }
                   />
-                ))}
-                <Route
-                  path="/account/*"
-                  element={
-                    <main className="main">
-                      <div className="container">
-                        <AccountRoutes />
-                      </div>
-                    </main>
-                  }
-                />
-                {/* Must stay last — catches any path none of the routes
-                    above matched. useEventLog's own logic already logs a
-                    generic 'view' row for this pathname regardless of
-                    whether anything rendered (see PageViewLogger, mounted
-                    unconditionally above <Routes>) — NotFoundPage adds its
-                    own explicit 'not_found' EventType on top of that. */}
-                <Route path="*" element={<NotFoundContainer />} />
-              </Routes>
+                  {ADMIN_SUBPAGES.map(({ path, Container }) => (
+                    <Route
+                      key={path}
+                      path={path}
+                      element={
+                        <AdminGate>
+                          <Container />
+                        </AdminGate>
+                      }
+                    />
+                  ))}
+                  <Route path="/legal/privacy" element={<LegalPrivacyContainer />} />
+                  <Route path="/legal/terms" element={<LegalTermsContainer />} />
+                  <Route path="/legal/cookies" element={<LegalCookiesContainer />} />
+                  <Route
+                    path="/account/*"
+                    element={
+                      <main className="main">
+                        <div className="container">
+                          <AccountRoutes />
+                        </div>
+                      </main>
+                    }
+                  />
+                  {/* Must stay last — catches any path none of the routes
+                      above matched. useEventLog's own logic already logs a
+                      generic 'view' row for this pathname regardless of
+                      whether anything rendered (see PageViewLogger, mounted
+                      unconditionally above <Routes>) — NotFoundPage adds its
+                      own explicit 'not_found' EventType on top of that. */}
+                  <Route path="*" element={<NotFoundContainer />} />
+                </Routes>
+              </Suspense>
             </div>
           </Router>
         </SettingsProvider>
