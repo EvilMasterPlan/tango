@@ -62,13 +62,11 @@ export const adminApi = {
   // word, reading, definition, jlpt, furigana } (see backend's
   // words.getWordsByIDs), or null if the word's since been deleted from the
   // catalog — `wordID` is always present as a fallback label for that case.
-  // incorrectCount is each
-  // row's LIFETIME IncorrectCount, not a true windowed count — there's no
-  // per-attempt timestamped log for quiz answers, only a LastIncorrectAt
-  // per (user, word, questionKind) row, so `days` really filters which
-  // rows were LAST missed within the window rather than counting misses
-  // that happened within it. uniqueUserCount is exact, though. Powers
-  // Admin/SharpEdges/Page.jsx.
+  // incorrectCount and uniqueUserCount are both exact counts of real
+  // attempts within the window (backed by TANGO_QuizAttempts, a genuine
+  // per-attempt log) — note that log only started recording the moment it
+  // was introduced, so a wide window can't surface activity from before
+  // that cutover. Powers Admin/SharpEdges/Page.jsx.
   getSharpEdgesStats: async (days) => {
     return makePostRequest(getUrl(`${TANGO_API_PREFIX}/kansatsu/sharp-edges-stats`), { days });
   },

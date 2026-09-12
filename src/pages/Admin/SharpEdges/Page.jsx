@@ -115,9 +115,7 @@ export function AdminSharpEdgesPage() {
               <section className="admin-page__section">
                 <h2 className="admin-page__section-title">Top Incorrect Word + Question Type Combos</h2>
                 <p className="admin-page__section-subtitle">
-                  Ranked by incorrect count, among combos last missed in the {timeframeLabel?.toLowerCase()}.
-                  "Incorrect" is each combo's lifetime miss count, not just misses within the window — see the
-                  admin API docs for why.
+                  Ranked by incorrect count within the {timeframeLabel?.toLowerCase()}.
                 </p>
                 <SharpEdgesTable
                   rows={topIncorrectCombos}
@@ -130,8 +128,7 @@ export function AdminSharpEdgesPage() {
               <section className="admin-page__section">
                 <h2 className="admin-page__section-title">Top Incorrect Words</h2>
                 <p className="admin-page__section-subtitle">
-                  Same ranking, collapsed across every question type per word — among words last missed in
-                  the {timeframeLabel?.toLowerCase()}.
+                  Same ranking, collapsed across every question type per word, within the {timeframeLabel?.toLowerCase()}.
                 </p>
                 <SharpEdgesTable
                   rows={topIncorrectWords}
