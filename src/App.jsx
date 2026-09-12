@@ -15,6 +15,7 @@ const AdminDashboardContainer = lazy(() => import('@/pages/Admin/Dashboard/Conta
 const AdminSpotlightContainer = lazy(() => import('@/pages/Admin/Spotlight/Container').then(m => ({ default: m.AdminSpotlightContainer })));
 const AdminSpotlightDetailContainer = lazy(() => import('@/pages/Admin/Spotlight/Detail/Container').then(m => ({ default: m.AdminSpotlightDetailContainer })));
 const AdminSecurityContainer = lazy(() => import('@/pages/Admin/Security/Container').then(m => ({ default: m.AdminSecurityContainer })));
+const AdminSharpEdgesContainer = lazy(() => import('@/pages/Admin/SharpEdges/Container').then(m => ({ default: m.AdminSharpEdgesContainer })));
 const NotFoundContainer = lazy(() => import('@/pages/NotFound/Container').then(m => ({ default: m.NotFoundContainer })));
 const LegalPrivacyContainer = lazy(() => import('@/pages/Legal/Privacy/Container').then(m => ({ default: m.LegalPrivacyContainer })));
 const LegalTermsContainer = lazy(() => import('@/pages/Legal/Terms/Container').then(m => ({ default: m.LegalTermsContainer })));
@@ -44,6 +45,7 @@ const ADMIN_SUBPAGES = [
   { path: `${ADMIN_HUB_PATH}/spotlight`, Container: AdminSpotlightContainer },
   { path: `${ADMIN_HUB_PATH}/spotlight/:userID`, Container: AdminSpotlightDetailContainer },
   { path: `${ADMIN_HUB_PATH}/security`, Container: AdminSecurityContainer },
+  { path: `${ADMIN_HUB_PATH}/sharp-edges`, Container: AdminSharpEdgesContainer },
 ];
 
 // Needs react-router context (useLocation), so it has to be mounted inside

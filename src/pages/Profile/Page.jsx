@@ -7,7 +7,26 @@ import { LoadingOverlay } from '@/components/shared/LoadingOverlay';
 import { OverflowMenu } from '@/components/shared/OverflowMenu';
 import { useUserContext } from '@/contexts/UserContext';
 import { useActivityHistory } from '@/hooks/useActivityHistory';
+import { FREE_JLPT_LEVEL } from '@/utils/planAccess';
 import '@/pages/Profile/Page.scss';
+
+// Keyed by TANGO_Users.Plan ('FREE'/'BETA'/'PRO' — see planAccess.js). An
+// unrecognized/missing plan falls back to FREE below, same as
+// hasFullAccess's own no-access default.
+const PLAN_DETAILS = {
+  FREE: {
+    label: 'Free',
+    description: `Free forever, but you can only practice ${FREE_JLPT_LEVEL} words.`,
+  },
+  BETA: {
+    label: 'Beta',
+    description: "You're on a special Beta tester plan which gives you unlimited access for free. You'll be converted to a Free plan when Tango Tanuki launches.",
+  },
+  PRO: {
+    label: 'Pro',
+    description: 'You get unlimited access to all words.',
+  },
+};
 
 function formatDate(isoString) {
   return new Date(isoString).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
@@ -50,6 +69,8 @@ export function ProfilePage() {
   const { user, logout } = useUserContext();
   const { activity, isLoading: isActivityLoading } = useActivityHistory();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const planKey = PLAN_DETAILS[user.plan] ? user.plan : 'FREE';
+  const planDetails = PLAN_DETAILS[planKey];
 
   // logout() (UserContext) already clears `user` on its own, which would
   // eventually bounce this page via RequireAuth's redirect — but that one
@@ -99,6 +120,32 @@ export function ProfilePage() {
 
               <ProfileRow label="Joined">
                 <span className="profile-card__row-value">{formatDate(user.createdAt)}</span>
+              </ProfileRow>
+
+              <ProfileRow label="Plan">
+                <div className="profile-plan-card">
+                  <div className="profile-plan-card__name">{planDetails.label}</div>
+                  <p className="profile-plan-card__description">{planDetails.description}</p>
+                  {/* PRO and BETA both grant full access (see planAccess.js), but only
+                      PRO is an actual paid subscription — BETA is a comped account with
+                      nothing to cancel, so it gets neither button. */}
+                  {planKey === 'FREE' && (
+                    <div className="profile-plan-card__action">
+                      <Button variant="primary" disabled>
+                        Upgrade
+                      </Button>
+                      <span className="profile-plan-card__note">Coming soon</span>
+                    </div>
+                  )}
+                  {planKey === 'PRO' && (
+                    <div className="profile-plan-card__action">
+                      <Button variant="secondary" disabled>
+                        Cancel
+                      </Button>
+                      <span className="profile-plan-card__note">Coming soon</span>
+                    </div>
+                  )}
+                </div>
               </ProfileRow>
             </div>
           </section>

@@ -44,7 +44,7 @@ function ResetRequestPage() {
   return (
     <AccountLayout
       title="Reset password"
-      subtitle="We will email a reset link."
+      subtitle="We'll email a reset link to you"
       footerText="Back to sign in"
       footerHref="/account/login"
     >

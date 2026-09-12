@@ -54,4 +54,22 @@ export const adminApi = {
   getSecurityStats: async () => {
     return makePostRequest(getUrl(`${TANGO_API_PREFIX}/kansatsu/security-stats`));
   },
+  // { topIncorrectCombos: [{ wordID, word, questionKind, incorrectCount,
+  // uniqueUserCount }, ...], topIncorrectWords: [{ wordID, word,
+  // incorrectCount, uniqueUserCount }, ...] } — both ranked by
+  // incorrectCount descending, capped at 25, over the trailing `days`
+  // window (7/14/30/90 — server rejects anything else). `word` is { id,
+  // word, reading, definition, jlpt, furigana } (see backend's
+  // words.getWordsByIDs), or null if the word's since been deleted from the
+  // catalog — `wordID` is always present as a fallback label for that case.
+  // incorrectCount is each
+  // row's LIFETIME IncorrectCount, not a true windowed count — there's no
+  // per-attempt timestamped log for quiz answers, only a LastIncorrectAt
+  // per (user, word, questionKind) row, so `days` really filters which
+  // rows were LAST missed within the window rather than counting misses
+  // that happened within it. uniqueUserCount is exact, though. Powers
+  // Admin/SharpEdges/Page.jsx.
+  getSharpEdgesStats: async (days) => {
+    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/kansatsu/sharp-edges-stats`), { days });
+  },
 };

@@ -55,7 +55,6 @@ function LoginPage() {
   return (
     <AccountLayout
       title="Welcome back"
-      subtitle="Sign in to your Tango account."
       footerText="Need an account? Sign up"
       footerHref={`/account/signup${email ? `?email=${encodeURIComponent(email)}` : ''}${nextQueryParam}`}
     >

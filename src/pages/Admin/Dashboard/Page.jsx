@@ -125,12 +125,6 @@ export function AdminDashboardPage() {
       <div className="admin-page">
         <AdminSubpageHeader title="Dashboard" />
         <div className="admin-page__content">
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
-            dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex
-            ea commodo consequat.
-          </p>
-
           <section className="admin-page__section">
             <h2 className="admin-page__section-title">Activity</h2>
             <ActivityCalendarChart

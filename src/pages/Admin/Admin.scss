@@ -353,3 +353,40 @@
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+
+// The Word column's own <td> on Sharp Edges' two tables — overrides
+// admin-page__table td's fixed max-width/overflow-ellipsis/nowrap (sized
+// for a single short value like an email or IP) since a word cell stacks
+// two full lines (word+reading, then definition) that need to wrap and
+// stay visible rather than truncate.
+.admin-page__table-word {
+  max-width: none;
+  overflow: visible;
+  white-space: normal;
+  text-overflow: clip;
+}
+
+// Word (plus reading, when it differs from the word itself) stacked above
+// its definition — see admin-page__table-word above for why both wrap
+// normally despite the table's otherwise-nowrap cells.
+.admin-page__word-cell-word {
+  color: var(--color-text-primary);
+  font-weight: 700;
+  white-space: normal;
+}
+
+.admin-page__word-cell-reading {
+  color: var(--color-text-secondary);
+  font-weight: 400;
+}
+
+.admin-page__word-cell-definition {
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  white-space: normal;
+}
+
+.admin-page__word-cell-deleted {
+  color: var(--color-text-disabled);
+  font-style: italic;
+}

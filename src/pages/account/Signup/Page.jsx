@@ -68,7 +68,6 @@ function SignupPage() {
   return (
     <AccountLayout
       title="Create account"
-      subtitle="Use one account per learner. No shared spaces, no extra setup."
       footerText="Already registered? Sign in"
       footerHref={`/account/login${email ? `?email=${encodeURIComponent(email)}` : ''}${nextQueryParam}`}
     >

@@ -93,14 +93,14 @@ function ResetConfirmPage() {
 
   if (!userID) {
     return (
-      <AccountLayout title="Create a new password" subtitle="This updates your account credentials.">
+      <AccountLayout title="Create a new password">
         <p className="account-error">{error || 'Invalid reset link.'}</p>
       </AccountLayout>
     );
   }
 
   return (
-    <AccountLayout title="Create a new password" subtitle="This updates your account credentials.">
+    <AccountLayout title="Create a new password">
       <form className="account-form" onSubmit={handleSubmit}>
         <TextField
           id="password"

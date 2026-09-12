@@ -159,3 +159,42 @@
   color: var(--color-text-secondary);
   font-size: 0.9rem;
 }
+
+// A card-within-a-card for the Plan row — set off from the plain
+// label/value rows above it (Handle, Joined) since it carries its own name,
+// description, and optional action rather than a single value.
+.profile-plan-card {
+  padding: 1rem;
+  background-color: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-sm);
+}
+
+.profile-plan-card__name {
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.profile-plan-card__description {
+  margin: 0.4rem 0 0;
+  color: var(--color-text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+// Stacked rather than side-by-side with the button — Button is always
+// full-width (see shared-button's width: 100%), so a note next to it would
+// get squeezed rather than sitting comfortably inline.
+.profile-plan-card__action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.9rem;
+}
+
+.profile-plan-card__note {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
