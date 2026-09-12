@@ -33,7 +33,7 @@ function VerifyPage() {
       await accountApi.sendVerificationCode();
       setMessage('Verification code sent.');
     } catch (apiError) {
-      setError(apiError?.response?.data?.message || 'Could not send verification code.');
+      setError(apiError?.response?.data?.error || 'Could not send verification code.');
     } finally {
       setIsProcessing(false);
     }
@@ -49,7 +49,7 @@ function VerifyPage() {
       await refreshUser();
       navigate(`/account/rampart${nextQueryParam}`);
     } catch (apiError) {
-      setError(apiError?.response?.data?.message || 'Invalid verification code.');
+      setError(apiError?.response?.data?.error || 'Invalid verification code.');
     } finally {
       setIsProcessing(false);
     }

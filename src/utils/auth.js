@@ -10,8 +10,11 @@ export const isValidEmail = (email) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((email || '').trim());
 };
 
+// 12+ characters, matching otter/overmind-ui's own isValidPassword (see
+// PasswordRequirements.jsx, ported from those apps — its own "At least 12
+// characters" copy assumes this same threshold).
 export const isValidPassword = (password) => {
-  return typeof password === 'string' && password.length >= 8;
+  return typeof password === 'string' && password.length >= 12;
 };
 
 export const isAccountVerified = (user) => {

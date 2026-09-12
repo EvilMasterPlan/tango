@@ -25,11 +25,11 @@ export const accountApi = {
     return makePostRequest(getUrl(`${TANGO_API_PREFIX}/me/preference/set`), { key, value });
   },
 
-  // { logins: [{ loggedInAt, terminatedAt }, ...] }, most recent first,
-  // capped at 3 — terminatedAt is null for a still-active session. See
+  // { activity: [{ at, type }, ...] }, most recent first, capped at 3 —
+  // `type` is one of 'Login'/'Logout'/'Reset Request'/'Reset'/'Verify'. See
   // Profile/Page.jsx's security section.
-  getLoginHistory: async () => {
-    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/me/login-history`));
+  getActivityHistory: async () => {
+    return makePostRequest(getUrl(`${TANGO_API_PREFIX}/me/activity-history`));
   },
 
   // Marks the account as having finished the first-run onboarding wizard

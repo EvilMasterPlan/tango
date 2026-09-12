@@ -34,7 +34,7 @@ export const UserProvider = ({ children }) => {
       setUser(profile || null);
     } catch (apiError) {
       setUser(null);
-      setError(apiError?.response?.data?.message || 'Failed to load user profile');
+      setError(apiError?.response?.data?.error || 'Failed to load user profile');
     } finally {
       if (trackLoading) setIsLoading(false);
     }

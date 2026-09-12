@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { accountApi } from '@/utils/api/account';
 
-export function useLoginHistory() {
-  const [logins, setLogins] = useState([]);
+export function useActivityHistory() {
+  const [activity, setActivity] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -10,11 +10,11 @@ export function useLoginHistory() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await accountApi.getLoginHistory();
-      setLogins(response.logins || []);
+      const response = await accountApi.getActivityHistory();
+      setActivity(response.activity || []);
     } catch (apiError) {
       setError(apiError);
-      setLogins([]);
+      setActivity([]);
     } finally {
       setIsLoading(false);
     }
@@ -24,5 +24,5 @@ export function useLoginHistory() {
     load();
   }, [load]);
 
-  return { logins, isLoading, error };
+  return { activity, isLoading, error };
 }

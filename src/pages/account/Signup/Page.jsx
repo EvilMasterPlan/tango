@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import AccountLayout from '@/pages/account/components/AccountLayout';
 import { TextField } from '@/components/shared/TextField';
 import { Button } from '@/components/shared/Button';
+import { PasswordRequirements } from '@/pages/account/components/PasswordRequirements';
+import { PasswordMatch } from '@/pages/account/components/PasswordMatch';
 import { authApi } from '@/utils/api/auth';
 import { isValidEmail, isValidPassword } from '@/utils/auth';
 import { useUserContext } from '@/contexts/UserContext';
@@ -12,6 +14,7 @@ function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isConfirmPasswordBlurred, setIsConfirmPasswordBlurred] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -37,7 +40,7 @@ function SignupPage() {
     }
 
     if (!isValidPassword(password)) {
-      setError('Password must be at least 8 characters.');
+      setError('Password must be at least 12 characters.');
       return;
     }
 
@@ -56,7 +59,7 @@ function SignupPage() {
         navigate(`/account/login?email=${encodeURIComponent(email)}${nextQueryParam}`);
         return;
       }
-      setError(apiError?.response?.data?.message || 'Could not create account.');
+      setError(apiError?.response?.data?.error || 'Could not create account.');
     } finally {
       setIsLoading(false);
     }
@@ -92,8 +95,11 @@ function SignupPage() {
           type="password"
           value={confirmPassword}
           onChange={(event) => setConfirmPassword(event.target.value)}
+          onBlur={() => setIsConfirmPasswordBlurred(true)}
           disabled={isLoading}
         />
+        <PasswordRequirements password={password} />
+        <PasswordMatch password={password} confirmPassword={confirmPassword} isBlurred={isConfirmPasswordBlurred} />
         {error ? <p className="account-error">{error}</p> : null}
         <Button type="submit" disabled={isLoading}>
           Sign up

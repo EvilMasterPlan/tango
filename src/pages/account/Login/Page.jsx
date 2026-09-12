@@ -46,7 +46,7 @@ function LoginPage() {
       await refreshUser();
       navigate(`/account/rampart${next ? `?next=${encodeURIComponent(next)}` : ''}`);
     } catch (apiError) {
-      setError(apiError?.response?.data?.message || 'Invalid email or password.');
+      setError(apiError?.response?.data?.error || 'Invalid email or password.');
     } finally {
       setIsLoading(false);
     }

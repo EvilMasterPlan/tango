@@ -35,7 +35,7 @@ function ResetRequestPage() {
       await authApi.sendRecoveryRequest(email);
       setMessage(`Reset instructions sent to ${email}.`);
     } catch (apiError) {
-      setError(apiError?.response?.data?.message || 'Could not send reset email.');
+      setError(apiError?.response?.data?.error || 'Could not send reset email.');
     } finally {
       setIsLoading(false);
     }

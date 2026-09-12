@@ -101,78 +101,60 @@
   word-break: break-word;
 }
 
-.profile-card__logins {
+.profile-card__activity {
   position: relative;
   flex: 1 1 auto;
   min-width: 0;
 }
 
-.profile-card__logins-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-// Two stacked lines per login: the main line (dot, timestamp, device) and,
-// only when present, a second "Ended ..." line below it — kept as two rows
-// rather than cramming both onto one, since the main line's device is
-// already claiming the row's own right edge (see `--device` below).
-.profile-card__logins-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  color: var(--color-text-primary);
+.profile-card__activity-table {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 0.9rem;
 }
 
-.profile-card__logins-main {
+.profile-card__activity-row + .profile-card__activity-row {
+  border-top: 1px solid var(--color-border-primary);
+}
+
+.profile-card__activity-row td {
+  padding: 0.4rem 0;
+}
+
+// Zero-padded day/time (see formatDateTime in Page.jsx) plus a tabular
+// number rendering keeps every row's timestamp the same width, so the type
+// column after it lines up cleanly row to row.
+.profile-card__activity-time {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  white-space: nowrap;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-// Green for a still-active session, grey for one that's ended — same info
-// the "Active" / "Ended ..." text used to carry alone, now readable at a
-// glance; the exact status/timestamp is still available via the `title`
-// tooltip on this dot for anyone who wants it spelled out.
-.profile-card__logins-dot {
+// A little rotated square rather than a dot — purely a row marker now (no
+// active/ended state left to convey, unlike the login list's old dot), so
+// there's nothing for its color to distinguish between rows.
+.profile-card__activity-marker {
   flex: 0 0 auto;
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  background-color: var(--color-text-muted);
+  width: 0.4rem;
+  height: 0.4rem;
+  background-color: #ffffff;
+  transform: rotate(45deg);
 }
 
-.profile-card__logins-dot--active {
-  background-color: var(--color-accent-secondary);
-}
-
-// Zero-padded day/time (see formatDateTime in Page.jsx) plus a tabular
-// number rendering keeps every row's timestamp the same width, so the
-// device column after it lines up cleanly row to row.
-.profile-card__logins-time {
-  font-variant-numeric: tabular-nums;
-}
-
-// Pushed to the row's right edge — "Mobile"/"Desktop" (or a specific device
-// name) reads as its own column rather than trailing the timestamp inline.
-.profile-card__logins-device {
-  flex: 0 0 auto;
-  margin-left: auto;
+// Pushed to the row's right edge via the table's own remaining space —
+// Login/Logout/Reset Request/Reset/Verify reads as its own column rather
+// than trailing the timestamp inline.
+.profile-card__activity-type {
+  width: 100%;
+  text-align: right;
   color: var(--color-text-muted);
   font-size: 0.8rem;
 }
 
-.profile-card__logins-status {
-  padding-left: 1rem;
-  color: var(--color-text-muted);
-  font-size: 0.8rem;
-}
-
-.profile-card__logins-empty {
+.profile-card__activity-empty {
   margin: 0;
   color: var(--color-text-secondary);
   font-size: 0.9rem;
